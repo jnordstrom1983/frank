@@ -1,0 +1,3 @@
+export function MirrorYIcon() {
+    return <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><g strokeLinecap="square" strokeWidth="2" fill="none" stroke="#212121" strokeLinejoin="miter" strokeMiterlimit="10"><line x1="2" y1="24" x2="46" y2="24" stroke="#212121"></line> <polygon points="32,16 12,16 12,4 "></polygon> <polygon points="32,32 12,32 12,44 "></polygon></g></svg>
+}

@@ -1,0 +1,23 @@
+const { addPointerInfo } = require("framer-motion")
+
+CHANGELOG:
+Feature: Content Type / Make it possible to remove unused content type.
+Feature: Do not navigate away when saving content
+Feature: Warn when closing content with unsaved content
+Feature: Title length is limited to 30 characters
+Feature: Allways show "Content Access Keys"
+Fix/Bug: Invalid API path in Content  API documentation
+Fix/UX: Settings / Configure button with settings icon was separate components now both text and icon is inside the same button
+Fix/UX: Side menu buttons was not rounded when hover
+Fix/Copy: Wenhook -> Webhook
+Fix/Copy: Strange description of Content API
+
+
+
+TODO:
+
+Title flödar över när man har en content type som har textarea som "title"
+
+Det verkar som text valideras på max 255 tecken även om textarea
+
+Minska friktion genom att redirecta till den senast använda spacen när man öppnar demo.charlee.app ist för att komma till den översta (?)

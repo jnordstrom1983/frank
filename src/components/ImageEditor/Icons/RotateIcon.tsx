@@ -1,0 +1,4 @@
+export function RotateIcon() {
+    return <svg xmlns="http://www.w3.org/2000/svg" height="48" width="48" viewBox="0 0 48 48"><g strokeLinecap="square" strokeWidth="2" fill="none" stroke="#000000" strokeLinejoin="miter" strokeMiterlimit="10"><polyline points="5.932 2.26 4.474 13.854 15.858 10.682"></polyline><path data-cap="butt" d="M4.474,13.854A22,22,0,0,1,46.005,24" strokeLinecap="butt"></path><path d="M22.129,45.913a22.058,22.058,0,0,0,10.477-1.676" stroke="#000000"></path><path d="M38.53,40.508a21.936,21.936,0,0,0,5-6.382,22.216,22.216,0,0,0,1.028-2.3" stroke="#000000"></path><path d="M2,24a21.951,21.951,0,0,0,1.68,8.4" stroke="#000000"></path><path d="M7.353,38.354a21.952,21.952,0,0,0,6.511,5.162c.487.253.98.478,1.477.691" stroke="#000000"></path></g></svg>
+
+}
