@@ -1,34 +1,40 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Development
 
-## Getting Started
+First, setup your environment variables by editing the `.env`-file an add required environment variables. See list below.
 
-First, run the development server:
+Then run the development server
 
+  
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+npm  run  dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-## Learn More
+ 
+## Environment variables
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Description 
+|--|--
+|NODE_ENV  |development or production  |
+|MONGO_URL  |Connection URL to database  |
+|JWT_SIGNINGKEY  | Key used to sign JWT-tokens  |
+|JWT_LOGIN_EXPIRES_IN  | Time until login token expires  (eg. 1h) |
+|JWT_AUTHTOKEN_EXPIRES_IN  |Time until auth token expires  (eg 24h) |
+|EMAIL_SERVER_HOST  | SMTP-server |
+|EMAIL_SERVER_PORT  |Port number to SMTP-server |
+|EMAIL_SERVER_USER  | Username to SMTP-server |
+|EMAIL_SERVER_PASSWORD  | Password to SMTP-server |
+|OPENAI_APIKEY  | API-Key to use to OPEN-API |
+|OPENAI_MODEL  | Model to use on OPENAI (eg gpt-3.5-turbo) |
+|PUBLIC_URL  | URL to charlee server, (eg https://demo.charlee.app) |
+|S3_ACCESSKEYID  | S3 Access key |
+|S3_SECRETACCESSKEY  | S3 Secret |
+|S3_BUCKET  | S3 Bucket |
+|S3_ENDPOINT  | Server URL to S3 service, leave empty if AWS is used |
+|S3_REGION  | AWS region to use |
+|S3_PREFIX  | URL prefix to add to uploade files (eg. charlee-files/) |
+|S3_ACL  | ACL to add to uploade files |  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
