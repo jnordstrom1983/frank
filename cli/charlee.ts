@@ -8,7 +8,7 @@ import { User } from '../src/models/user';
 const program = new Command();
 
 program
-  .name('contexto-cli')
+  .name('charlee-cli')
   .description('CLI to manage your Charlee installation')
   .version('0.0.1');
 

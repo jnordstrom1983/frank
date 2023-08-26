@@ -1,3 +1,5 @@
+ 
+
 ## Development
 
 First, setup your environment variables by editing the `.env`-file an add required environment variables. See list below.
@@ -10,6 +12,24 @@ npm  run  dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+## Creating first admin user
+
+To create your frist admin-user, use the attached CLI for managing users.
+
+#### Setup .env
+In the cli folder, create a .env-file and specify the URL to the MongoDB-server
+
+````
+MONGO_URL="mongodb+srv://user:password@host/database?authSource=admin"
+````
+
+#### Run CLI
+```bash
+cd cli
+npx ts-node charlee.ts user-create john.doe@charlee.app "John Doe" "admin"
+```
 
 
 
