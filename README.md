@@ -58,3 +58,4 @@ npx ts-node charlee.ts user-create john.doe@charlee.app "John Doe" "admin"
 |S3_PREFIX  | URL prefix to add to uploade files (eg. charlee-files/) |
 |S3_ACL  | ACL to add to uploade files |  
 
+
