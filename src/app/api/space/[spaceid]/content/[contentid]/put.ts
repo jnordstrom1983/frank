@@ -18,6 +18,7 @@ const GetContentTypeItemResponseSchema = ContentTypeSchema.extend({})
 const PutContentItemRequestSchema = ContentSchema.pick({
     status: true,
     folderId: true,
+   
     
 }).extend({
     data: z.array(
@@ -28,6 +29,10 @@ const PutContentItemRequestSchema = ContentSchema.pick({
             slug : z.string().optional(),
         })
     ),
+
+    scheduledDepublishDate : z.string().datetime( { offset: true } ).pipe( z.coerce.date() ).optional(),
+    scheduledPublishDate : z.string().datetime( { offset: true } ).pipe( z.coerce.date() ).optional(),
+    
     
 })
 
@@ -209,6 +214,11 @@ export async function PUT(req: Request, context: { params: { spaceid: string; co
                             )
                         }
 
+
+
+                      
+
+
                         if (contentData.slug) {
                             await collections.contentData.updateOne(
                                 { contentDataId: existingData.contentDataId },
@@ -372,6 +382,48 @@ export async function PUT(req: Request, context: { params: { spaceid: string; co
                     )
                 }
 
+                if (data.scheduledPublishDate) {
+                    await collections.content.updateOne(
+                        { contentId: context.params.contentid },
+                        {
+                            $set: {
+                                scheduledPublishDate: data.scheduledPublishDate
+                            },
+                        }
+                    )
+                } else {
+                    await collections.content.updateOne(
+                        { contentId: context.params.contentid },
+                        {
+                            $unset: {
+                                scheduledPublishDate: true
+                            },
+                        }
+                    )
+                }
+
+
+                if (data.scheduledDepublishDate) {
+                    await collections.content.updateOne(
+                        { contentId: context.params.contentid },
+                        {
+                            $set: {
+                                scheduledDepublishDate: data.scheduledDepublishDate
+                            },
+                        }
+                    )
+                } else {
+                    await collections.content.updateOne(
+                        { contentId: context.params.contentid },
+                        {
+                            $unset: {
+                                scheduledDepublishDate: true
+                            },
+                        }
+                    )
+                }
+
+
                 if (historyChanges.length > 0) {
                     const datas: ContentData[] = await collections.contentData.findMany({ contentId: context.params.contentid })
                     const maxArray = await collections.history.aggregate<{ max: number }>([
@@ -440,6 +492,56 @@ export async function PUT(req: Request, context: { params: { spaceid: string; co
     })
 }
 
+export async function PublishContent(contentId : string){
+
+    const content = await collections.content.findOne({ contentId })
+    if(!content){
+        return;
+    }
+
+    await collections.content.updateOne({ contentId }, { $set : { status : "published"}})
+    await collections.contentData.updateOne({ contentId }, { $set : { status : "published"}})
+    await collections.content.updateOne({ contentId }, { $unset : { scheduledPublishDate : true}})
+
+    if (content.status !== "published") {
+        await processWebhooks(content.spaceId, content.contentId, "content.publish")
+    }else{
+        await processWebhooks(content.spaceId, content.contentId, "content.update")
+    }
+
+}
+
+export async function DepublishContent(contentId : string){
+
+    const content = await collections.content.findOne({ contentId })
+    if(!content){
+        return;
+    }
+
+    await collections.content.updateOne({ contentId }, { $set : { status : "draft"}})
+    await collections.contentData.updateOne({ contentId }, { $set : { status : "draft"}})
+    await collections.content.updateOne({ contentId }, { $unset : { scheduledDepublishDate : true}})
+
+    if (content.status === "published") {
+        await processWebhooks(content.spaceId, content.contentId, "content.unpublish")
+    }
+
+}
+
+export async function FindContenToPublish(){
+    const contents = await collections.content.findMany({ scheduledPublishDate : { $lt : new Date() } })
+    
+    for(const content of contents){
+        await PublishContent(content.contentId)
+    }
+}
+
+export async function FindContenToDepublish(){
+    const contents = await collections.content.findMany({ scheduledDepublishDate : { $lt : new Date() } })
+    for(const content of contents){
+        await DepublishContent(content.contentId)
+    }
+}
 
 export const PUT_DOC: generateRouteInfoParams = {
     tags: ["content"],

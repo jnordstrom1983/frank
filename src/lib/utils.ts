@@ -28,3 +28,10 @@ export function camelize(str : string) {
         .replace(/[-_\s.]+(.)?/g, (_, c) => c ? c.toUpperCase() : '');
     return a.substring(0, 1).toLowerCase() + a.substring(1);
 }
+
+
+export function padZero(num:number, size:number): string {
+    let s = num+"";
+    while (s.length < size) s = "0" + s;
+    return s;
+}

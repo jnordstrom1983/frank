@@ -463,6 +463,18 @@ export function generateContentDocs(spaceId: string) {
     );
 
 
+    params["contentid"] = registry.registerParameter(
+        'contentid',
+        z.string().openapi({
+            param: {
+                name: 'contentid',
+                in: 'path',
+            },
+            example: "c000000000000000000001",
+        })
+    );
+
+
 
     params["contentTypeId"] = registry.registerParameter('contentTypeId', z.string().openapi({
         param: {

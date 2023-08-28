@@ -13,7 +13,9 @@ export const ContentSchema = z.object({
     modifiedDate: z.date(),
     folderId : z.string().optional(),
     activeHistoryId : z.string().optional(),
-    status: ContentStatusSchema
+    status: ContentStatusSchema,
+    scheduledPublishDate : z.date().optional(),
+    scheduledDepublishDate : z.date().optional(),
 })
 
 export type Content = z.infer<typeof ContentSchema>
@@ -28,6 +30,8 @@ export const ContentInternalViewModelSchema = ContentSchema.pick({
     modifiedUserId : true,
     modifiedDate: true,
     status : true,
+    scheduledPublishDate : true,
+    scheduledDepublishDate : true,
 }).extend({
     title : z.string(), 
     folderName : z.string().optional(),

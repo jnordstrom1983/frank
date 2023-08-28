@@ -78,6 +78,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 if (item.modifiedUserId !== filterUser) return false
             }
             if (filterStatus) {
+                if(filterStatus === "scheduled"){
+                    if(item.status === "draft" && item.scheduledPublishDate) return true;
+                }
+                if(filterStatus === "draft"){
+                    if(item.status === "draft" && item.scheduledPublishDate) return false;
+                }
                 if (item.status !== filterStatus) return false
             }
             if (filterSearch) {
@@ -364,6 +370,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         items={[
                                             { id: "draft", name: "Draft" },
                                             { id: "published", name: "Published" },
+                                            { id: "scheduled", name: "Scheduled" },
                                         ]}
                                         selectedItemId={filterStatus}
                                         onClick={setFilterStatus}
@@ -469,9 +476,15 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                             <Td>{item.modifiedUserName}</Td>
                                                             <Td>
                                                                 {item.status == "draft" ? (
-                                                                    <Tag colorScheme="red" ml={5}>
-                                                                        DRAFT
-                                                                    </Tag>
+                                                                    item.scheduledPublishDate ? (
+                                                                        <Tag colorScheme="orange"  ml={5}>
+                                                                            SCHEDULED
+                                                                        </Tag>
+                                                                    ) : (
+                                                                        <Tag colorScheme="red" ml={5}>
+                                                                            DRAFT
+                                                                        </Tag>
+                                                                    )
                                                                 ) : (
                                                                     <Tag colorScheme="green" ml={5}>
                                                                         PUBLISHED

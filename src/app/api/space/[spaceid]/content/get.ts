@@ -86,6 +86,8 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         folder: { $arrayElemAt: ["$folders", 0] },
                         user: { $arrayElemAt: ["$users", 0] },
                         contentdata: 1,
+                        scheduledPublishDate : 1,
+                        scheduledDepublishDate : 1,                   
                     },
                 },
                 {
@@ -102,6 +104,8 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         folderName: "$folder.name",
                         modifiedUserName: "$user.name",
                         contentdata: 1,
+                        scheduledPublishDate : 1,
+                        scheduledDepublishDate : 1,
                     },
                 },
                 {

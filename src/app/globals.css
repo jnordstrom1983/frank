@@ -5,3 +5,9 @@ a{
 :focus-visible{
     outline: none;
 }
+
+.datepicker-calendar .chakra-stack{
+    border-color:transparent !important
+  }
+
+  

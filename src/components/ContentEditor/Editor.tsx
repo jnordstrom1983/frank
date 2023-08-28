@@ -28,6 +28,7 @@ import {
     ModalOverlay,
     Spinner,
     Stack,
+    Tag,
     useDisclosure,
     useToast,
     VStack,
@@ -46,6 +47,8 @@ import { useFolders } from "@/networking/hooks/folder"
 import { AI } from "../AI/AI/AI"
 import { AIModule } from "@/models/ai"
 import { AITranslate } from "../AI/AI/AITranslate"
+import { SingleDatepicker } from "chakra-dayzed-datepicker"
+import { padZero } from "@/lib/utils"
 dayjs.extend(relativeTime)
 
 interface valdationError {
@@ -109,6 +112,10 @@ export default function Editor({
     const [folderOptions, setFolderOptions] = useState<{ key: string, text: string }[]>([])
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
     const { isOpen: isUnsavedOpen, onOpen: onUnsavedOpen, onClose: onUnsavedClose } = useDisclosure()
+    const { isOpen: isScheduleOpen, onOpen: onScheduleOpen, onClose: onScheduleClose } = useDisclosure()
+    const [publishDate, setPublishDate] = useState<Date|undefined>(undefined);
+    const [DepublishDate, setDepublishDate] = useState<Date|undefined>(undefined);
+
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
     const [showAI, setShowAI] = useState<boolean>(false);
     const [ActiveAIModule, setActiveAIModule] = useState<AIModule>("check")
@@ -173,6 +180,8 @@ export default function Editor({
         setUpdatedContentDatas([...content.contentData])
         setPublished(content.content.status === "published")
         setFolder(content.content.folderId || "")
+        setPublishDate(content.content.scheduledPublishDate ? new Date(content.content.scheduledPublishDate) : undefined)
+        setDepublishDate(content.content.scheduledDepublishDate ? new Date(content.content.scheduledDepublishDate) : undefined)
 
         let folderOptions = folders.filter(f => {
             if (f.contentTypes.length === 0) return true;
@@ -225,6 +234,13 @@ export default function Editor({
         }
         if (folder !== "") {
             body = { ...body, folderId: folder }
+        }
+
+        if(publishDate){
+            body = { ...body, scheduledPublishDate : publishDate }
+        }
+        if(DepublishDate){
+            body = { ...body, scheduledDepublishDate : DepublishDate }
         }
 
         setServersideErrors([])
@@ -327,7 +343,13 @@ export default function Editor({
 
                         }
 
-<Modal isOpen={isUnsavedOpen} onClose={onUnsavedClose} isCentered={true}>
+                        <EditorScheduling isScheduleOpen={isScheduleOpen} ScheduledPublish={publishDate} ScheduledDepublish={DepublishDate} onScheduleClose={onScheduleClose} onChange={data=>{
+                            setPublishDate(data.PublishDate)
+                            setDepublishDate(data.DepublishDate)
+                        }}></EditorScheduling>
+                    
+
+                        <Modal isOpen={isUnsavedOpen} onClose={onUnsavedClose} isCentered={true}>
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
@@ -517,15 +539,40 @@ export default function Editor({
                                             {tools.published && (
                                                 <Box>
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">PUBLISHED</Box>
-                                                        <Box>
+                                                        <HStack>
+                                                            <Box fontWeight="bold">PUBLISHED</Box>
+                                                            <Button
+                                                                variant={"ghost"}
+                                                                onClick={() => {
+                                                                    onScheduleOpen()
+                                                                }}
+                                                            >
+                                                                <Clock size={24} />
+                                                            </Button>                                                            
+                                                        </HStack>
+                                                        <VStack spacing={5} w="100%" alignItems={"flex-start"}>
+                                                        {publishDate ? <Box>
+                                                            <Tag colorScheme="green">Scheduled</Tag> Content will be automatically published on {dayjs(publishDate).format("YYYY-MM-DD HH:mm")}. <Button variant={"ghost"} p={0} h={"auto"} color="blue.500" _hover={{backgroundColor : "transparent", opacity : "0.8"}} _active={{opacity : 0.5}} onClick={()=>{
+                                                                setPublished(true);
+                                                                setPublishDate(undefined);
+
+                                                            }}>Publish now.</Button>
+                                                        </Box> :                                                         <Box>
                                                             <CheckboxInput
                                                                 checked={published}
                                                                 onChange={setPublished}
                                                                 uncheckedBody={<Box>No, it's a draft</Box>}
                                                                 checkedBody={<Box>Yes, it's published</Box>}
                                                             ></CheckboxInput>
-                                                        </Box>
+                                                        </Box>}
+
+
+
+                                                        {DepublishDate && <Box>
+                                                            <Tag colorScheme="red">Scheduled</Tag> Content will be automatically depublished on {dayjs(DepublishDate).format("YYYY-MM-DD HH:mm")}.
+                                                        </Box>}
+                                                        </VStack>
+
                                                     </VStack>
                                                 </Box>
                                             )}
@@ -934,4 +981,233 @@ export function EditorLanguages({
             </ModalContent>
         </Modal>
     )
+}
+
+
+
+
+function EditorScheduling({ScheduledPublish, ScheduledDepublish, isScheduleOpen, onScheduleClose, onChange } : { ScheduledPublish? : Date, ScheduledDepublish? : Date, onScheduleClose : () => void, isScheduleOpen : boolean, onChange : (value : { PublishDate? : Date, DepublishDate? : Date  }) => void }){
+
+    const [ScheduleDate, setScheduleDate] = useState<Date>(new Date())
+    const [ScheduleMinute, setScheduleMinute] = useState<number>(0)
+    const [ScheduleHour, setScheduleHour] = useState<number>(0)
+    const [SceduledDepublishDate, setSceduledDepublishDate]  = useState<Date>(new Date())
+    const [ScheduleDepublishMinute, setScheduleDepublishMinute] = useState<number>(0)
+    const [ScheduleDepublishHour, setScheduleDepublishHour] = useState<number>(0)
+    const [isScheduled, setIsScheduled] = useState<boolean>(false)
+    const [isScheduledDepublish, setIsScheduledDepublish] = useState<boolean>(false)
+    useEffect(()=>{
+
+        if(ScheduledPublish){
+            setScheduleDate(ScheduledPublish)
+            setScheduleHour(ScheduledPublish.getHours())
+            setScheduleMinute(ScheduledPublish.getMinutes())
+            setIsScheduled(true)
+        }else{
+            setIsScheduled(false)
+            
+        }
+
+        if(ScheduledDepublish){
+            setSceduledDepublishDate(ScheduledDepublish)
+            setScheduleDepublishHour(ScheduledDepublish.getHours())
+            setScheduleDepublishMinute(ScheduledDepublish.getMinutes())            
+            setIsScheduledDepublish(true)
+        }else{
+            setIsScheduledDepublish(false)
+        }
+
+    }, [ScheduledPublish, ScheduledDepublish])
+
+    let options : { key : string, text : string }[] = []
+    for(let h = 0;h<24;h++){
+        for(let m = 0;m<60;m+=15){
+            options.push({ key : `${h}_${m}`, text : `${padZero(h, 2)}:${padZero(m, 2)}` })
+        }
+    }
+    
+
+    return <Modal isOpen={isScheduleOpen} onClose={onScheduleClose} isCentered={true}>
+    <ModalOverlay />
+    <ModalContent maxW="600px">
+        <ModalHeader pt={10} px={10} pb={0}>
+            Scheduling
+        </ModalHeader>
+        <ModalCloseButton right={10} top={10} />
+        <ModalBody overflow="auto" p={10}>
+            
+
+        <VStack w="100%">
+            <VStack w="100%" spacing={10}>
+
+                
+                
+                <CheckboxInput
+                    align="top"
+                
+                    subject="Publish"
+                    checked={isScheduled}
+                    onChange={(checked) => {
+                        setIsScheduled(checked)
+                    }}
+                    checkedBody={ <Box><VStack w="100%" alignItems={"flex-start"}><Box fontSize="14px">Yes, publish this content automatically on this date.</Box><HStack w="100%"> <SingleDatepicker
+                        date={ScheduleDate}
+                        onDateChange={(date) => {
+                            
+                           const value = dayjs(date).toDate()
+                           setScheduleDate(value);
+
+                        }}
+                        
+                        propsConfigs={{
+                        weekdayLabelProps : {
+                            color : "black"
+                        },
+                        dateHeadingProps : {
+                            color : "black"
+                        },
+                          dayOfMonthBtnProps: {
+                            defaultBtnProps: {
+                              borderRadius : "50%",
+                              width : "40px",
+                              height : "40px",
+                              _hover: {
+                                background: "gray.100",
+                                color: "black"
+                              }
+                            },
+                      
+                      
+                            selectedBtnProps: {
+                                backgroundColor : "blue.500",
+                                color: "#fff",
+                              },
+                              
+  
+                          },
+      
+                          popoverCompProps: {
+                            popoverContentProps: {
+                              color: "white",
+                            },
+                          },
+                        }}
+                        
+                      ></SingleDatepicker>
+                      <TextInput value={`${ScheduleHour}_${ScheduleMinute}`} onChange={(value)=>{
+                        setScheduleHour(parseInt(value.split("_")[0]))
+                        setScheduleMinute(parseInt(value.split("_")[1]))
+                      }} options={options} type="select"></TextInput>
+                      </HStack></VStack></Box>}
+                    uncheckedBody={<Box fontSize="14px" color="gray">No, manually publish content</Box>}
+                ></CheckboxInput>
+
+
+
+<CheckboxInput
+                    align="top"
+                
+                    subject="Depublish"
+                    checked={isScheduledDepublish}
+                    onChange={(checked) => {
+                        setIsScheduledDepublish(checked)
+                    }}
+                    checkedBody={ <Box><VStack w="100%" alignItems={"flex-start"}><Box fontSize="14px">Yes, depublish this content automatically on this date.</Box><HStack w="100%"> <SingleDatepicker
+                        date={SceduledDepublishDate}
+                        onDateChange={(date) => {
+                            
+                           const value = dayjs(date).toDate()
+                           setSceduledDepublishDate(value);
+
+                        }}
+                        
+                        propsConfigs={{
+                        weekdayLabelProps : {
+                            color : "black"
+                        },
+                        dateHeadingProps : {
+                            color : "black"
+                        },
+                          dayOfMonthBtnProps: {
+                            defaultBtnProps: {
+                              borderRadius : "50%",
+                              width : "40px",
+                              height : "40px",
+                              _hover: {
+                                background: "gray.100",
+                                color: "black"
+                              }
+                            },
+                      
+                      
+                            selectedBtnProps: {
+                                backgroundColor : "blue.500",
+                                color: "#fff",
+                              },
+                              
+  
+                          },
+      
+                          popoverCompProps: {
+                            popoverContentProps: {
+                              color: "white",
+                            },
+                          },
+                        }}
+                        
+                      ></SingleDatepicker>
+                      <TextInput value={`${ScheduleDepublishHour}_${ScheduleDepublishMinute}`} onChange={(value)=>{
+                        setScheduleDepublishHour(parseInt(value.split("_")[0]))
+                        setScheduleDepublishMinute(parseInt(value.split("_")[1]))
+                      }} options={options} type="select"></TextInput>
+                      </HStack></VStack></Box>}
+                    uncheckedBody={<Box fontSize="14px" color="gray">No, do not depublish the content</Box>}
+                ></CheckboxInput>
+
+
+            </VStack>
+        </VStack>
+
+
+
+        </ModalBody>
+
+        <ModalFooter pb={10} px={10} gap={10}>
+            <Button
+                colorScheme="green"
+                mr={3}
+                minW="150px"
+                onClick={async () => {
+                    
+                    const newSchduledDate = isScheduled ? dayjs(`${dayjs(ScheduleDate).format("YYYY-MM-DD")} ${padZero(ScheduleHour,2)}:${padZero(ScheduleMinute,2)}:00`).toDate() : undefined;
+                    const newSchduledDepublishDate = isScheduled ? dayjs(`${dayjs(SceduledDepublishDate).format("YYYY-MM-DD")} ${padZero(ScheduleDepublishHour,2)}:${padZero(ScheduleDepublishMinute,2)}:00`).toDate() : undefined;
+
+
+                    const PublishData =  { 
+                        PublishDate : isScheduled ? dayjs(`${dayjs(ScheduleDate).format("YYYY-MM-DD")} ${padZero(ScheduleHour,2)}:${padZero(ScheduleMinute,2)}:00`).toDate() : undefined,
+                        DepublishDate : isScheduledDepublish ? dayjs(`${dayjs(SceduledDepublishDate).format("YYYY-MM-DD")} ${padZero(ScheduleDepublishHour,2)}:${padZero(ScheduleDepublishMinute,2)}:00`).toDate() : undefined
+                     }
+
+                     onChange(PublishData)
+                     onScheduleClose();
+
+                     
+
+                }}
+
+            >
+               Set scheduling
+            </Button>
+            <Button
+                variant="ghost"
+                onClick={() => {
+
+                    onScheduleClose()
+                }}
+            >
+                Cancel
+            </Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>  
 }
