@@ -44,116 +44,126 @@ export async function GET(req: NextRequest, context: { params: { spaceid: string
         })
         params["spaceid"] = context.params.spaceid
 
-        let query: Filter<ContentData> = [{ spaceId: params["spaceid"], status: "published" }]
-
-
-        const space = await collections.space.findOne({ spaceId: params.spaceid })
-        const contentTypes = await collections.contentType.findMany({ spaceId: params.spaceid })
-        //Query on content type
-        if (restrictedToContentTypes) {
-            let filterContentTypes = [...restrictedToContentTypes]
-            if (params["contentTypeId"]) {
-                const types = params["contentTypeId"].split(",");
-                filterContentTypes = filterContentTypes.filter(p => types.includes(p))
-            }
-            query.push({ "contentTypeId": { $in: filterContentTypes } })
-        } else {
-            if (params["contentTypeId"]) {
-                query.push({ "contentTypeId": { $in: params["contentTypeId"].split(",") } })
-            }
-        }
-
-        //Query on contentId
-        if (params["contentId"]) {
-            query.push({ "contentId": { $in: params["contentId"].split(",") } })
-        }
-
-        //Query on slug
-        if (params["slug"]) {
-            query.push({ "slug": { $in: params["slug"].split(",") } })
-        }
-
-        //Query on language
-        let languages: string[] = [space!.defaultLanguage]
-        if (params["languageId"]) {
-            query.push({ "languageId": { $in: params["languageId"].split(",") } })
-            languages = params["languageId"].split(",");
-        } else {
-            query.push({ "languageId": space!.defaultLanguage })
-        }
-
-        //Query on folderId
-        if (params["folderId"]) {
-            query.push({ "folderId": { $in: params["folderId"].split(",") } })
-        }
-
-        //Query on custom query
+        //Parse query
         if (params["query"]) {
             try {
                 let customQuery = JSON.parse(params["query"]);
-                Object.keys(customQuery).forEach(k => {
-                    let obj: any = {};
-                    obj[k] = customQuery[k];
-                    query.push(obj)
-                })
-
             } catch (ex: any) {
                 return returnError({ error: ex.message, code: errorCodes.invalidRequestBody, message: "Invalid query supplied", status: 422 })
             }
         }
-
-
-        let aggregationPipeline: any[] = [{ $match: { $and: query } }, {
-            $lookup: {
-                from: dbCollection.asset,
-                localField: "referencedAssets",
-                foreignField: "assetId",
-                as: "referencedAssets",
-            },
-
-        },]
-        let projection: { [key: string]: number } | undefined = undefined
-        if (params["project"]) {
-            let paramsArr = params["project"].split(",");
-            projection = {
-                contentDataId: 1,
-                spaceId: 1,
-                contentTypeId: 1,
-                contentId: 1,
-                folderId: 1,
-                languageId: 1,
-                modifiedUserId: 1,
-                modifiedDate: 1,
-                referencedAssets: 1,
-                status: 1,
-                slug : 1,
-             }
-            paramsArr.forEach(p => {
-                projection![`data.${p}`] = 1;
-            })
-            aggregationPipeline.push({ "$project": projection })
-        }
-
-
-
-
-
-        const dbItems = await collections.contentData.aggregate<AggregatedContentDataItemSchema>(aggregationPipeline)
-
-        let items = dbItems.map(item => processDBItem(item, contentTypes))
-
-        const expandMaxLevels = params["expandLevels"] ? parseInt(params["expandLevels"]) : 1;
-
-        if (params["expand"]) {
-
-            let fallbackLanguageId = params["expandFallbackLanguageId"] || space!.defaultLanguage;
-
-            items = await expandItems(context.params.spaceid, items, expandMaxLevels, contentTypes, languages, fallbackLanguageId, projection)
-        }
-
+        const items = await GetContent(params, restrictedToContentTypes, context.params.spaceid)
 
         return returnJSON<GetContentResponse>({ items }, GetContentResponseSchema)
     })
+}
+
+
+export async function GetContent(params: Record<string, string>, restrictedToContentTypes : string[] | undefined, spaceId : string){
+
+    let query: Filter<ContentData> = [{ spaceId: params["spaceid"], status: "published" }]
+
+
+    const space = await collections.space.findOne({ spaceId: params.spaceid })
+    const contentTypes = await collections.contentType.findMany({ spaceId: params.spaceid })
+    //Query on content type
+    if (restrictedToContentTypes) {
+        let filterContentTypes = [...restrictedToContentTypes]
+        if (params["contentTypeId"]) {
+            const types = params["contentTypeId"].split(",");
+            filterContentTypes = filterContentTypes.filter(p => types.includes(p))
+        }
+        query.push({ "contentTypeId": { $in: filterContentTypes } })
+    } else {
+        if (params["contentTypeId"]) {
+            query.push({ "contentTypeId": { $in: params["contentTypeId"].split(",") } })
+        }
+    }
+
+    //Query on contentId
+    if (params["contentId"]) {
+        query.push({ "contentId": { $in: params["contentId"].split(",") } })
+    }
+
+    //Query on slug
+    if (params["slug"]) {
+        query.push({ "slug": { $in: params["slug"].split(",") } })
+    }
+
+    //Query on language
+    let languages: string[] = [space!.defaultLanguage]
+    if (params["languageId"]) {
+        query.push({ "languageId": { $in: params["languageId"].split(",") } })
+        languages = params["languageId"].split(",");
+    } else {
+        query.push({ "languageId": space!.defaultLanguage })
+    }
+
+    //Query on folderId
+    if (params["folderId"]) {
+        query.push({ "folderId": { $in: params["folderId"].split(",") } })
+    }
+
+        //Query on custom query
+        if (params["query"]) {
+            let customQuery = JSON.parse(params["query"]);
+            Object.keys(customQuery).forEach(k => {
+                let obj: any = {};
+                obj[k] = customQuery[k];
+                query.push(obj)
+            })
+        }
+
+
+
+    let aggregationPipeline: any[] = [{ $match: { $and: query } }, {
+        $lookup: {
+            from: dbCollection.asset,
+            localField: "referencedAssets",
+            foreignField: "assetId",
+            as: "referencedAssets",
+        },
+
+    },]
+    let projection: { [key: string]: number } | undefined = undefined
+    if (params["project"]) {
+        let paramsArr = params["project"].split(",");
+        projection = {
+            contentDataId: 1,
+            spaceId: 1,
+            contentTypeId: 1,
+            contentId: 1,
+            folderId: 1,
+            languageId: 1,
+            modifiedUserId: 1,
+            modifiedDate: 1,
+            referencedAssets: 1,
+            status: 1,
+            slug : 1,
+         }
+        paramsArr.forEach(p => {
+            projection![`data.${p}`] = 1;
+        })
+        aggregationPipeline.push({ "$project": projection })
+    }
+
+
+
+
+
+    const dbItems = await collections.contentData.aggregate<AggregatedContentDataItemSchema>(aggregationPipeline)
+
+    let items = dbItems.map(item => processDBItem(item, contentTypes))
+
+    const expandMaxLevels = params["expandLevels"] ? parseInt(params["expandLevels"]) : 1;
+
+    if (params["expand"]) {
+
+        let fallbackLanguageId = params["expandFallbackLanguageId"] || space!.defaultLanguage;
+
+        items = await expandItems(spaceId, items, expandMaxLevels, contentTypes, languages, fallbackLanguageId, projection)
+    }
+    return items
 }
 
 function processDBItem(item: AggregatedContentDataItemSchema, contentTypes: ContentType[]) {
