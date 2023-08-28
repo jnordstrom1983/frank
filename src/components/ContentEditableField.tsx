@@ -37,7 +37,12 @@ export function ContentEditableField({
         if (text.current.trim() === "" && triggerOnEmptyBlurOnBlur) onEmptyBlur && onEmptyBlur()
     }
     const eleemntRef = useRef<any>(null)
-
+    useEffect(()=>{
+        if(!eleemntRef.current) return;
+        try{
+            eleemntRef.current.el.current.setAttribute("contenteditable", "plaintext-only");
+        }catch(ex : any){}
+    }, [eleemntRef.current])
     useEffect(() => {
         if (!focus) return
         setTimeout(() => {
