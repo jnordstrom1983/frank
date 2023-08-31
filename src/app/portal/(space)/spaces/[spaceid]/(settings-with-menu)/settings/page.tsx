@@ -7,6 +7,7 @@ import { SpaceLanguage } from "@/models/space"
 import { apiClient } from "@/networking/ApiClient"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { useAppStore } from "@/stores/appStore"
+import { APP_VERSION } from "@/version"
 import { Box, Button, Center, HStack, Heading, Spinner, VStack, useToast } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
@@ -115,6 +116,16 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 checkedBody={<Box>All content is accessible without any authentification</Box>}
                                 uncheckedBody={<Box>Content can only be accessed via access keys.</Box>}
                             ></CheckboxInput>
+
+
+                            <TextInput
+                                value={APP_VERSION}
+                                type="text"
+                                disabled={true}
+                                subject="Charlee Version"
+                            ></TextInput>
+
+
                         </VStack>
                     </Box>
                 </VStack>
