@@ -38,7 +38,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { ChevronDown, Layers, Loader, Search, X } from "react-feather"
+import { ChevronDown, Layers, Loader, Search, Trash2, X } from "react-feather"
 
 export default function Home({ params }: { params: { spaceid: string } }) {
     const router = useRouter()
@@ -51,12 +51,14 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const [filterFolders, setFilterFolders] = useState<FilterItem[]>([])
     const [filterContentTypes, setFilterContentTypes] = useState<FilterItem[]>([])
     const [filterUsers, setFilterUsers] = useState<FilterItem[]>([])
+    const [filterDates, setFilterDates] = useState<FilterItem[]>([])
     const queryClient = useQueryClient()
     const [filterFolder, setFilterFolder] = useState<string>("")
     const [filterContentType, setFilterContentType] = useState<string>("")
     const [filterUser, setFilterUser] = useState<string>("")
     const [filterStatus, setFilterStatus] = useState<string>("")
     const [filterSearch, setFilterSearch] = useState<string>("")
+    const [filterDate, setFilterDate] = useState<string>("")
     const [createContentType, setCreateContentType] = useState<string>("")
     const [createLoading, setCreateLoading] = useState<boolean>(false)
     const [creatableContentTypes, setCreatableContentTypes] = useState<string[]>([])
@@ -78,14 +80,40 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 if (item.modifiedUserId !== filterUser) return false
             }
             if (filterStatus) {
-                if(filterStatus === "scheduled"){
-                    if(item.status === "draft" && item.scheduledPublishDate) return true;
+                if (filterStatus === "scheduled") {
+                    if (item.status === "draft" && item.scheduledPublishDate) return true
                 }
-                if(filterStatus === "draft"){
-                    if(item.status === "draft" && item.scheduledPublishDate) return false;
+                if (filterStatus === "draft") {
+                    if (item.status === "draft" && item.scheduledPublishDate) return false
                 }
                 if (item.status !== filterStatus) return false
             }
+
+            if (filterDate) {
+                const date = dayjs(item.modifiedDate)
+
+                switch (filterDate) {
+                    case "today":
+                        if (!date.isSame(new Date(), "day")) return false
+                        break
+                    case "yesterday":
+                        if (!date.isSame(dayjs(new Date()).add(-1, "day"), "day")) return false
+                        break
+                    case "this_month":
+                        if (!date.isSame(new Date(), "month")) return false
+                        break
+                    case "last_month":
+                        if (!date.isSame(dayjs(new Date()).add(-1, "month"), "month")) return false
+                        break
+                    case "this_year":
+                        if (!date.isSame(new Date(), "year")) return false
+                        break
+                    case "last_year":
+                        if (!date.isSame(dayjs(new Date()).add(-1, "year"), "year")) return false
+                        break
+                }
+            }
+
             if (filterSearch) {
                 let searchMatch = false
                 if (item.title.toLocaleLowerCase().includes(filterSearch.toLocaleLowerCase())) searchMatch = true
@@ -133,15 +161,23 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         }
 
         setFilteredItems(filtered)
-    }, [allItems, filterFolder, filterContentType, filterUser, filterStatus, filterSearch])
+    }, [allItems, filterFolder, filterContentType, filterUser, filterStatus, filterSearch, filterDates, filterDate])
 
     function extractFilters() {
         if (!allItems) return
         let folders: FilterItem[] = []
         let contenttypes: FilterItem[] = []
         let authors: FilterItem[] = []
-        let date: FilterItem[] = []
+        let dates: FilterItem[] = []
 
+        const foundDates = {
+            today: false,
+            yesterday: false,
+            this_month: false,
+            last_month: false,
+            this_year: false,
+            last_year: false,
+        }
         allItems.forEach((item) => {
             if (item.folderId) {
                 const folder = folders.find((f) => f.id === item.folderId)
@@ -157,10 +193,45 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             if (!author) {
                 authors.push({ id: item.modifiedUserId, name: item.modifiedUserName })
             }
+
+            const date = dayjs(item.modifiedDate)
+            if (date.isSame(new Date(), "day")) {
+                foundDates.today = true
+            }
+
+            if (date.isSame(dayjs(new Date()).add(-1, "day"), "day")) {
+                foundDates.yesterday = true
+            }
+
+            if (date.isSame(new Date(), "month")) {
+                foundDates.this_month = true
+            }
+
+            if (date.isSame(dayjs(new Date()).add(-1, "month"), "month")) {
+                foundDates.last_month = true
+            }
+
+            if (date.isSame(new Date(), "year")) {
+                foundDates.this_year = true
+            }
+
+            if (date.isSame(dayjs(new Date()).add(-1, "year"), "year")) {
+                foundDates.last_year = true
+            }
         })
+
+        dates = []
+        if (foundDates.today) dates.push({ id: "today", name: "Today" })
+        if (foundDates.yesterday) dates.push({ id: "yesterday", name: "Yesterday" })
+        if (foundDates.this_month) dates.push({ id: "this_month", name: "This month" })
+        if (foundDates.last_month) dates.push({ id: "last_month", name: "Last month" })
+        if (foundDates.this_year) dates.push({ id: "this_year", name: "This year" })
+        if (foundDates.last_year) dates.push({ id: "last_year", name: "Last year" })
+
         setFilterFolders(folders)
         setFilterContentTypes(contenttypes)
         setFilterUsers(authors)
+        setFilterDates(dates)
     }
 
     useEffect(() => {
@@ -345,6 +416,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             onSettings={() => {
                                                 router.push(`/portal/spaces/${params.spaceid}/content/folder`)
                                             }}
+                                            settingsTooltip="Manage folders"
                                         ></SelectionList>
                                     ) : (
                                         <SelectionList
@@ -375,9 +447,16 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         selectedItemId={filterStatus}
                                         onClick={setFilterStatus}
                                         anyText="Any status"
+                                        settingsIcon={<Trash2></Trash2>}
+                                        onSettings={()=>{
+                                            router.push(`/portal/spaces/${params.spaceid}/content/trash`)
+                                        }}
+                                        settingsTooltip="View trash"
                                     ></SelectionList>
 
                                     <SelectionList subject="MODIFIED BY" items={filterUsers} selectedItemId={filterUser} onClick={setFilterUser} anyText="Any user"></SelectionList>
+
+                                    <SelectionList subject="MODIFIED" items={filterDates} selectedItemId={filterDate} onClick={setFilterDate} anyText="Whenever"></SelectionList>
                                 </VStack>
                             </Flex>
                             <Flex flex={1}>
@@ -477,7 +556,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                             <Td>
                                                                 {item.status == "draft" ? (
                                                                     item.scheduledPublishDate ? (
-                                                                        <Tag colorScheme="orange"  ml={5}>
+                                                                        <Tag colorScheme="orange" ml={5}>
                                                                             SCHEDULED
                                                                         </Tag>
                                                                     ) : (
