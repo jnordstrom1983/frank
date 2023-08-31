@@ -87,7 +87,8 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         user: { $arrayElemAt: ["$users", 0] },
                         contentdata: 1,
                         scheduledPublishDate : 1,
-                        scheduledDepublishDate : 1,                   
+                        scheduledDepublishDate : 1,   
+                        publishDate : 1,                
                     },
                 },
                 {
@@ -106,6 +107,7 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         contentdata: 1,
                         scheduledPublishDate : 1,
                         scheduledDepublishDate : 1,
+                        publishDate : 1,
                     },
                 },
                 {

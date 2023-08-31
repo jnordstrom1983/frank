@@ -360,6 +360,51 @@ export async function PUT(req: Request, context: { params: { spaceid: string; co
                     }
                 )
 
+
+                //Handle publish date
+                if(data.status === "published"){
+                    if(!content.publishDate){
+                        await collections.content.updateOne(
+                            { contentId: context.params.contentid },
+                            {
+                                $set: {
+                                    publishDate: new Date()
+                                },
+                            }
+                        )
+                        await collections.contentData.updateOne(
+                            { contentId: context.params.contentid },
+                            {
+                                $set: {
+                                    publishDate: new Date()
+                                },
+                            }
+                        )
+
+                    }
+                }else{
+                    await collections.content.updateOne(
+                        { contentId: context.params.contentid },
+                        {
+                            $unset: {
+                                publishDate: true
+                            },
+                        }
+                    )
+                    await collections.contentData.updateOne(
+                        { contentId: context.params.contentid },
+                        {
+                            $unset: {
+                                publishDate: true
+                            },
+                        }
+                    )
+                }
+
+
+
+
+
               
 
                 if (data.folderId) {

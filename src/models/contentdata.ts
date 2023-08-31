@@ -14,6 +14,7 @@ export const ContentDataSchema = z.object({
     data: z.record(z.string(), z.any()),
     referencedAssets: z.array(z.string()).optional(),
     status: ContentStatusSchema,
+    publishDate : z.date().optional(),
     slug : z.string().optional()
 })
 export type ContentData = z.infer<typeof ContentDataSchema>
@@ -27,6 +28,7 @@ export const ContentDataAggregationSchema = z.object({
     languageId: SpaceLanguageEnum,
     modifiedUserId: z.string(),
     modifiedDate: z.date(),
+    publishDate : z.date().optional(),
     data: z.record(z.string(), z.any()),
     referencedAssets: z.array(z.string()).optional(),
     status: ContentStatusSchema,
@@ -40,6 +42,7 @@ export const ContentDataViewSchema = z.object({
     folderId: z.string().optional(),
     languageId: SpaceLanguageEnum,
     modifiedDate: z.date(),
+    publishDate : z.date().optional(),
     slug : z.string().optional(),
     data: z.record(z.string(), z.any()),
 })
