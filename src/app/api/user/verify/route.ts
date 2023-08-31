@@ -7,6 +7,7 @@ import { WithId } from "mongodb"
 import { jwtType, sign, verify } from "@/lib/jwt"
 import { v4 as uuidv4 } from "uuid"
 import { collections } from "@/lib/db"
+import { Migrate } from "@/migration/migration"
 
 const requestSchema = z.object({
     token: z.string(),
@@ -34,6 +35,9 @@ export async function POST(req: Request) {
         }
 
         const token = sign(jwtType.authToken, { userId: user.userId }, { expiresIn: process.env.JWT_AUTHTOKEN_EXPIRES_IN })
+
+        //Perform data migration
+        await Migrate()
 
         return returnJSON<z.infer<typeof responseSchema>>({ token }, responseSchema)
     })
