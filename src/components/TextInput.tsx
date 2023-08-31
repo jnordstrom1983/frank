@@ -18,7 +18,7 @@ export default function TextInput({
     description,
     showValidation = false,
 }: {
-    subject?: string
+    subject?: string | React.ReactNode
     placeholder?: string
     value: string
     height?: string

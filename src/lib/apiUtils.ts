@@ -17,29 +17,31 @@ export async function withRequestBody<Schema extends ZodType>(req: Request, sche
     }
 }
 
-export async function withContentAccess(req: Request, spaceId: string, callback: (contentTypes?: string[]) => Promise<NextResponse>): Promise<NextResponse> {
+export async function withContentAccess(req: Request, spaceId: string, callback: (contentTypes?: string[], drafts? : boolean) => Promise<NextResponse>): Promise<NextResponse> {
 
     const space = await collections.space.findOne({ spaceId: spaceId });
     if (!space) {
         return returnNotFound("Space not found")
     }
-    if (space.contentAccess === "open") {
-        return await callback()
-    }
 
     const [_, token] = (req.headers.get("authorization") || "").trim().split(" ")
-    if (!token) {
+    if (space.contentAccess !== "open" && !token) {
         return returnError({ code: errorCodes.unauthorized, message: "No access key specified" })
     }
 
+    if (space.contentAccess === "open" && !token) {
+        return await callback()
+    }
+
     const key = await collections.accessKey.findOne({ spaceId, key: token });
+    
     if (!key) {
         return returnError({ code: errorCodes.unauthorized, message: "Access key not found" })
     }
     if (key.allContent) {
-        return await callback()
+        return await callback(undefined, key.drafts)
     } else {
-        return await callback(key.contentTypes)
+        return await callback(key.contentTypes, key.drafts)
 
     }
 

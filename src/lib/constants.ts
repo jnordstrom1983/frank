@@ -31,7 +31,8 @@ export enum dbCollection {
     webhook = "webhook",
     webhookEvent = "webhookevent",
     asset = "asset",
-    assetFolder = "assetFolder"
+    assetFolder = "assetFolder",
+    migration = "migration"
 
 }
 

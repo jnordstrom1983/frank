@@ -16,6 +16,7 @@ import { AccessKey } from "@/models/accesskey";
 import { Webhook, WebhookEvent } from "@/models/webhook";
 import { Asset } from "@/models/asset";
 import { AssetFolder } from "@/models/assetfolder";
+import { Migration } from "@/models/migration";
 
 export class DatabaseCollection<T extends Document>{
     collectionName: string;
@@ -85,6 +86,8 @@ export class DatabaseCollection<T extends Document>{
 }
 
 
+
+
 export const collections = {
     user: new DatabaseCollection<User>(dbCollection.user),
     space: new DatabaseCollection<Space>(dbCollection.space),
@@ -101,4 +104,5 @@ export const collections = {
     webhookEvent: new DatabaseCollection<WebhookEvent>(dbCollection.webhookEvent),
     asset: new DatabaseCollection<Asset>(dbCollection.asset),
     assetFolder: new DatabaseCollection<AssetFolder>(dbCollection.assetFolder),
+    migration : new DatabaseCollection<Migration>(dbCollection.migration)
 }

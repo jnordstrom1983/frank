@@ -1,12 +1,6 @@
 "use client"
 
-
-import {
-    Box,
-    Button,
-    HStack,
-    VStack
-} from "@chakra-ui/react"
+import { Box, Button, HStack, Tooltip, VStack } from "@chakra-ui/react"
 import { Sliders } from "react-feather"
 export type FilterItem = { id: string; name: string }
 export function SelectionList({
@@ -17,6 +11,8 @@ export function SelectionList({
     onSettings,
     onClick,
     minElements = 2,
+    settingsIcon,
+    settingsTooltip,
 }: {
     subject: string
     items: FilterItem[]
@@ -24,7 +20,9 @@ export function SelectionList({
     anyText?: string
     onSettings?: () => void
     onClick?: (itemId: string) => void
-    minElements? : number
+    minElements?: number
+    settingsIcon?: React.ReactNode
+    settingsTooltip?: string
 }) {
     if (!onSettings && selectedItemId === "" && items.length < minElements) return null
     const allItems: FilterItem[] = anyText ? [{ id: "", name: anyText }, ...items] : [...items]
@@ -36,9 +34,17 @@ export function SelectionList({
                     <Box fontWeight={"bold"} flex={1}>
                         {subject}
                     </Box>
-                    <Button variant="ghost" onClick={onSettings}>
-                        <Sliders></Sliders>
-                    </Button>
+                    {settingsTooltip ? (
+                        <Tooltip label={settingsTooltip}>
+                            <Button variant="ghost" onClick={onSettings}>
+                                {settingsIcon ? settingsIcon : <Sliders></Sliders>}
+                            </Button>
+                        </Tooltip>
+                    ) : (
+                        <Button variant="ghost" onClick={onSettings}>
+                            {settingsIcon ? settingsIcon : <Sliders></Sliders>}
+                        </Button>
+                    )}
                 </HStack>
             ) : (
                 <Box fontWeight={"bold"} flex={1}>
@@ -67,7 +73,14 @@ export function SelectionList({
                     )
                 } else {
                     return (
-                        <Button variant={"ghost"} key={item.id ? item.id : "all"} fontSize={"14px"}  borderRadius="25px" color="gray.600" onClick={() => onClick && onClick(item.id)}>
+                        <Button
+                            variant={"ghost"}
+                            key={item.id ? item.id : "all"}
+                            fontSize={"14px"}
+                            borderRadius="25px"
+                            color="gray.600"
+                            onClick={() => onClick && onClick(item.id)}
+                        >
                             {item.name}
                         </Button>
                     )

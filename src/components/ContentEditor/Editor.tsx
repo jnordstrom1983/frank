@@ -4,7 +4,7 @@ import { CheckboxInput } from "@/components/CheckboxInput"
 import { SaveMenuBar } from "@/components/SaveMenuBar"
 import { languages as allLanguages } from "@/lib/constants"
 import { ContentData } from "@/models/contentdata"
-import { SpaceLanguage } from "@/models/space"
+import { Space, SpaceLanguage } from "@/models/space"
 import { apiClient } from "@/networking/ApiClient"
 import { useContentItem } from "@/networking/hooks/content"
 import { useContenttype } from "@/networking/hooks/contenttypes"
@@ -36,7 +36,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
-import { Check, Clock, Flag, MessageCircle, Sliders, Trash, X, Zap } from "react-feather"
+import { Check, Clock, Flag, MessageCircle, PlusCircle, Sliders, Trash, X, Zap } from "react-feather"
 import { v4 as uuidv4 } from "uuid"
 import TextInput from "../TextInput"
 import { ContentEditorManager } from "./ContentEditorManager"
@@ -49,6 +49,9 @@ import { AIModule } from "@/models/ai"
 import { AITranslate } from "../AI/AI/AITranslate"
 import { SingleDatepicker } from "chakra-dayzed-datepicker"
 import { padZero } from "@/lib/utils"
+import { z } from "zod"
+import { PostFolderRequest, PostFolderResponse } from "@/app/api/space/[spaceid]/folder/post"
+import { SpaceItem } from "@/app/api/space/get"
 dayjs.extend(relativeTime)
 
 interface valdationError {
@@ -69,9 +72,8 @@ export default function Editor({
         history: true,
         folder: true,
         delete: true,
-        slug : true,
+        slug: true,
         save: false,
-        
     },
     onSave,
     onTitleChange,
@@ -82,7 +84,7 @@ export default function Editor({
     onSaved?: () => void
     layout?: "column" | "row"
     showSaveBar?: boolean
-    tools?: { published: boolean; language: boolean; ai: boolean; history: boolean, folder: boolean, delete: boolean, save: boolean, slug : boolean }
+    tools?: { published: boolean; language: boolean; ai: boolean; history: boolean; folder: boolean; delete: boolean; save: boolean; slug: boolean }
     onTitleChange?: (title: string) => void
     onSave?: (data: PutContentItemRequest) => boolean
 }) {
@@ -95,6 +97,7 @@ export default function Editor({
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const { item: content, isLoading: isContentLoading } = useContentItem(spaceId, contentId, {})
     const { spaces, isLoading: isSpacesLoading } = useSpaces({})
+    const [space, setSpace] = useState<SpaceItem>()
     const { folders, isLoading: isFoldersLoading } = useFolders(spaceId, {})
     const [contentDatas, setContentDatas] = useState<ContentData[]>([])
     const [updatedContentDatas, setUpdatedContentDatas] = useState<ContentData[]>([])
@@ -109,46 +112,47 @@ export default function Editor({
     const [showLanguages, setShowLanguages] = useState<boolean>(false)
     const [errors, setErrors] = useState<valdationError[]>([])
     const [folder, setFolder] = useState<string>("")
-    const [folderOptions, setFolderOptions] = useState<{ key: string, text: string }[]>([])
+    const [folderOptions, setFolderOptions] = useState<{ key: string; text: string }[]>([])
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
     const { isOpen: isUnsavedOpen, onOpen: onUnsavedOpen, onClose: onUnsavedClose } = useDisclosure()
     const { isOpen: isScheduleOpen, onOpen: onScheduleOpen, onClose: onScheduleClose } = useDisclosure()
-    const [publishDate, setPublishDate] = useState<Date|undefined>(undefined);
-    const [DepublishDate, setDepublishDate] = useState<Date|undefined>(undefined);
+    const { isOpen: isCreateFolderOpen, onOpen: onCreateFolderOpen, onClose: onCreateFolderClose } = useDisclosure()
+    const [publishDate, setPublishDate] = useState<Date | undefined>(undefined)
+    const [DepublishDate, setDepublishDate] = useState<Date | undefined>(undefined)
+
+    const [createFolderName, setCreateFolderName] = useState<string>("")
+    const [createFolderLoading, setCreateFolderLoading] = useState<boolean>(false)
+    const [createFolderValid, setCreateFolderValid] = useState<boolean>(false)
 
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
-    const [showAI, setShowAI] = useState<boolean>(false);
+    const [showAI, setShowAI] = useState<boolean>(false)
     const [ActiveAIModule, setActiveAIModule] = useState<AIModule>("check")
     const [hasChanges, setHasChanges] = useState<boolean>(false)
+    const [initialized, setInitilized] = useState<boolean>(false)
     function getTitle() {
         if (!contenttype) return ""
         if (!updatedContentDatas) return ""
         if (!spaces) return ""
 
-        const space = spaces.find((s) => s.spaceId === spaceId)
-        if (!space) return ""
 
         const titleField = contenttype.fields.find((f) => f.title)
         if (!titleField) return ""
 
-        const lang = updatedContentDatas.find((p) => p.languageId === space.defaultLanguage)
+        const lang = updatedContentDatas.find((p) => p.languageId === space!.defaultLanguage)
         if (!lang) return ""
 
         return getTitleMaxLength(lang.data[titleField.fieldId] || "")
     }
 
-    function getTitleMaxLength(title : string){
-        if(title.length > 25){
+    function getTitleMaxLength(title: string) {
+        if (title.length > 25) {
             return `${title.substring(0, 23)}...`
         }
-        return title;
+        return title
     }
 
-
-    
-
     useEffect(() => {
-        if (!showSaveBar) return;
+        if (!showSaveBar) return
         hideMainMenu()
         return () => {
             showMainMenu()
@@ -163,11 +167,14 @@ export default function Editor({
         if (!contenttype) return
         if (!content) return
         if (!spaces) return
-        if (!folders) return
+        if (initialized) return
+
+        
         const space = spaces.find((p) => p.spaceId === spaceId)
         if (!space) {
             throw "Space not found"
         }
+        setSpace(space)
 
         let langs = [space.defaultLanguage]
         content.contentData.forEach((c) => {
@@ -183,28 +190,34 @@ export default function Editor({
         setPublishDate(content.content.scheduledPublishDate ? new Date(content.content.scheduledPublishDate) : undefined)
         setDepublishDate(content.content.scheduledDepublishDate ? new Date(content.content.scheduledDepublishDate) : undefined)
 
-        let folderOptions = folders.filter(f => {
-            if (f.contentTypes.length === 0) return true;
-            if (f.contentTypes.includes(content.content.contentTypeId)) return true;
-            return false;
-        }).map(f => ({ key: f.folderId, text: f.name })).sort((f1, f2) => {
-            if (f1.text > f2.text) return 1;
-            if (f1.text < f2.text) return -1;
-            return 0
-        })
+        setInitilized(true)
+        setIsLoading(false)
+    }, [content, contenttype, spaces])
+
+    useEffect(() => {
+        if (!folders) return
+        if (!content) return
+
+        let folderOptions = folders
+            .filter((f) => {
+                if (f.contentTypes.length === 0) return true
+                if (f.contentTypes.includes(content.content.contentTypeId)) return true
+                return false
+            })
+            .map((f) => ({ key: f.folderId, text: f.name }))
+            .sort((f1, f2) => {
+                if (f1.text > f2.text) return 1
+                if (f1.text < f2.text) return -1
+                return 0
+            })
 
         setFolderOptions([{ key: "", text: "No folder" }, ...folderOptions])
-
-
-        setIsLoading(false)
-    }, [content, contenttype, folders, spaces])
-    
+    }, [folders, content])
 
     useEffect(() => {
         const title = getTitle()
         setTitle(title)
         onTitleChange && onTitleChange(title)
-        
     }, [updatedContentDatas])
 
     useEffect(() => {
@@ -214,9 +227,9 @@ export default function Editor({
         setLastCurrentLanguage(currentLanguage)
     }, [lastCurrentLanguage, currentLanguage, updatedContentDatas])
 
-    useEffect(()=>{
-        const currentContentData = updatedContentDatas.find(p=>p.languageId === currentLanguage)
-        setSlug(currentContentData?.slug || "")
+    useEffect(() => {
+        const currentContentData = updatedContentDatas.find((p) => p.languageId === currentLanguage)
+        setSlug(currentContentData?.slug || "")
     }, [currentLanguage, updatedContentDatas])
 
     async function save() {
@@ -228,7 +241,7 @@ export default function Editor({
                     return {
                         languageId: item.languageId,
                         data: item.data,
-                        slug : item.slug
+                        slug: item.slug,
                     }
                 }),
         }
@@ -236,11 +249,11 @@ export default function Editor({
             body = { ...body, folderId: folder }
         }
 
-        if(publishDate){
-            body = { ...body, scheduledPublishDate : publishDate }
+        if (publishDate) {
+            body = { ...body, scheduledPublishDate: publishDate }
         }
-        if(DepublishDate){
-            body = { ...body, scheduledDepublishDate : DepublishDate }
+        if (DepublishDate) {
+            body = { ...body, scheduledDepublishDate: DepublishDate }
         }
 
         setServersideErrors([])
@@ -288,13 +301,12 @@ export default function Editor({
     }
 
     const [slug, setSlug] = useState<string>("")
-    function updateSlug(slug : string){
-
-        let datas = [...updatedContentDatas];
-        const updatedLanguage = datas.find(p=>p.languageId === currentLanguage)
-        if(updatedLanguage){
-            updatedLanguage.slug = slug;
-        }else{
+    function updateSlug(slug: string) {
+        let datas = [...updatedContentDatas]
+        const updatedLanguage = datas.find((p) => p.languageId === currentLanguage)
+        if (updatedLanguage) {
+            updatedLanguage.slug = slug
+        } else {
             const dataItem = {
                 spaceId: spaceId,
                 contentDataId: uuidv4(),
@@ -304,17 +316,47 @@ export default function Editor({
                 modifiedUserId: "",
                 modifiedDate: new Date(),
                 data: {},
-                slug : slug
+                slug: slug,
             }
             //@ts-ignore
             datas.push(dataItem)
         }
-        
-        setUpdatedContentDatas([...datas])
-        setContentDatas([...datas]);
 
+        setUpdatedContentDatas([...datas])
+        setContentDatas([...datas])
 
         setSlug(slug)
+    }
+
+    async function createFolder() {
+        setCreateFolderLoading(true)
+        try {
+            const response = await apiClient.post<PostFolderResponse, PostFolderRequest>({
+                path: `/space/${spaceId}/folder`,
+                isAuthRequired: true,
+                body: {
+                    name: createFolderName,
+                },
+            })
+            queryClient.invalidateQueries([["folders", spaceId]])
+            setCreateFolderLoading(false)
+            onCreateFolderClose()
+            setFolder(response.folderId)
+            toast({
+                title: "Folder created",
+                status: "success",
+                position: "bottom-right",
+            })
+        } catch (ex) {
+            setCreateFolderLoading(false)
+            toast({
+                title: "Could not create folder",
+                description: "Please try again.",
+                status: "error",
+                position: "bottom-right",
+            })
+            return
+        }
     }
 
     return (
@@ -327,27 +369,87 @@ export default function Editor({
                 content &&
                 contenttype && (
                     <>
-                        {showAI &&
-
+                        {showAI && (
                             <Box pt={20}>
-
-                                <AI datas={updatedContentDatas} module={ActiveAIModule} spaceId={spaceId} language={currentLanguage} contentType={contenttype} updateDatas={(datas) => {
-                                    setUpdatedContentDatas([...datas])
-                                    setContentDatas([...datas]);
-                                    setHasChanges(true)
-                                }} onClose={() => {
-                                    console.log("on close called")
-                                    setShowAI(false)
-                                }}></AI>
+                                <AI
+                                    datas={updatedContentDatas}
+                                    module={ActiveAIModule}
+                                    spaceId={spaceId}
+                                    language={currentLanguage}
+                                    contentType={contenttype}
+                                    updateDatas={(datas) => {
+                                        setUpdatedContentDatas([...datas])
+                                        setContentDatas([...datas])
+                                        setHasChanges(true)
+                                    }}
+                                    onClose={() => {
+                                        console.log("on close called")
+                                        setShowAI(false)
+                                    }}
+                                ></AI>
                             </Box>
+                        )}
 
-                        }
+                        <EditorScheduling
+                            isScheduleOpen={isScheduleOpen}
+                            ScheduledPublish={publishDate}
+                            ScheduledDepublish={DepublishDate}
+                            onScheduleClose={onScheduleClose}
+                            onChange={(data) => {
+                                setPublishDate(data.PublishDate)
+                                setDepublishDate(data.DepublishDate)
+                            }}
+                        ></EditorScheduling>
 
-                        <EditorScheduling isScheduleOpen={isScheduleOpen} ScheduledPublish={publishDate} ScheduledDepublish={DepublishDate} onScheduleClose={onScheduleClose} onChange={data=>{
-                            setPublishDate(data.PublishDate)
-                            setDepublishDate(data.DepublishDate)
-                        }}></EditorScheduling>
-                    
+                        <Modal isOpen={isCreateFolderOpen} onClose={onCreateFolderClose} isCentered={true}>
+                            <ModalOverlay />
+                            <ModalContent maxW="600px">
+                                <ModalHeader pt={10} px={10} pb={0}>
+                                    Create folder
+                                </ModalHeader>
+                                <ModalCloseButton right={10} top={10} />
+                                <ModalBody overflow="auto" p={10}>
+                                    <VStack alignItems={"flex-start"} spacing={5}>
+                                        <TextInput
+                                            subject="Name"
+                                            value={createFolderName}
+                                            disabled={createFolderLoading}
+                                            focus={true}
+                                            onChange={setCreateFolderName}
+                                            placeholder="My folder"
+                                            validate={z.string().min(3)}
+                                            onValidation={(valid) => {
+                                                setCreateFolderValid(valid)
+                                            }}
+                                            onSubmit={createFolder}
+                                        ></TextInput>
+                                    </VStack>
+                                </ModalBody>
+
+                                <ModalFooter pb={10} px={10} gap={10}>
+                                    <Button
+                                        isLoading={createFolderLoading}
+                                        isDisabled={createFolderLoading || !createFolderValid}
+                                        colorScheme="green"
+                                        mr={3}
+                                        minW="150px"
+                                        onClick={async () => {
+                                            createFolder()
+                                        }}
+                                    >
+                                        Create
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => {
+                                            onCreateFolderClose()
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </ModalFooter>
+                            </ModalContent>
+                        </Modal>
 
                         <Modal isOpen={isUnsavedOpen} onClose={onUnsavedClose} isCentered={true}>
                             <ModalOverlay />
@@ -358,7 +460,10 @@ export default function Editor({
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
-                                        <Box>You have unsaved changes. If you close your content without saving you will loose your changes. Are you sure you wish to close the content?</Box>
+                                        <Box>
+                                            You have unsaved changes. If you close your content without saving you will loose your changes. Are you sure you wish to close the
+                                            content?
+                                        </Box>
                                     </VStack>
                                 </ModalBody>
 
@@ -369,19 +474,14 @@ export default function Editor({
                                         mr={3}
                                         minW="150px"
                                         onClick={async () => {
-
                                             onBack && onBack()
-
-
                                         }}
-
                                     >
                                         Yes, close
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         onClick={() => {
-
                                             onUnsavedClose()
                                         }}
                                     >
@@ -390,7 +490,6 @@ export default function Editor({
                                 </ModalFooter>
                             </ModalContent>
                         </Modal>
-                        
 
                         <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered={true}>
                             <ModalOverlay />
@@ -412,7 +511,6 @@ export default function Editor({
                                         mr={3}
                                         minW="150px"
                                         onClick={async () => {
-
                                             setIsDeleteLoading(true)
                                             try {
                                                 await apiClient.delete({
@@ -428,6 +526,7 @@ export default function Editor({
 
                                                 queryClient.removeQueries([["content", spaceId]])
                                                 queryClient.removeQueries([["content", contentId]])
+                                                queryClient.removeQueries([["trash", spaceId]])
                                                 onBack && onBack()
                                             } catch (ex) {
                                                 setIsDeleteLoading(false)
@@ -438,17 +537,13 @@ export default function Editor({
                                                     position: "bottom-right",
                                                 })
                                             }
-
-
                                         }}
-
                                     >
                                         Yes, delete
                                     </Button>
                                     <Button
                                         variant="ghost"
                                         onClick={() => {
-
                                             onDeleteClose()
                                         }}
                                     >
@@ -458,83 +553,82 @@ export default function Editor({
                             </ModalContent>
                         </Modal>
 
+                        {showSaveBar && (
+                            <SaveMenuBar
+                                positiveText={`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}
+                                neutralText="CLOSE"
+                                positiveLoading={isSaveLoading}
+                                onClose={() => {
+                                    if (hasChanges) {
+                                        onUnsavedOpen()
+                                        return
+                                    }
+                                    onBack && onBack()
+                                }}
+                                onNeutral={() => {
+                                    if (hasChanges) {
+                                        onUnsavedOpen()
+                                        return
+                                    }
 
-                        {showSaveBar && <SaveMenuBar
-                            positiveText={`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}
-                            neutralText="CLOSE"
-                            positiveLoading={isSaveLoading}
-                            onClose={() => {
-                                
-                                if(hasChanges){
-                                    onUnsavedOpen();
-                                    return;
-                                }
-                                onBack && onBack()
-                            }}
-                            onNeutral={() => {
+                                    onBack && onBack()
+                                }}
+                                onPositive={async () => {
+                                    if (errors.length > 0) {
+                                        setShowValidation(true)
+                                        toast({
+                                            title: "Content not valid",
+                                            description: "Fix the errors and try again",
+                                            status: "warning",
+                                            position: "bottom-right",
+                                        })
 
-                                if(hasChanges){
-                                    onUnsavedOpen();
-                                    return;
-                                }
-
-
-                                onBack && onBack()
-                            }}
-                            onPositive={async () => {
-                                if (errors.length > 0) {
-                                    setShowValidation(true)
-                                    toast({
-                                        title: "Content not valid",
-                                        description: "Fix the errors and try again",
-                                        status: "warning",
-                                        position: "bottom-right",
-                                    })
-
-                                    return
-                                }
-                                await save()
-                                setHasChanges(false);
-                            }}
-                        >
-                            <HStack spacing={2}>
-                                <Box as="span">Edit content</Box>
-                                <Box as="span" fontWeight={"bold"}>
-                                    {title}
-                                </Box>
-                            </HStack>
-                        </SaveMenuBar>}
+                                        return
+                                    }
+                                    await save()
+                                    setHasChanges(false)
+                                }}
+                            >
+                                <HStack spacing={2}>
+                                    <Box as="span">Edit content</Box>
+                                    <Box as="span" fontWeight={"bold"}>
+                                        {title}
+                                    </Box>
+                                </HStack>
+                            </SaveMenuBar>
+                        )}
                         <Box backgroundColor={"#fff"} minH={showSaveBar ? "100vh" : undefined} pt={showSaveBar ? "120px" : undefined} pb={"50px"}>
                             <Container maxW="1000px">
                                 <Stack direction={layout} w="100%" spacing="60px" alignItems={"flex-start"}>
                                     <Box w={layout === "row" ? "250px" : "100%"}>
                                         <Stack direction={layout === "row" ? "column" : "row"} spacing="60px" w="100%" alignItems={"flex-start"} justifyContent="flex-start">
                                             {tools.save && (
-
                                                 <Box>
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <Box fontWeight="bold">SAVE</Box>
                                                         <Box>
-                                                            <Button colorScheme="green" isLoading={isSaveLoading} onClick={async () => {
-                                                                if (errors.length > 0) {
-                                                                    setShowValidation(true)
-                                                                    toast({
-                                                                        title: "Content not valid",
-                                                                        description: "Fix the errors and try again",
-                                                                        status: "warning",
-                                                                        position: "bottom-right",
-                                                                    })
+                                                            <Button
+                                                                colorScheme="green"
+                                                                isLoading={isSaveLoading}
+                                                                onClick={async () => {
+                                                                    if (errors.length > 0) {
+                                                                        setShowValidation(true)
+                                                                        toast({
+                                                                            title: "Content not valid",
+                                                                            description: "Fix the errors and try again",
+                                                                            status: "warning",
+                                                                            position: "bottom-right",
+                                                                        })
 
-                                                                    return
-                                                                }
-                                                                await save()
-                                                                setHasChanges(false)
-                                                            }}>{`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}</Button>
+                                                                        return
+                                                                    }
+                                                                    await save()
+                                                                    setHasChanges(false)
+                                                                }}
+                                                            >{`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}</Button>
                                                         </Box>
                                                     </VStack>
                                                 </Box>
-
-
                                             )}
                                             {tools.published && (
                                                 <Box>
@@ -548,31 +642,46 @@ export default function Editor({
                                                                 }}
                                                             >
                                                                 <Clock size={24} />
-                                                            </Button>                                                            
+                                                            </Button>
                                                         </HStack>
                                                         <VStack spacing={5} w="100%" alignItems={"flex-start"}>
-                                                        {publishDate ? <Box>
-                                                            <Tag colorScheme="green">Scheduled</Tag> Content will be automatically published on {dayjs(publishDate).format("YYYY-MM-DD HH:mm")}. <Button variant={"ghost"} p={0} h={"auto"} color="blue.500" _hover={{backgroundColor : "transparent", opacity : "0.8"}} _active={{opacity : 0.5}} onClick={()=>{
-                                                                setPublished(true);
-                                                                setPublishDate(undefined);
+                                                            {publishDate ? (
+                                                                <Box>
+                                                                    <Tag colorScheme="green">Scheduled</Tag> Content will be automatically published on{" "}
+                                                                    {dayjs(publishDate).format("YYYY-MM-DD HH:mm")}.{" "}
+                                                                    <Button
+                                                                        variant={"ghost"}
+                                                                        p={0}
+                                                                        h={"auto"}
+                                                                        color="blue.500"
+                                                                        _hover={{ backgroundColor: "transparent", opacity: "0.8" }}
+                                                                        _active={{ opacity: 0.5 }}
+                                                                        onClick={() => {
+                                                                            setPublished(true)
+                                                                            setPublishDate(undefined)
+                                                                        }}
+                                                                    >
+                                                                        Publish now.
+                                                                    </Button>
+                                                                </Box>
+                                                            ) : (
+                                                                <Box>
+                                                                    <CheckboxInput
+                                                                        checked={published}
+                                                                        onChange={setPublished}
+                                                                        uncheckedBody={<Box>No, it's a draft</Box>}
+                                                                        checkedBody={<Box>Yes, it's published</Box>}
+                                                                    ></CheckboxInput>
+                                                                </Box>
+                                                            )}
 
-                                                            }}>Publish now.</Button>
-                                                        </Box> :                                                         <Box>
-                                                            <CheckboxInput
-                                                                checked={published}
-                                                                onChange={setPublished}
-                                                                uncheckedBody={<Box>No, it's a draft</Box>}
-                                                                checkedBody={<Box>Yes, it's published</Box>}
-                                                            ></CheckboxInput>
-                                                        </Box>}
-
-
-
-                                                        {DepublishDate && <Box>
-                                                            <Tag colorScheme="red">Scheduled</Tag> Content will be automatically depublished on {dayjs(DepublishDate).format("YYYY-MM-DD HH:mm")}.
-                                                        </Box>}
+                                                            {DepublishDate && (
+                                                                <Box>
+                                                                    <Tag colorScheme="red">Scheduled</Tag> Content will be automatically depublished on{" "}
+                                                                    {dayjs(DepublishDate).format("YYYY-MM-DD HH:mm")}.
+                                                                </Box>
+                                                            )}
                                                         </VStack>
-
                                                     </VStack>
                                                 </Box>
                                             )}
@@ -652,7 +761,20 @@ export default function Editor({
                                             {tools.folder && folderOptions.length > 1 && (
                                                 <Box w="100%">
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">FOLDER</Box>
+                                                        <HStack>
+                                                            <Box fontWeight="bold">FOLDER</Box>
+                                                            {space!.role === "owner" && <Button
+                                                                variant={"ghost"}
+                                                                onClick={() => {
+                                                                    setCreateFolderName("")
+                                                                    setCreateFolderValid(false)
+                                                                    onCreateFolderOpen()
+                                                                }}
+                                                            >
+                                                                <PlusCircle></PlusCircle>
+                                                            </Button>}
+                                                        </HStack>
+
                                                         <Box w="100%">
                                                             <TextInput value={folder} type="select" onChange={setFolder} options={folderOptions}></TextInput>
                                                         </Box>
@@ -666,26 +788,44 @@ export default function Editor({
                                                         <Box fontWeight="bold">AI ASSISTANCE</Box>
                                                         <Box>
                                                             <Flex flexWrap="wrap" gap="3">
-                                                                <Button leftIcon={<Check></Check>} h={"40px"} fontSize="12px" p={2} onClick={() => {
-                                                                    setActiveAIModule("check");
-                                                                    setShowAI(true);
-                                                                }}>
+                                                                <Button
+                                                                    leftIcon={<Check></Check>}
+                                                                    h={"40px"}
+                                                                    fontSize="12px"
+                                                                    p={2}
+                                                                    onClick={() => {
+                                                                        setActiveAIModule("check")
+                                                                        setShowAI(true)
+                                                                    }}
+                                                                >
                                                                     Check
                                                                 </Button>
-                                                                <Button leftIcon={<MessageCircle></MessageCircle>} h={"40px"} fontSize="12px" p={2} onClick={() => {
-                                                                    setActiveAIModule("reprahse");
-                                                                    setShowAI(true);
-                                                                }}>
+                                                                <Button
+                                                                    leftIcon={<MessageCircle></MessageCircle>}
+                                                                    h={"40px"}
+                                                                    fontSize="12px"
+                                                                    p={2}
+                                                                    onClick={() => {
+                                                                        setActiveAIModule("reprahse")
+                                                                        setShowAI(true)
+                                                                    }}
+                                                                >
                                                                     Rephrase
                                                                 </Button>
-                                                                {(languages[0] || "en") !== currentLanguage &&
-                                                                    <Button leftIcon={<Flag></Flag>} h={"40px"} fontSize="12px" p={2} onClick={() => {
-                                                                        setActiveAIModule("translate");
-                                                                        setShowAI(true);
-                                                                    }}>
+                                                                {(languages[0] || "en") !== currentLanguage && (
+                                                                    <Button
+                                                                        leftIcon={<Flag></Flag>}
+                                                                        h={"40px"}
+                                                                        fontSize="12px"
+                                                                        p={2}
+                                                                        onClick={() => {
+                                                                            setActiveAIModule("translate")
+                                                                            setShowAI(true)
+                                                                        }}
+                                                                    >
                                                                         Translate
                                                                     </Button>
-                                                                }
+                                                                )}
                                                             </Flex>
                                                         </Box>
                                                     </VStack>
@@ -693,23 +833,24 @@ export default function Editor({
                                             )}
 
                                             {tools.slug && contenttype.generateSlug && (
-                                                <Box>
+                                                <Box w="100%">
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <Box fontWeight="bold">SLUG</Box>
-                                                        <Box>
+                                                        <Box w="100%">
                                                             <TextInput value={slug} onChange={updateSlug} placeholder="Will be generated when saved"></TextInput>
                                                         </Box>
                                                     </VStack>
                                                 </Box>
                                             )}
 
-
                                             {tools.folder && (
                                                 <Box w="100%">
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <Box fontWeight="bold">DANGER ZONE</Box>
                                                         <Box>
-                                                            <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>Delete</Button>
+                                                            <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>
+                                                                Delete
+                                                            </Button>
                                                         </Box>
                                                     </VStack>
                                                 </Box>
@@ -983,231 +1124,250 @@ export function EditorLanguages({
     )
 }
 
-
-
-
-function EditorScheduling({ScheduledPublish, ScheduledDepublish, isScheduleOpen, onScheduleClose, onChange } : { ScheduledPublish? : Date, ScheduledDepublish? : Date, onScheduleClose : () => void, isScheduleOpen : boolean, onChange : (value : { PublishDate? : Date, DepublishDate? : Date  }) => void }){
-
+function EditorScheduling({
+    ScheduledPublish,
+    ScheduledDepublish,
+    isScheduleOpen,
+    onScheduleClose,
+    onChange,
+}: {
+    ScheduledPublish?: Date
+    ScheduledDepublish?: Date
+    onScheduleClose: () => void
+    isScheduleOpen: boolean
+    onChange: (value: { PublishDate?: Date; DepublishDate?: Date }) => void
+}) {
     const [ScheduleDate, setScheduleDate] = useState<Date>(new Date())
     const [ScheduleMinute, setScheduleMinute] = useState<number>(0)
     const [ScheduleHour, setScheduleHour] = useState<number>(0)
-    const [SceduledDepublishDate, setSceduledDepublishDate]  = useState<Date>(new Date())
+    const [SceduledDepublishDate, setSceduledDepublishDate] = useState<Date>(new Date())
     const [ScheduleDepublishMinute, setScheduleDepublishMinute] = useState<number>(0)
     const [ScheduleDepublishHour, setScheduleDepublishHour] = useState<number>(0)
     const [isScheduled, setIsScheduled] = useState<boolean>(false)
     const [isScheduledDepublish, setIsScheduledDepublish] = useState<boolean>(false)
-    useEffect(()=>{
-
-        if(ScheduledPublish){
+    useEffect(() => {
+        if (ScheduledPublish) {
             setScheduleDate(ScheduledPublish)
             setScheduleHour(ScheduledPublish.getHours())
             setScheduleMinute(ScheduledPublish.getMinutes())
             setIsScheduled(true)
-        }else{
+        } else {
             setIsScheduled(false)
-            
         }
 
-        if(ScheduledDepublish){
+        if (ScheduledDepublish) {
             setSceduledDepublishDate(ScheduledDepublish)
             setScheduleDepublishHour(ScheduledDepublish.getHours())
-            setScheduleDepublishMinute(ScheduledDepublish.getMinutes())            
+            setScheduleDepublishMinute(ScheduledDepublish.getMinutes())
             setIsScheduledDepublish(true)
-        }else{
+        } else {
             setIsScheduledDepublish(false)
         }
-
     }, [ScheduledPublish, ScheduledDepublish])
 
-    let options : { key : string, text : string }[] = []
-    for(let h = 0;h<24;h++){
-        for(let m = 0;m<60;m+=15){
-            options.push({ key : `${h}_${m}`, text : `${padZero(h, 2)}:${padZero(m, 2)}` })
+    let options: { key: string; text: string }[] = []
+    for (let h = 0; h < 24; h++) {
+        for (let m = 0; m < 60; m += 15) {
+            options.push({ key: `${h}_${m}`, text: `${padZero(h, 2)}:${padZero(m, 2)}` })
         }
     }
-    
 
-    return <Modal isOpen={isScheduleOpen} onClose={onScheduleClose} isCentered={true}>
-    <ModalOverlay />
-    <ModalContent maxW="600px">
-        <ModalHeader pt={10} px={10} pb={0}>
-            Scheduling
-        </ModalHeader>
-        <ModalCloseButton right={10} top={10} />
-        <ModalBody overflow="auto" p={10}>
-            
+    return (
+        <Modal isOpen={isScheduleOpen} onClose={onScheduleClose} isCentered={true}>
+            <ModalOverlay />
+            <ModalContent maxW="600px">
+                <ModalHeader pt={10} px={10} pb={0}>
+                    Scheduling
+                </ModalHeader>
+                <ModalCloseButton right={10} top={10} />
+                <ModalBody overflow="auto" p={10}>
+                    <VStack w="100%">
+                        <VStack w="100%" spacing={10}>
+                            <CheckboxInput
+                                align="top"
+                                subject="Publish"
+                                checked={isScheduled}
+                                onChange={(checked) => {
+                                    setIsScheduled(checked)
+                                }}
+                                checkedBody={
+                                    <Box>
+                                        <VStack w="100%" alignItems={"flex-start"}>
+                                            <Box fontSize="14px">Yes, publish this content automatically on this date.</Box>
+                                            <HStack w="100%">
+                                                {" "}
+                                                <SingleDatepicker
+                                                    date={ScheduleDate}
+                                                    onDateChange={(date) => {
+                                                        const value = dayjs(date).toDate()
+                                                        setScheduleDate(value)
+                                                    }}
+                                                    propsConfigs={{
+                                                        weekdayLabelProps: {
+                                                            color: "black",
+                                                        },
+                                                        dateHeadingProps: {
+                                                            color: "black",
+                                                        },
+                                                        dayOfMonthBtnProps: {
+                                                            defaultBtnProps: {
+                                                                borderRadius: "50%",
+                                                                width: "40px",
+                                                                height: "40px",
+                                                                _hover: {
+                                                                    background: "gray.100",
+                                                                    color: "black",
+                                                                },
+                                                            },
 
-        <VStack w="100%">
-            <VStack w="100%" spacing={10}>
+                                                            selectedBtnProps: {
+                                                                backgroundColor: "blue.500",
+                                                                color: "#fff",
+                                                            },
+                                                        },
 
-                
-                
-                <CheckboxInput
-                    align="top"
-                
-                    subject="Publish"
-                    checked={isScheduled}
-                    onChange={(checked) => {
-                        setIsScheduled(checked)
-                    }}
-                    checkedBody={ <Box><VStack w="100%" alignItems={"flex-start"}><Box fontSize="14px">Yes, publish this content automatically on this date.</Box><HStack w="100%"> <SingleDatepicker
-                        date={ScheduleDate}
-                        onDateChange={(date) => {
-                            
-                           const value = dayjs(date).toDate()
-                           setScheduleDate(value);
+                                                        popoverCompProps: {
+                                                            popoverContentProps: {
+                                                                color: "white",
+                                                            },
+                                                        },
+                                                    }}
+                                                ></SingleDatepicker>
+                                                <TextInput
+                                                    value={`${ScheduleHour}_${ScheduleMinute}`}
+                                                    onChange={(value) => {
+                                                        setScheduleHour(parseInt(value.split("_")[0]))
+                                                        setScheduleMinute(parseInt(value.split("_")[1]))
+                                                    }}
+                                                    options={options}
+                                                    type="select"
+                                                ></TextInput>
+                                            </HStack>
+                                        </VStack>
+                                    </Box>
+                                }
+                                uncheckedBody={
+                                    <Box fontSize="14px" color="gray">
+                                        No, manually publish content
+                                    </Box>
+                                }
+                            ></CheckboxInput>
 
+                            <CheckboxInput
+                                align="top"
+                                subject="Depublish"
+                                checked={isScheduledDepublish}
+                                onChange={(checked) => {
+                                    setIsScheduledDepublish(checked)
+                                }}
+                                checkedBody={
+                                    <Box>
+                                        <VStack w="100%" alignItems={"flex-start"}>
+                                            <Box fontSize="14px">Yes, depublish this content automatically on this date.</Box>
+                                            <HStack w="100%">
+                                                {" "}
+                                                <SingleDatepicker
+                                                    date={SceduledDepublishDate}
+                                                    onDateChange={(date) => {
+                                                        const value = dayjs(date).toDate()
+                                                        setSceduledDepublishDate(value)
+                                                    }}
+                                                    propsConfigs={{
+                                                        weekdayLabelProps: {
+                                                            color: "black",
+                                                        },
+                                                        dateHeadingProps: {
+                                                            color: "black",
+                                                        },
+                                                        dayOfMonthBtnProps: {
+                                                            defaultBtnProps: {
+                                                                borderRadius: "50%",
+                                                                width: "40px",
+                                                                height: "40px",
+                                                                _hover: {
+                                                                    background: "gray.100",
+                                                                    color: "black",
+                                                                },
+                                                            },
+
+                                                            selectedBtnProps: {
+                                                                backgroundColor: "blue.500",
+                                                                color: "#fff",
+                                                            },
+                                                        },
+
+                                                        popoverCompProps: {
+                                                            popoverContentProps: {
+                                                                color: "white",
+                                                            },
+                                                        },
+                                                    }}
+                                                ></SingleDatepicker>
+                                                <TextInput
+                                                    value={`${ScheduleDepublishHour}_${ScheduleDepublishMinute}`}
+                                                    onChange={(value) => {
+                                                        setScheduleDepublishHour(parseInt(value.split("_")[0]))
+                                                        setScheduleDepublishMinute(parseInt(value.split("_")[1]))
+                                                    }}
+                                                    options={options}
+                                                    type="select"
+                                                ></TextInput>
+                                            </HStack>
+                                        </VStack>
+                                    </Box>
+                                }
+                                uncheckedBody={
+                                    <Box fontSize="14px" color="gray">
+                                        No, do not depublish the content
+                                    </Box>
+                                }
+                            ></CheckboxInput>
+                        </VStack>
+                    </VStack>
+                </ModalBody>
+
+                <ModalFooter pb={10} px={10} gap={10}>
+                    <Button
+                        colorScheme="green"
+                        mr={3}
+                        minW="150px"
+                        onClick={async () => {
+                            const newSchduledDate = isScheduled
+                                ? dayjs(`${dayjs(ScheduleDate).format("YYYY-MM-DD")} ${padZero(ScheduleHour, 2)}:${padZero(ScheduleMinute, 2)}:00`).toDate()
+                                : undefined
+                            const newSchduledDepublishDate = isScheduled
+                                ? dayjs(
+                                      `${dayjs(SceduledDepublishDate).format("YYYY-MM-DD")} ${padZero(ScheduleDepublishHour, 2)}:${padZero(ScheduleDepublishMinute, 2)}:00`
+                                  ).toDate()
+                                : undefined
+
+                            const PublishData = {
+                                PublishDate: isScheduled
+                                    ? dayjs(`${dayjs(ScheduleDate).format("YYYY-MM-DD")} ${padZero(ScheduleHour, 2)}:${padZero(ScheduleMinute, 2)}:00`).toDate()
+                                    : undefined,
+                                DepublishDate: isScheduledDepublish
+                                    ? dayjs(
+                                          `${dayjs(SceduledDepublishDate).format("YYYY-MM-DD")} ${padZero(ScheduleDepublishHour, 2)}:${padZero(ScheduleDepublishMinute, 2)}:00`
+                                      ).toDate()
+                                    : undefined,
+                            }
+
+                            onChange(PublishData)
+                            onScheduleClose()
                         }}
-                        
-                        propsConfigs={{
-                        weekdayLabelProps : {
-                            color : "black"
-                        },
-                        dateHeadingProps : {
-                            color : "black"
-                        },
-                          dayOfMonthBtnProps: {
-                            defaultBtnProps: {
-                              borderRadius : "50%",
-                              width : "40px",
-                              height : "40px",
-                              _hover: {
-                                background: "gray.100",
-                                color: "black"
-                              }
-                            },
-                      
-                      
-                            selectedBtnProps: {
-                                backgroundColor : "blue.500",
-                                color: "#fff",
-                              },
-                              
-  
-                          },
-      
-                          popoverCompProps: {
-                            popoverContentProps: {
-                              color: "white",
-                            },
-                          },
+                    >
+                        Set scheduling
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        onClick={() => {
+                            onScheduleClose()
                         }}
-                        
-                      ></SingleDatepicker>
-                      <TextInput value={`${ScheduleHour}_${ScheduleMinute}`} onChange={(value)=>{
-                        setScheduleHour(parseInt(value.split("_")[0]))
-                        setScheduleMinute(parseInt(value.split("_")[1]))
-                      }} options={options} type="select"></TextInput>
-                      </HStack></VStack></Box>}
-                    uncheckedBody={<Box fontSize="14px" color="gray">No, manually publish content</Box>}
-                ></CheckboxInput>
-
-
-
-<CheckboxInput
-                    align="top"
-                
-                    subject="Depublish"
-                    checked={isScheduledDepublish}
-                    onChange={(checked) => {
-                        setIsScheduledDepublish(checked)
-                    }}
-                    checkedBody={ <Box><VStack w="100%" alignItems={"flex-start"}><Box fontSize="14px">Yes, depublish this content automatically on this date.</Box><HStack w="100%"> <SingleDatepicker
-                        date={SceduledDepublishDate}
-                        onDateChange={(date) => {
-                            
-                           const value = dayjs(date).toDate()
-                           setSceduledDepublishDate(value);
-
-                        }}
-                        
-                        propsConfigs={{
-                        weekdayLabelProps : {
-                            color : "black"
-                        },
-                        dateHeadingProps : {
-                            color : "black"
-                        },
-                          dayOfMonthBtnProps: {
-                            defaultBtnProps: {
-                              borderRadius : "50%",
-                              width : "40px",
-                              height : "40px",
-                              _hover: {
-                                background: "gray.100",
-                                color: "black"
-                              }
-                            },
-                      
-                      
-                            selectedBtnProps: {
-                                backgroundColor : "blue.500",
-                                color: "#fff",
-                              },
-                              
-  
-                          },
-      
-                          popoverCompProps: {
-                            popoverContentProps: {
-                              color: "white",
-                            },
-                          },
-                        }}
-                        
-                      ></SingleDatepicker>
-                      <TextInput value={`${ScheduleDepublishHour}_${ScheduleDepublishMinute}`} onChange={(value)=>{
-                        setScheduleDepublishHour(parseInt(value.split("_")[0]))
-                        setScheduleDepublishMinute(parseInt(value.split("_")[1]))
-                      }} options={options} type="select"></TextInput>
-                      </HStack></VStack></Box>}
-                    uncheckedBody={<Box fontSize="14px" color="gray">No, do not depublish the content</Box>}
-                ></CheckboxInput>
-
-
-            </VStack>
-        </VStack>
-
-
-
-        </ModalBody>
-
-        <ModalFooter pb={10} px={10} gap={10}>
-            <Button
-                colorScheme="green"
-                mr={3}
-                minW="150px"
-                onClick={async () => {
-                    
-                    const newSchduledDate = isScheduled ? dayjs(`${dayjs(ScheduleDate).format("YYYY-MM-DD")} ${padZero(ScheduleHour,2)}:${padZero(ScheduleMinute,2)}:00`).toDate() : undefined;
-                    const newSchduledDepublishDate = isScheduled ? dayjs(`${dayjs(SceduledDepublishDate).format("YYYY-MM-DD")} ${padZero(ScheduleDepublishHour,2)}:${padZero(ScheduleDepublishMinute,2)}:00`).toDate() : undefined;
-
-
-                    const PublishData =  { 
-                        PublishDate : isScheduled ? dayjs(`${dayjs(ScheduleDate).format("YYYY-MM-DD")} ${padZero(ScheduleHour,2)}:${padZero(ScheduleMinute,2)}:00`).toDate() : undefined,
-                        DepublishDate : isScheduledDepublish ? dayjs(`${dayjs(SceduledDepublishDate).format("YYYY-MM-DD")} ${padZero(ScheduleDepublishHour,2)}:${padZero(ScheduleDepublishMinute,2)}:00`).toDate() : undefined
-                     }
-
-                     onChange(PublishData)
-                     onScheduleClose();
-
-                     
-
-                }}
-
-            >
-               Set scheduling
-            </Button>
-            <Button
-                variant="ghost"
-                onClick={() => {
-
-                    onScheduleClose()
-                }}
-            >
-                Cancel
-            </Button>
-        </ModalFooter>
-    </ModalContent>
-</Modal>  
+                    >
+                        Cancel
+                    </Button>
+                </ModalFooter>
+            </ModalContent>
+        </Modal>
+    )
 }
