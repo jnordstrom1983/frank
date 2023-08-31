@@ -8,6 +8,7 @@ const PutAccesskeyItemRequestSchema = AccessKeySchema.pick({
     name: true,
     contentTypes: true,
     allContent: true,
+    drafts : true
 })
 export type PutAccesskeyItemRequest = z.infer<typeof PutAccesskeyItemRequestSchema>
 

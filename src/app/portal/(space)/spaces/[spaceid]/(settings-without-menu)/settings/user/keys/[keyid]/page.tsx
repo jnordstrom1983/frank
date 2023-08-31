@@ -49,6 +49,7 @@ export default function Home({ params }: { params: { spaceid: string; keyid: str
     const [name, setName] = useState<string>("")
     const [key, setKey] = useState<string>("")
     const [allContent, setAllContent] = useState<boolean>(false)
+    const [drafts, setDrafts] = useState<boolean>(false)
     const [selectedContentTypes, setSelectedContentTypes] = useState<string[]>([])
     const { contenttypes } = useContentypes(params.spaceid, {})
     const [isLoading, setIsLoading] = useState(true)
@@ -75,6 +76,7 @@ export default function Home({ params }: { params: { spaceid: string; keyid: str
         setName(key.name)
         setAllContent(key.allContent)
         setSelectedContentTypes(key.contentTypes)
+        setDrafts(key.drafts)
 
         setIsLoading(false)
     }, [keys, contenttypes])
@@ -88,6 +90,7 @@ export default function Home({ params }: { params: { spaceid: string; keyid: str
                     name,
                     allContent,
                     contentTypes: selectedContentTypes,
+                    drafts,
                 },
                 isAuthRequired: true,
             })
@@ -262,52 +265,66 @@ export default function Home({ params }: { params: { spaceid: string; keyid: str
                                     </Box>
                                 </HStack>
 
-                                <CheckboxInput
-                                    subject="Scope"
-                                    align="top"
-                                    checked={allContent}
-                                    onChange={setAllContent}
-                                    uncheckedBody={
-                                        <VStack w="100%" alignItems={"flex-start"}>
-                                            <Box w="100%">This access key does only have access to these contet types.</Box>
-                                            <Table>
-                                                <Thead>
-                                                    <Tr>
-                                                        <Th>Content type</Th>
-                                                    </Tr>
-                                                </Thead>
-                                                <Tbody>
-                                                    {contenttypes!.map((c) => {
-                                                        return (
-                                                            <Tr key={c.contentTypeId}>
-                                                                <Td>
-                                                                    <SimpleCheckboxInput
-                                                                        checked={selectedContentTypes.includes(c.contentTypeId)}
-                                                                        description={c.name}
-                                                                        onChange={(checked) => {
-                                                                            let newItems = [...selectedContentTypes]
-                                                                            if (checked) {
-                                                                                if (!newItems.includes(c.contentTypeId)) {
-                                                                                    newItems.push(c.contentTypeId)
-                                                                                }
-                                                                            } else {
-                                                                                if (newItems.includes(c.contentTypeId)) {
-                                                                                    newItems = newItems.filter((n) => n !== c.contentTypeId)
-                                                                                }
-                                                                            }
-                                                                            setSelectedContentTypes(newItems)
-                                                                        }}
-                                                                    ></SimpleCheckboxInput>
-                                                                </Td>
+                                <HStack spacing={20} w="100%" alignItems={"flex-start"}>
+                                    <Box w="50%">
+                                        <CheckboxInput
+                                            subject="Scope"
+                                            align="top"
+                                            checked={allContent}
+                                            onChange={setAllContent}
+                                            uncheckedBody={
+                                                <VStack w="100%" alignItems={"flex-start"}>
+                                                    <Box w="100%">This access key does only have access to these contet types.</Box>
+                                                    <Table>
+                                                        <Thead>
+                                                            <Tr>
+                                                                <Th>Content type</Th>
                                                             </Tr>
-                                                        )
-                                                    })}
-                                                </Tbody>
-                                            </Table>
-                                        </VStack>
-                                    }
-                                    checkedBody={<>Access to all content</>}
-                                ></CheckboxInput>
+                                                        </Thead>
+                                                        <Tbody>
+                                                            {contenttypes!.map((c) => {
+                                                                return (
+                                                                    <Tr key={c.contentTypeId}>
+                                                                        <Td>
+                                                                            <SimpleCheckboxInput
+                                                                                checked={selectedContentTypes.includes(c.contentTypeId)}
+                                                                                description={c.name}
+                                                                                onChange={(checked) => {
+                                                                                    let newItems = [...selectedContentTypes]
+                                                                                    if (checked) {
+                                                                                        if (!newItems.includes(c.contentTypeId)) {
+                                                                                            newItems.push(c.contentTypeId)
+                                                                                        }
+                                                                                    } else {
+                                                                                        if (newItems.includes(c.contentTypeId)) {
+                                                                                            newItems = newItems.filter((n) => n !== c.contentTypeId)
+                                                                                        }
+                                                                                    }
+                                                                                    setSelectedContentTypes(newItems)
+                                                                                }}
+                                                                            ></SimpleCheckboxInput>
+                                                                        </Td>
+                                                                    </Tr>
+                                                                )
+                                                            })}
+                                                        </Tbody>
+                                                    </Table>
+                                                </VStack>
+                                            }
+                                            checkedBody={<>Access to all content</>}
+                                        ></CheckboxInput>
+                                    </Box>
+                                    <Box w="50%">
+                                        <CheckboxInput
+                                            subject="Access drafts"
+                                            align="top"
+                                            checked={drafts}
+                                            onChange={setDrafts}
+                                            uncheckedBody={<Box>No this key can't access drafts</Box>}
+                                            checkedBody={<>Drafts can be fetched with this key</>}
+                                        ></CheckboxInput>
+                                    </Box>
+                                </HStack>
 
                                 <Box w="100%">
                                     <Box mb={5}>Danger zone</Box>

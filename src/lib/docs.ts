@@ -33,6 +33,7 @@ import { SPACE_DOC as SPACE_DOC_SPACEID } from "@/app/api/space/[spaceid]/doc";
 import { SPACE_DOC } from "@/app/api/space//doc";
 import { CONTENT_DOC } from "@/app/content/[spaceid]/doc";
 import { SpaceLanguageEnum } from "@/models/space";
+import { SPACE_TRASH_DOC } from "@/app/api/space/[spaceid]/trash/doc";
 extendZodWithOpenApi(z);
 
 
@@ -409,6 +410,7 @@ export function generateSpaceDocs(spaceId: string) {
         ...SPACE_WEBHOOK_DOC,
         ...SPACE_WEBHOOK_WEBHOOKID_DOC,
         ...SPACE_DOC_SPACEID,
+        ...SPACE_TRASH_DOC
 
     ];
 
@@ -569,6 +571,48 @@ export function generateContentDocs(spaceId: string) {
         description: "Comma separated list of fields to return from the data property.",
         example: "name,title",
     }).optional())
+
+
+    params["sort"] = registry.registerParameter('sort', z.string().openapi({
+        param: {
+            name: 'sort',
+            in: 'query',
+        },
+        description: "Comma separated list of fields to sort by, or a JSON sort object.",
+        example: 'data.name,data.title or { "data.name" : 1, "data.title" : -1 }',
+    }).optional())
+
+    params["sortDirection"] = registry.registerParameter('sortDirection', z.string().openapi({
+        param: {
+            name: 'sortDirection',
+            in: 'query',
+        },
+        description: "Direction to sort items by (asc or desc)",
+        example: 'asc',
+    }).optional())
+
+
+    params["project"] = registry.registerParameter('project', z.string().openapi({
+        param: {
+            name: 'project',
+            in: 'query',
+        },
+        description: "Comma separated list of fields to return from the data property.",
+        example: "name,title",
+    }).optional())
+
+
+    params["draft"] = registry.registerParameter('draft', z.string().openapi({
+        param: {
+            name: 'draft',
+            in: 'query',
+        },
+        description: "Include drafts. Requires a access key with draft access.",
+        example: "true",
+    }).optional())
+
+
+
 
 
 

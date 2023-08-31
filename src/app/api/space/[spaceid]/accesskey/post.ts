@@ -30,6 +30,7 @@ export async function POST(req: Request, context: { params: { spaceid: string } 
                     name: data.name,
                     contentTypes: [],
                     allContent: true,
+                    drafts : false
                 })
                 return returnJSON<PostAccesskeyResponse>({ keyId: created!.keyId }, PostAccesskeyResponseSchema)
             })

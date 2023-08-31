@@ -7,6 +7,7 @@ export const AccessKeySchema = z.object({
     key : z.string(),
     allContent: z.boolean(),
     contentTypes: z.array(z.string()),
+    drafts : z.boolean(),
 })
 
 export type AccessKey = z.infer<typeof AccessKeySchema>

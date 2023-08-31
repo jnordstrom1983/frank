@@ -34,7 +34,7 @@ const AggregatedContentDataItemSchema = ContentDataAggregationSchema.omit({
 type AggregatedContentDataItemSchema = z.infer<typeof AggregatedContentDataItemSchema>
 
 export async function GET(req: NextRequest, context: { params: { spaceid: string } }) {
-    return await withContentAccess(req, context.params.spaceid, async (restrictedToContentTypes) => {
+    return await withContentAccess(req, context.params.spaceid, async (restrictedToContentTypes, drafts) => {
         const queryParams = Array.from(req.nextUrl.searchParams);
 
 
@@ -52,16 +52,23 @@ export async function GET(req: NextRequest, context: { params: { spaceid: string
                 return returnError({ error: ex.message, code: errorCodes.invalidRequestBody, message: "Invalid query supplied", status: 422 })
             }
         }
-        const items = await GetContent(params, restrictedToContentTypes, context.params.spaceid)
+        const items = await GetContent(params, restrictedToContentTypes, context.params.spaceid, !!drafts)
 
         return returnJSON<GetContentResponse>({ items }, GetContentResponseSchema)
     })
 }
 
 
-export async function GetContent(params: Record<string, string>, restrictedToContentTypes : string[] | undefined, spaceId : string){
+export async function GetContent(params: Record<string, string>, restrictedToContentTypes : string[] | undefined, spaceId : string, drafts : boolean){
 
-    let query: Filter<ContentData> = [{ spaceId: params["spaceid"], status: "published" }]
+    console.log("drafts", drafts)
+    let query: Filter<ContentData> = [];
+    if(drafts && params["draft"]){
+        query.push({ spaceId: params["spaceid"], status: { $in : ["published", "draft"] } })
+    }else{
+        query.push({ spaceId: params["spaceid"], status: "published" })
+    }
+    console.log(query)
 
 
     const space = await collections.space.findOne({ spaceId: params.spaceid })
@@ -140,6 +147,7 @@ export async function GetContent(params: Record<string, string>, restrictedToCon
             referencedAssets: 1,
             status: 1,
             slug : 1,
+            publishDate : 1,
          }
         paramsArr.forEach(p => {
             projection![`data.${p}`] = 1;
@@ -147,6 +155,27 @@ export async function GetContent(params: Record<string, string>, restrictedToCon
         aggregationPipeline.push({ "$project": projection })
     }
 
+
+    if(params["sort"]){
+        let sort = params["sort"];
+        let sortObject : any = null
+        try{
+            sortObject = JSON.parse(sort);
+        }catch(ex){
+
+        }
+        if(!sortObject){
+            sortObject = {};
+            let sortDirection = params["sortDirection"] ? (params["sortDirection"] === "asc" ? 1 : -1) : 1;
+            let sortArray = sort.split(",")
+            sortArray.forEach(s=>{
+                sortObject[s] = sortDirection;
+            })
+        }
+        aggregationPipeline.push({
+            $sort : sortObject
+        })
+    }
 
 
 
@@ -403,7 +432,7 @@ export const GET_DOC: generateRouteInfoParams = {
     requiresAuth: "content",
     params: ["spaceid"],
     //@ts-ignore
-    query: ["contentTypeId", "contentId", "folderId", "languageId", "expand", "expandLevels", "expandFallbackLanguageId", "query", "project", "slug"],
+    query: ["contentTypeId", "contentId", "folderId", "languageId", "expand", "expandLevels", "expandFallbackLanguageId", "query", "project", "slug", "sort", "sortDirection", "draft"],
     responseSchema: GetContentResponseSchema,
     responseDescription: "Content",
     errors: {

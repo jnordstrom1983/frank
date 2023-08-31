@@ -20,7 +20,7 @@ export type GetContentItem = z.infer<typeof GetContentItemSchema>
 
 
 export async function GET(req: NextRequest, context: { params: { spaceid: string, contentid : string } }) {
-    return await withContentAccess(req, context.params.spaceid, async (restrictedToContentTypes) => {
+    return await withContentAccess(req, context.params.spaceid, async (restrictedToContentTypes, drafts) => {
         const queryParams = Array.from(req.nextUrl.searchParams);
 
 
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest, context: { params: { spaceid: string
             params["languageId"] = space.defaultLanguage
         }
       
-        const items = await GetContent(params, restrictedToContentTypes, context.params.spaceid)
+        const items = await GetContent(params, restrictedToContentTypes, context.params.spaceid, !!drafts)
         if(items.length === 0){
             return returnNotFound("Content not found")
         }
@@ -59,7 +59,7 @@ export const GET_DOC: generateRouteInfoParams = {
     requiresAuth: "content",
     params: ["spaceid", "contentid"],
     //@ts-ignore
-    query: ["languageId", "expand", "expandLevels", "expandFallbackLanguageId", "project"],
+    query: ["languageId", "expand", "expandLevels", "expandFallbackLanguageId", "project", "draft"],
     responseSchema: GetContentResponseSchema,
     responseDescription: "Content",
     errors: {
