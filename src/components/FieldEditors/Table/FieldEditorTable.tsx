@@ -45,7 +45,7 @@ export function FieldEditorTable({ value, field, onChange }: { value: any; field
                     <TableEditor
                         data={value as string[][]}
                         onChange={internalOnChange} editable={true}
-                        width={650}
+                        width={690}
                         internalPadding={0}
                     ></TableEditor>
                 </Box>

@@ -1,18 +1,20 @@
 import { Field } from "@/models/field";
-import { ValidateNumberFieldValue } from "./Number/FieldEditorNumberHelper";
-import { ValidateStringFieldValue } from "./String/FieldEditorStringHelper";
-import { ValidateReferenceFieldValue } from "./Reference/FieldEditorReferenceHelper";
-import { ValidateReferenceArrayFieldValue } from "./ReferenceArray/FieldEditorReferenceArrayHelper";
-import { ValidateBlockFieldValue } from "./Block/FieldEditorBlockHelper";
-import { ValidateTableFieldValue } from "./Table/FieldEditorTableHelper";
 import { ValidateAssetFieldValue } from "./Asset/FieldEditorAssetHelper";
 import { ValidateAssetArrayFieldValue } from "./AssetArray/FieldEditorAssetHelper";
+import { ValidateBlockFieldValue } from "./Block/FieldEditorBlockHelper";
+import { ValidateNumberFieldValue } from "./Number/FieldEditorNumberHelper";
+import { ValidateObjectFieldValue } from "./Object/FieldEditorObjectHelper";
+import { ValidateObjectArrayFieldValue } from "./ObjectArray/FieldEditorObjectArrayHelper";
+import { ValidateReferenceFieldValue } from "./Reference/FieldEditorReferenceHelper";
+import { ValidateReferenceArrayFieldValue } from "./ReferenceArray/FieldEditorReferenceArrayHelper";
+import { ValidateStringFieldValue } from "./String/FieldEditorStringHelper";
+import { ValidateTableFieldValue } from "./Table/FieldEditorTableHelper";
 
 export function GetFieldValidationErrors(field: Field, value: any) {
 
     const result = ValidateFieldValueschema(field, value);
     if (!result) {
-        return [`Validator for data type not found ${field.dataTypeId}`]
+        return [`Validator for data type not found: ${field.dataTypeId}`]
     }
     if (!result.success) {
         return result.error.errors.map((e: any) => e.message)
@@ -23,6 +25,7 @@ export function GetFieldValidationErrors(field: Field, value: any) {
 }
 
 export function ValidateFieldValueschema(field: Field, value: any) {
+    console.log(field.dataTypeId)
     switch (field.dataTypeId) {
         case "string":
             return ValidateStringFieldValue(field, value as string | undefined);
@@ -40,6 +43,9 @@ export function ValidateFieldValueschema(field: Field, value: any) {
             return ValidateAssetFieldValue(field, value);
         case "assetArray":
             return ValidateAssetArrayFieldValue(field, value);
-
+        case "object":
+            return ValidateObjectFieldValue(field, value);
+        case "objectArray":
+            return ValidateObjectArrayFieldValue(field, value);
     }
 }

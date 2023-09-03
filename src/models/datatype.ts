@@ -21,7 +21,7 @@ export const dataTypeSettingsProperties = z.object({}).optional()
 export const dataTypeSettingsSchema = z.object({
     id: z.string(),
     name: z.string(),
-    type: z.enum(["textbox", "checkbox", "contenttypes", "checkboxes", "checkboxInput"]),
+    type: z.enum(["textbox", "checkbox", "contenttypes", "checkboxes", "checkboxInput", "objectProperties"]),
     data: z.any(),
 })
 export type dataTypeSettings = z.infer<typeof dataTypeSettingsSchema>

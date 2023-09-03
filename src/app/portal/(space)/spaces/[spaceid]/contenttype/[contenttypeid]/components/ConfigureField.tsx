@@ -24,6 +24,8 @@ import { MinValueValidatorProperties } from "@/components/FieldValidators/MinVal
 import { MaxValueValidatorProperties } from "@/components/FieldValidators/MaxValueUtils"
 import { useContenttype, useContentypes } from "@/networking/hooks/contenttypes"
 import { CheckboxList } from "@/components/CheckboxList"
+import { ObjectPropertyEditor } from "@/components/ObjectPropertyEditor"
+import { ObjectPropertiesEditor } from "@/components/ObjectPropertiesEditor"
 
 export function ConfigureField({
     isOpen,
@@ -227,6 +229,10 @@ export function ConfigureField({
 
                                                 ></CheckboxInput>
                                             )
+                                        case "objectProperties":
+                                            return <ObjectPropertiesEditor key={`setting_${setting.id}`} subject={setting.name} onChange={(properties) => {
+                                                setSettingValue(setting.id, properties)
+                                            }} properties={existingValue === undefined ? [] : existingValue}></ObjectPropertiesEditor>
 
                                     }
                                     return null

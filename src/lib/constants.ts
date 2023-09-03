@@ -335,6 +335,62 @@ export const dataTypes: dataType[] = [
 
         ],
     },
+
+    {
+        id: "object",
+        name: "object",
+        variants: [
+            {
+                id: "object",
+                name: "Object",
+                options: "disabled",
+                canBeTitle: false,
+                defaultValue: {},
+                validators: {
+
+                },
+                settings: [
+                    { id: "properties", name: "Properties", type: "objectProperties", data: {} },
+                ],
+                ai: {
+                    check: false,
+                    translate: false,
+                    reprahse: false,
+                },
+
+            },
+
+        ],
+    },
+
+    {
+        id: "objectArray",
+        name: "object[]",
+        variants: [
+            {
+                id: "objects",
+                name: "Objects",
+                options: "disabled",
+                canBeTitle: false,
+                defaultValue: [],
+                validators: {
+
+                },
+                settings: [
+                    { id: "properties", name: "Properties", type: "objectProperties", data: {} },
+                ],
+                ai: {
+                    check: false,
+                    translate: false,
+                    reprahse: false,
+                },
+
+            },
+
+        ],
+    },
+
+
 ]
 
 
