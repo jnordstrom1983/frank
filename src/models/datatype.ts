@@ -46,7 +46,7 @@ export type dataTypeVariant = z.infer<typeof dataTypeVariantSchema>
 export const dataTypeSchema = z.object({
     id: z.string(),
     name: z.string(),
-
+    description: z.string(),
     variants: z.array(dataTypeVariantSchema),
 })
 

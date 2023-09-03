@@ -3,7 +3,7 @@ import TextInput from "@/components/TextInput"
 import { dataTypes } from "@/lib/constants"
 import { camelize } from "@/lib/utils"
 import { Field, FieldValidators } from "@/models/field"
-import { Button, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, VStack } from "@chakra-ui/react"
+import { Box, Button, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Radio, RadioGroup, Tag, VStack } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { z } from "zod"
 
@@ -47,16 +47,16 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
         if (!nameValid) return
         const variantObject = typeObject?.variants.find((v) => v.id == variant)
         if (!variantObject) return
-        
+
         let validators: FieldValidators = {}
         Object.keys(variantObject.validators).forEach((key) => {
             //@ts-ignore
             let validator = variantObject.validators[key] as any
             //@ts-ignore
-            validators[key] = {...validator}
+            validators[key] = { ...validator }
         })
 
-        if(validators.required !== undefined && variantObject.canBeTitle && fields.length === 0){
+        if (validators.required !== undefined && variantObject.canBeTitle && fields.length === 0) {
             validators.required.enabled = true
         }
 
@@ -68,7 +68,7 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
             description: "",
             title: variantObject.canBeTitle ? fields.length === 0 : false,
             validators,
-            options: variantObject.options === "mandatory" ? [] : undefined ,
+            options: variantObject.options === "mandatory" ? [] : undefined,
             settings: [],
         }
         onFieldAdded(field)
@@ -79,9 +79,9 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
         setVariant("textbox")
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         const obj = dataTypes.find((t) => t.id === dataTypeValue)
-        setVariant(obj?.variants[0].id || "")
+        setVariant(obj?.variants[0].id || "")
     }, [dataTypeValue])
     return (
         <Modal isOpen={isOpen} onClose={onClose} isCentered={true}>
@@ -105,11 +105,35 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
                                     setNameValid(valid)
                                 }}
                             ></TextInput>
-                            <TextInput subject="Data type" value={dataTypeValue} onChange={setDataType} type="select" options={typesItems}></TextInput>
-                        </VStack>
-                        <VStack w="50%" alignItems={"flex-start"}>
                             <TextInput subject="fieldId" disabled={true} value={fieldId}></TextInput>
                         </VStack>
+                        <Box overflowY={"auto"} maxH="60vh" w="50%">
+                            <Box>Data type</Box>
+                            <RadioGroup defaultValue={dataTypeValue} onChange={setDataType}>
+                                <VStack w="100%" alignItems={"flex-start"}>
+                                    {dataTypes.map(type => {
+                                        return <Box key={type.id} backgroundColor={dataTypeValue === type.id ? "#F1F1F1" : undefined} p="3" paddingLeft={6} w="100%">
+                                            <Radio value={type.id} w="100%">
+                                                <VStack spacing={1} paddingLeft={3} w="100%" alignItems={"flex-start"}>
+                                                    <Box>{type.name}</Box>
+                                                    <Box fontSize="13px" color="gray.500">{type.description}</Box>
+                                                    {type.variants.length > 1 && <HStack>
+                                                        {type.variants.map(v => {
+                                                            return <Tag key={v.id} colorScheme="blue">{v.name}</Tag>
+                                                        })}
+                                                    </HStack>}
+                                                </VStack>
+                                            </Radio>
+                                        </Box>
+                                    })}
+
+
+                                </VStack>
+                            </RadioGroup>
+
+                        </Box>
+
+
                     </HStack>
                 </ModalBody>
 

@@ -40,6 +40,7 @@ export const dataTypes: dataType[] = [
     {
         id: "string",
         name: "string",
+        description: "Regular text",
         variants: [
             {
                 id: "textbox",
@@ -110,6 +111,7 @@ export const dataTypes: dataType[] = [
     {
         id: "number",
         name: "number",
+        description: "Regular number",
         variants: [
             {
                 id: "textbox",
@@ -155,6 +157,7 @@ export const dataTypes: dataType[] = [
     {
         id: "reference",
         name: "reference",
+        description: "Reference to content item",
         variants: [
             {
                 id: "reference",
@@ -181,8 +184,39 @@ export const dataTypes: dataType[] = [
         ],
     },
     {
+        id: "referenceArray",
+        name: "reference[]",
+        description: "Reference to multiple content items",
+        variants: [
+            {
+                id: "reference",
+                name: "Content references",
+                options: "disabled",
+                canBeTitle: false,
+                defaultValue: [],
+                validators: {
+                    required: { enabled: false },
+                },
+                settings: [
+                    { id: "contenttypes", name: "Content types", type: "contenttypes", data: { all: "Allow any type of content", value: ["__all__"] } },
+                    { id: "select", name: "Select content", type: "checkbox", data: { description: "Allow to select already existing content", checked: true } },
+                    { id: "create", name: "Create content", type: "checkbox", data: { description: "Allow to create new content", checked: true } },
+                    { id: "edit", name: "Edit content", type: "checkbox", data: { description: "Allow to edit referenced content", checked: false } }
+                ],
+                ai: {
+                    check: false,
+                    translate: false,
+                    reprahse: false,
+                },
+
+            },
+
+        ],
+    },
+    {
         id: "asset",
         name: "asset",
+        description: "Reference to asset",
         variants: [
             {
                 id: "asset",
@@ -213,6 +247,7 @@ export const dataTypes: dataType[] = [
     {
         id: "assetArray",
         name: "asset[]",
+        description: "Reference to multiple assets",
         variants: [
             {
                 id: "asset",
@@ -241,38 +276,11 @@ export const dataTypes: dataType[] = [
 
         ],
     },
-    {
-        id: "referenceArray",
-        name: "reference[]",
-        variants: [
-            {
-                id: "reference",
-                name: "Content references",
-                options: "disabled",
-                canBeTitle: false,
-                defaultValue: [],
-                validators: {
-                    required: { enabled: false },
-                },
-                settings: [
-                    { id: "contenttypes", name: "Content types", type: "contenttypes", data: { all: "Allow any type of content", value: ["__all__"] } },
-                    { id: "select", name: "Select content", type: "checkbox", data: { description: "Allow to select already existing content", checked: true } },
-                    { id: "create", name: "Create content", type: "checkbox", data: { description: "Allow to create new content", checked: true } },
-                    { id: "edit", name: "Edit content", type: "checkbox", data: { description: "Allow to edit referenced content", checked: false } }
-                ],
-                ai: {
-                    check: false,
-                    translate: false,
-                    reprahse: false,
-                },
 
-            },
-
-        ],
-    },
     {
         id: "blocks",
         name: "blocks",
+        description: "Content blocks of various types",
         variants: [
             {
                 id: "array",
@@ -313,6 +321,7 @@ export const dataTypes: dataType[] = [
     {
         id: "table",
         name: "table",
+        description: "Table made of rows and columns",
         variants: [
             {
                 id: "table",
@@ -339,6 +348,7 @@ export const dataTypes: dataType[] = [
     {
         id: "object",
         name: "object",
+        description: "Single item of structured data of specified properties",
         variants: [
             {
                 id: "object",
@@ -366,6 +376,7 @@ export const dataTypes: dataType[] = [
     {
         id: "objectArray",
         name: "object[]",
+        description: "Multiple objects of structured data with specified properties",
         variants: [
             {
                 id: "objects",
