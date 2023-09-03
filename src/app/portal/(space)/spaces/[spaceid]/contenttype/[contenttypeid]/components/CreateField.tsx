@@ -108,11 +108,11 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
                             <TextInput subject="fieldId" disabled={true} value={fieldId}></TextInput>
                         </VStack>
                         <Box overflowY={"auto"} maxH="60vh" w="50%">
-                            <Box>Data type</Box>
+                            <Box mb={2}>Data type</Box>
                             <RadioGroup defaultValue={dataTypeValue} onChange={setDataType}>
                                 <VStack w="100%" alignItems={"flex-start"}>
                                     {dataTypes.map(type => {
-                                        return <Box key={type.id} backgroundColor={dataTypeValue === type.id ? "#F1F1F1" : undefined} p="3" paddingLeft={6} w="100%">
+                                        return <Box key={type.id} backgroundColor={dataTypeValue === type.id ? "#F5F5F5" : undefined} p="3" borderRadius={10} paddingLeft={6} w="100%">
                                             <Radio value={type.id} w="100%">
                                                 <VStack spacing={1} paddingLeft={3} w="100%" alignItems={"flex-start"}>
                                                     <Box>{type.name}</Box>
