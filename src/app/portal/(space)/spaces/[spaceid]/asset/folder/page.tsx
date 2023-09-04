@@ -76,9 +76,9 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
 
 
-        {mode == "create" && <Box bg="white" mt="-3px" padding="10">
+        {mode == "create" && <Box bg="white" mt="-3px" padding="10" >
 
-            <Container maxW="800px">
+            <Container maxW="800px" py="50px">
 
                 {folders && folders?.length > 0 &&
                     <Flex justifyContent="flex-end" w="100%">

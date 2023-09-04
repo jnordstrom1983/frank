@@ -14,7 +14,7 @@ export default function Layout({ children, params }: { children: React.ReactNode
     }, [mainMenu])
     return (
         <>
-            <Flex style={{ minHeight: "calc(100vh - 78px)" }} flex={1} flexDir={"column"} position={"relative"}>
+            <Flex style={{ minHeight: "calc(100vh - 42px)" }} flex={1} flexDir={"column"} position={"relative"}>
                 <Flex flex={1} flexDir={"row"}>
                     <Flex bg="#fff" width="250px" p={5}>
                         <VStack spacing={10} alignItems={"flex-start"} w="100%">

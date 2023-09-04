@@ -103,12 +103,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             )}
             {mode == "create" && (
                 <Box bg="white" mt="-3px" padding="10">
-                    <Container maxW="800px">
+                    <Container maxW="800px" py="50px">
                         {spaces && spaces?.length > 0 && (
                             <Flex justifyContent="flex-end" w="100%">
                                 <Button
                                     variant={"ghost"}
-                                    marginTop={-10}
+                                    marginTop={-5}
                                     onClick={() => {
                                         setMode("list")
                                     }}
@@ -171,7 +171,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
             {mode == "list" && (
                 <>
-                    <Flex style={{ minHeight: "calc(100vh - 78px)" }} flex={1} flexDir={"column"} maxW="1400px">
+                    <Flex style={{ minHeight: "calc(100vh - 42px)" }} flex={1} flexDir={"column"} maxW="1400px">
                         <Flex flex={1} flexDir={"row"}>
                             <Flex bg="#fff" width="250px" p={5}>
                                 <VStack spacing={10} alignItems={"flex-start"} w="100%">

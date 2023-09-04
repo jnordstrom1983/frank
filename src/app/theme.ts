@@ -1,40 +1,40 @@
 import { extendTheme } from "@chakra-ui/react"
 const colors = {
     blue: {
-        "50": "#EEF3F6",
-        "100": "#D0DDE6",
-        "200": "#B2C8D6",
-        "300": "#94B2C6",
-        "400": "#769CB7",
-        "500": "#5887A7",
-        "600": "#476C85",
-        "700": "#355164",
-        "800": "#233643",
-        "900": "#121B21",
+        "50": "#F0F2F5",
+        "100": "#D5DCE2",
+        "200": "#BAC5CF",
+        "300": "#9FAFBC",
+        "400": "#8498A9",
+        "500": "#698296",
+        "600": "#546878",
+        "700": "#3F4E5A",
+        "800": "#2A343C",
+        "900": "#151A1E",
     },
     green: {
-        "50": "#F0F5F1",
-        "100": "#D4E3D7",
-        "200": "#B8D1BD",
-        "300": "#9CBFA4",
-        "400": "#80AD8A",
-        "500": "#649B70",
-        "600": "#507C5A",
-        "700": "#3C5D43",
-        "800": "#283E2D",
-        "900": "#141F16",
+        "50": "#F0F5F3",
+        "100": "#D5E2DC",
+        "200": "#BACFC6",
+        "300": "#9EBCAF",
+        "400": "#83AA99",
+        "500": "#689783",
+        "600": "#537968",
+        "700": "#3E5B4E",
+        "800": "#2A3C34",
+        "900": "#151E1A",
     },
     red: {
-        "50": "#F9ECEC",
-        "100": "#EDCACA",
-        "200": "#E1A7A7",
-        "300": "#D68585",
-        "400": "#CA6363",
-        "500": "#BF4040",
-        "600": "#993333",
-        "700": "#722727",
-        "800": "#4C1A1A",
-        "900": "#260D0D",
+        "50": "#F4F0F0",
+        "100": "#E1D5D6",
+        "200": "#CEBBBC",
+        "300": "#BBA0A2",
+        "400": "#A88587",
+        "500": "#946B6D",
+        "600": "#775557",
+        "700": "#594041",
+        "800": "#3B2B2C",
+        "900": "#1E1516",
     },
     purple: {
         "50": "#F4EDF7",
@@ -88,7 +88,6 @@ export const theme = extendTheme({
         Textarea: {
             variants: {
                 text: {
-
                     backgroundColor: "#F5F5F5",
                     _placeholder: {
                         color: "#B1B1B1",
@@ -96,7 +95,6 @@ export const theme = extendTheme({
                     borderRadius: "3px",
                     height: "150px",
                     padding: "20px",
-
                 },
             },
             defaultProps: {
@@ -116,8 +114,7 @@ export const theme = extendTheme({
                     _hover: {
                         //backgroundColor : "#f00"
                     },
-                }
-
+                },
             },
         },
         Select: {
@@ -132,8 +129,8 @@ export const theme = extendTheme({
                         height: "50px",
                         px: "20px",
                     },
-                }
-            }
+                },
+            },
         },
         Menu: {
             variants: {
@@ -144,20 +141,16 @@ export const theme = extendTheme({
                         border: "none",
                         borderRadius: "3px",
                         overflow: "hidden",
-                        zIndex : 100
-
+                        zIndex: 100,
                     },
                     item: {
                         padding: 3,
-                    }
-
-                }
+                    },
+                },
             },
             defaultProps: {
                 variant: "standard",
             },
-
         },
-
     },
 })

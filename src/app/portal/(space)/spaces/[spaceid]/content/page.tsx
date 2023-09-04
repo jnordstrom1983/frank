@@ -293,7 +293,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             {mode == "notready" && (
                 <Box bg="white" mt="-3px" padding="10">
                     {space!.role === "owner" || profile?.role === "admin" ? (
-                        <Container maxW="600px">
+                        <Container maxW="600px" py="50px">
                             <HStack spacing="10" padding={10}>
                                 <Layers size="48px"></Layers>
                                 <VStack flex={1} alignItems="flex-start" spacing={5}>
@@ -316,7 +316,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             </HStack>
                         </Container>
                     ) : (
-                        <Container maxW="600px">
+                        <Container maxW="600px" py="50px">
                             <HStack spacing="10" padding={10}>
                                 <Loader size="48px"></Loader>
                                 <VStack flex={1} alignItems="flex-start">
@@ -336,7 +336,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
             {mode == "create" && (
                 <Box bg="white" mt="-3px" padding="10">
-                    <Container maxW="800px">
+                    <Container maxW="800px" py="50px">
                         {spaces && spaces?.length > 0 && (
                             <Flex justifyContent="flex-end" w="100%">
                                 <Button
@@ -402,7 +402,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
             {mode == "list" && contenttypes && (
                 <>
-                    <Flex style={{ minHeight: "calc(100vh - 78px)" }} flex={1} flexDir={"column"} maxW="1400px">
+                    <Flex style={{ minHeight: "calc(100vh - 42px)" }} flex={1} flexDir={"column"} maxW="1400px">
                         <Flex flex={1} flexDir={"row"}>
                             <Flex bg="#fff" width="250px" p={5}>
                                 <VStack spacing={10} alignItems={"flex-start"} w="100%">

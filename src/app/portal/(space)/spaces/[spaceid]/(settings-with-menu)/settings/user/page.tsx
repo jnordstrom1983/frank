@@ -75,7 +75,7 @@ export default function Setting({ params }: { params: { spaceid: string } }) {
 
             {mode == "create" && (
                 <Box bg="white" mt="-3px" padding="10" position={"absolute"} left={0} right={0} top={0}>
-                    <Container maxW="800px">
+                    <Container maxW="800px" py="50px">
                         <Flex justifyContent="flex-end" w="100%">
                             <Button
                                 variant={"ghost"}
