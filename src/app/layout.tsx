@@ -7,7 +7,7 @@ dayjs.extend(relativeTime)
 
 
 export const metadata = {
-    title: "Charlee",
+    title: "Frank",
     description: ".",
 }
 

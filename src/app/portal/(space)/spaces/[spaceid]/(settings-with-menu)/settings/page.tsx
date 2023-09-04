@@ -122,7 +122,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 value={APP_VERSION}
                                 type="text"
                                 disabled={true}
-                                subject="Charlee Version"
+                                subject="Frank Version"
                             ></TextInput>
 
 

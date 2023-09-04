@@ -24,7 +24,7 @@ export function SaveMenuBar({
         <Box backgroundColor="#fff" position={"fixed"} left="0" right="0" top="0" zIndex={10}>
             <HStack w="100%" p="3" height={"75px"}>
                 <Box width="150px">
-                    <Image src="/static/logofull.svg" w="150px"></Image>
+                    <Image src="/static/logo_horizontal.svg" w="150px"></Image>
                 </Box>
 
                 <Flex flex={1} alignItems={"center"}>

@@ -32,7 +32,7 @@ export default function Login() {
 
     return (
         <>
-            <Image src="/static/logofull.svg" w="150px" position={"fixed"} right="20px" top="20px"></Image>
+            <Image src="/static/logo_horizontal.svg" w="150px" position={"fixed"} right="20px" top="20px"></Image>
 
             <Center w="100%" h="100vh">
                 <Box bg={"white"} padding={20} width="600px">

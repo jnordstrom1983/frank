@@ -34,7 +34,7 @@ export const PUT_DOC: generateRouteInfoParams = {
     tags: ["user"],
     path: "/user/:userid",
     method: "put",
-    summary: "Update a Charlee users",
+    summary: "Update a Frank users",
     requiresAuth: "user-jwt-token",
     params: ["userid"],
     requestSchema: PutUserItemRequestSchema,

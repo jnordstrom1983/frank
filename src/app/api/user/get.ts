@@ -32,7 +32,7 @@ export const GET_DOC: generateRouteInfoParams = {
     tags: ["user"],
     path: "/user",
     method: "get",
-    summary: "List all Charlee users",
+    summary: "List all Frank users",
     requiresAuth: "user-jwt-token",
     params: [],
     responseSchema: GetUserResponseSchema,

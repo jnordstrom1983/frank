@@ -22,10 +22,10 @@ export function useProfile() {
             path: "/user/profile",
             isAuthRequired: true,
           })
-        localStorage.setItem("CHARLEE_AUTH_TOKEN", response.token)
+        localStorage.setItem("FRANK_AUTH_TOKEN", response.token)
         return response
       } catch (ex) {
-        localStorage.removeItem("CHARLEE_AUTH_TOKEN")
+        localStorage.removeItem("FRANK_AUTH_TOKEN")
         router.replace("/login")
         return null
       }
@@ -44,40 +44,40 @@ export function useProfile() {
 
 export function useUsers(options: {}) {
   const { data, ...rest } = useQuery(
-      [["users"]],
-      async () => {
-          const response = await apiClient.get<GetUserResponse>({
-              path: `/user`,
-              isAuthRequired: true,
-          })
-          return response.users
-      },
-      options
+    [["users"]],
+    async () => {
+      const response = await apiClient.get<GetUserResponse>({
+        path: `/user`,
+        isAuthRequired: true,
+      })
+      return response.users
+    },
+    options
   )
 
   return {
-      users: data,
-      ...rest,
+    users: data,
+    ...rest,
   }
 }
 
 
 
-export function useUser(userId : string, options: {}) {
+export function useUser(userId: string, options: {}) {
   const { data, ...rest } = useQuery(
-      [["user", userId]],
-      async () => {
-          const response = await apiClient.get<GetUserItemResponse>({
-              path: `/user/${userId}`,
-              isAuthRequired: true,
-          })
-          return response
-      },
-      options
+    [["user", userId]],
+    async () => {
+      const response = await apiClient.get<GetUserItemResponse>({
+        path: `/user/${userId}`,
+        isAuthRequired: true,
+      })
+      return response
+    },
+    options
   )
 
   return {
-      user: data,
-      ...rest,
+    user: data,
+    ...rest,
   }
 }

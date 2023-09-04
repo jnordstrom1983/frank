@@ -112,7 +112,7 @@ export default function Setting({ params }: { params: { spaceid: string } }) {
                                         disabled={createLoading}
                                         focus={true}
                                         onChange={setUrl}
-                                        placeholder="https://www.charlee.app/webhook"
+                                        placeholder="https://www.frank.se/webhook"
                                         validate={z.string().url()}
                                         onValidation={(valid) => {
                                             setUrlValid(valid)

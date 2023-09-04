@@ -8,8 +8,8 @@ import { User } from '../src/models/user';
 const program = new Command();
 
 program
-  .name('charlee-cli')
-  .description('CLI to manage your Charlee installation')
+  .name('frank-cli')
+  .description('CLI to manage your Frank installation')
   .version('0.0.1');
 
 program.command('user-create')
@@ -29,7 +29,7 @@ program.command('user-create')
       role,
       name,
       enabled: true,
-      type : "user"
+      type: "user"
     }
     const existingUser = await client.db().collection(dbCollection.user).findOne({ email: user.email });
     if (existingUser) {

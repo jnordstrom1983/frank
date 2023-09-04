@@ -8,7 +8,7 @@ const POST_DOC: generateRouteInfoParams = {
     tags: ["login"],
     path: "/user/verify",
     method: "post",
-    summary: "Verify login to Charlee",
+    summary: "Verify login to Frank",
     requiresAuth: "none",
     params: [],
     requestSchema: z.object({

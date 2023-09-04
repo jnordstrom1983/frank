@@ -17,7 +17,7 @@ export const DELETE_DOC: generateRouteInfoParams = {
     tags: ["user"],
     path: "/user/:userid",
     method: "delete",
-    summary: "Delete a Charlee users",
+    summary: "Delete a Frank users",
     requiresAuth: "user-jwt-token",
     params: ["userid"],
     responseSchema: z.object({}),

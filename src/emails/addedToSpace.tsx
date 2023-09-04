@@ -10,7 +10,7 @@ export const AddedToSpace = ({ url, space }: { url: string; space: string }) => 
                 <Section style={{ textAlign: "center" }}>
                     <Heading>You have been added to {space}!</Heading>
                     <Text style={spacing}></Text>
-                    <Text style={paragraph}>You have been added to the space {space} on your Charlee account.</Text>
+                    <Text style={paragraph}>You have been added to the space {space} on your Frank account.</Text>
                     <Text style={paragraph}>To login, simply click the button below.</Text>
                     <Text style={spacing}></Text>
 
@@ -20,7 +20,7 @@ export const AddedToSpace = ({ url, space }: { url: string; space: string }) => 
 
                     <Text style={spacing}></Text>
 
-                    <Text style={footer}>Charlee</Text>
+                    <Text style={footer}>Frank</Text>
                 </Section>
             </Container>
         </Body>

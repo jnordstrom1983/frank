@@ -344,7 +344,7 @@ function registerAuth(registry: OpenAPIRegistry) {
     });
 
 }
-export function generateCharleeDocs() {
+export function generateFrankDocs() {
     const registry = new OpenAPIRegistry();
     const params = registerParams(registry, "s0000000000000000000")
     registerAuth(registry)
@@ -371,8 +371,8 @@ export function generateCharleeDocs() {
         openapi: '3.0.0',
         info: {
             version: '1.0.0',
-            title: 'Charlee Management API',
-            description: 'This is the management API for your Charlee installation.',
+            title: 'Frank Management API',
+            description: 'This is the management API for your Frank installation.',
         },
         servers: [{ url: '/api' }],
     })
@@ -425,8 +425,8 @@ export function generateSpaceDocs(spaceId: string) {
         openapi: '3.0.0',
         info: {
             version: '1.0.0',
-            title: 'Charlee Space API',
-            description: 'This is the management API for a space in your Charlee installation. You can manage all entities in your space via this API.',
+            title: 'Frank Space API',
+            description: 'This is the management API for a space in your Frank installation. You can manage all entities in your space via this API.',
         },
         servers: [{ url: '/api' }],
     })
@@ -447,7 +447,7 @@ export function generateContentDocs(spaceId: string) {
         scheme: 'bearer',
         bearerFormat: 'string',
         description: "Optional Content Access Key.",
-    
+
     });
 
 
@@ -632,8 +632,8 @@ export function generateContentDocs(spaceId: string) {
         openapi: '3.0.0',
         info: {
             version: '1.0.0',
-            title: 'Charlee Content API',
-            description: 'This is the Content API, an API that handles retrieving published data from your Charlee Space',
+            title: 'Frank Content API',
+            description: 'This is the Content API, an API that handles retrieving published data from your Frank Space',
         },
         servers: [{ url: '/' }],
     })

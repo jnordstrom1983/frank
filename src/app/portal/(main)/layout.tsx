@@ -21,7 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <Flex width={"100%"} backgroundColor={"white"} minHeight={"300px"} boxShadow="0px 10px 20px rgba(0, 0, 0, 0.1);">
                         <VStack width={"100%"} alignItems={"flex-start"}>
                             <HStack w="100%" p="3" height={"75px"}>
-                                <Image src="/static/logofull.svg" w="150px"></Image>
+                                <Image src="/static/logo_horizontal.svg" w="150px"></Image>
                                 <Flex flex={1}></Flex>
                                 <Button variant={"ghost"} onClick={() => { setShowOverlay(false) }}>
                                     <X size={32} />
@@ -63,7 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </Flex>}
                 {isMainMenuVisible && <Flex background="white" height="75px" position={"fixed"} left="0" right="0" top="0" zIndex={10} >
                     <HStack w="300px" h="75px">
-                        <Image src="/static/logofull.svg" w="150px" ml="3" cursor={"pointer"} onClick={() => {
+                        <Image src="/static/logo_horizontal.svg" w="150px" ml="3" cursor={"pointer"} onClick={() => {
                             setShowOverlay(true)
                         }}></Image>
                     </HStack>

@@ -66,7 +66,7 @@ class ApiClient {
 
     async getAccessToken(isAuthRequired?: boolean) {
         if (isAuthRequired) {
-            return localStorage.getItem("CHARLEE_AUTH_TOKEN") || ""
+            return localStorage.getItem("FRANK_AUTH_TOKEN") || ""
         }
         return undefined;
     }

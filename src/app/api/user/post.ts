@@ -43,7 +43,7 @@ export const POST_DOC: generateRouteInfoParams = {
     tags: ["user"],
     path: "/user",
     method: "post",
-    summary: "Create a new Charlee users",
+    summary: "Create a new Frank users",
     requiresAuth: "user-jwt-token",
     params: [],
     requestSchema: PostUserRequestSchema,

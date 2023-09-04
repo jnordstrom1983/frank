@@ -1,3 +1,9 @@
+## 0.0.4
+- Feature/Portal: Redesigned add field dialog
+- Feature/Portal: Options can be sorted when configuring a field
+- Feature/Portal: Object / Object[] data types added
+- Other: Name and logo change
+
 ## 0.0.3
 - Feature/Portal: Sorting of content in the Content API
 - Feature/Portal: Asset details page now returns a list of pages using this asset

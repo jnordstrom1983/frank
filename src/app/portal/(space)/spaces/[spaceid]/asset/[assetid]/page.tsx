@@ -455,7 +455,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
         </>
     )
 
-    function EditButton({}) {
+    function EditButton({ }) {
         const [imageEditorOpen, setImageEditorOpen] = useState<boolean>(false)
         const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("")
         const [addingLoading, setAddingLoading] = useState<boolean>(false)
@@ -550,7 +550,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                     isLoading={addingLoading}
                     isDisabled={addingLoading}
                     onClick={() => {
-                        setImagePreviewUrl(`/api/space/${params.spaceid}/asset/${params.assetid}/image?token=${localStorage.getItem("CHARLEE_AUTH_TOKEN")}`)
+                        setImagePreviewUrl(`/api/space/${params.spaceid}/asset/${params.assetid}/image?token=${localStorage.getItem("FRANK_AUTH_TOKEN")}`)
                         setImageEditorOpen(true)
                     }}
                 >

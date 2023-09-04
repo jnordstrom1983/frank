@@ -31,12 +31,12 @@ export function Dialogs({ children }: { children: React.ReactNode }) {
                     </ModalBody>
 
                     <ModalFooter pb={10} px={10} gap={10}>
-                        <Button colorScheme="blue" onClick={()=>{
-                                        localStorage.removeItem("CHARLEE_AUTH_TOKEN")
-                                        queryClient.clear()
-                                        setSignoutVisible(false);
-                                        router.push(`/`)
-                                        
+                        <Button colorScheme="blue" onClick={() => {
+                            localStorage.removeItem("FRANK_AUTH_TOKEN")
+                            queryClient.clear()
+                            setSignoutVisible(false);
+                            router.push(`/`)
+
                         }}>Sign out</Button>
                         <Button
                             variant="ghost"

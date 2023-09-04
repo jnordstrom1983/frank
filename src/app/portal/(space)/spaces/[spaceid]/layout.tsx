@@ -34,7 +34,7 @@ export default function DashboardLayout({ children, params }: { children: React.
         if (!profile) return
 
         if (profile!.lastUsedSpaceId !== params.spaceid) {
-            ;(async () => {
+            ; (async () => {
                 apiClient.put<PutProfileResponse, PutProfileResponse>({
                     path: `/user/profile`,
                     body: {
@@ -64,7 +64,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                     <Flex width={"100%"} backgroundColor={"white"} minHeight={"300px"} boxShadow="0px 10px 20px rgba(0, 0, 0, 0.1);">
                         <VStack width={"100%"} alignItems={"flex-start"}>
                             <HStack w="100%" p="3" height={"75px"}>
-                                <Image src="/static/logofull.svg" w="150px"></Image>
+                                <Image src="/static/logo_horizontal.svg" w="150px"></Image>
                                 <Flex flex={1}></Flex>
                                 <Button
                                     variant={"ghost"}
@@ -185,8 +185,8 @@ export default function DashboardLayout({ children, params }: { children: React.
                     <Flex background="#fff" width="80px" position={"fixed"} left="0" bottom="0" top="0" zIndex={10} flexDir={"column"}>
                         <VStack spacing={5}>
                             <VStack w="60" pt={3}>
-                                <Image src="/static/logoicon.svg" ml="3" maxW="46px"></Image>
-                                <Image src="/static/logotext.svg" maxW="46px"></Image>
+                                <Image src="/static/logo_vertical.svg" maxW="46px"></Image>
+
                             </VStack>
 
                             <MenuButton
@@ -254,22 +254,22 @@ export default function DashboardLayout({ children, params }: { children: React.
                     </Flex>
                     <Flex background="#fff" height="40px" position={"fixed"} left="80px" right="0" top="0" zIndex={10} alignItems={"center"} justifyContent={"center"}>
                         <Box  >
-                        <Button
-                            variant="ghost"
-                            w="100%"
-                            height="32px"
-                            
-                            paddingY="5px"
-                            paddingX="15px"
-                            fontSize="13px"
-                            backgroundColor={"#f0f0f0"} borderRadius={"25px"} 
-                            _hover={{ borderRadius : "25px"}}
-                            onClick={() => {
-                                setShowOverlay(!showOverlay)
-                            }}
-                        >
-                            {spaces?.find((p) => p.spaceId === params.spaceid)?.name} <ChevronDown></ChevronDown>
-                        </Button>
+                            <Button
+                                variant="ghost"
+                                w="100%"
+                                height="32px"
+
+                                paddingY="5px"
+                                paddingX="15px"
+                                fontSize="13px"
+                                backgroundColor={"#f0f0f0"} borderRadius={"25px"}
+                                _hover={{ borderRadius: "25px" }}
+                                onClick={() => {
+                                    setShowOverlay(!showOverlay)
+                                }}
+                            >
+                                {spaces?.find((p) => p.spaceId === params.spaceid)?.name} <ChevronDown></ChevronDown>
+                            </Button>
                         </Box>
                     </Flex>
                 </>

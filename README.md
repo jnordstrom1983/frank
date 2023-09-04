@@ -28,7 +28,7 @@ MONGO_URL="mongodb+srv://user:password@host/database?authSource=admin"
 #### Run CLI
 ```bash
 cd cli
-npx ts-node charlee.ts user-create john.doe@charlee.app "John Doe" "admin"
+npx ts-node frank.ts user-create john.doe@frank.app "John Doe" "admin"
 ```
 
 
@@ -49,13 +49,13 @@ npx ts-node charlee.ts user-create john.doe@charlee.app "John Doe" "admin"
 |EMAIL_SERVER_PASSWORD  | Password to SMTP-server |
 |OPENAI_APIKEY  | API-Key to use to OPEN-API |
 |OPENAI_MODEL  | Model to use on OPENAI (eg gpt-3.5-turbo) |
-|PUBLIC_URL  | URL to charlee server, (eg https://demo.charlee.app) |
+|PUBLIC_URL  | URL to frank server, (eg https://demo.frank.se) |
 |S3_ACCESSKEYID  | S3 Access key |
 |S3_SECRETACCESSKEY  | S3 Secret |
 |S3_BUCKET  | S3 Bucket |
 |S3_ENDPOINT  | Server URL to S3 service, leave empty if AWS is used |
 |S3_REGION  | AWS region to use |
-|S3_PREFIX  | URL prefix to add to uploade files (eg. charlee-files/) |
+|S3_PREFIX  | URL prefix to add to uploade files (eg. frank-files/) |
 |S3_ACL  | ACL to add to uploade files |  
 
 

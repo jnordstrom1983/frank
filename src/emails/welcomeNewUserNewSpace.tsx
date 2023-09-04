@@ -4,13 +4,13 @@ import { button, container, footer, main, paragraph, spacing } from "./styles"
 export const WelcomeNewUserNewSpaceEmail = ({ url, space }: { url: string; space: string }) => (
     <Html>
         <Head />
-        <Preview>Welcome to Charlee</Preview>
+        <Preview>Welcome to Frank</Preview>
         <Body style={main}>
             <Container style={container}>
                 <Section style={{ textAlign: "center" }}>
-                    <Heading>Welcome to Charlee!</Heading>
+                    <Heading>Welcome to Frank!</Heading>
                     <Text style={spacing}></Text>
-                    <Text style={paragraph}>You have been invited to Charlee and the space {space}.</Text>
+                    <Text style={paragraph}>You have been invited to Frank and the space {space}.</Text>
                     <Text style={paragraph}>To login, simply click the button below.</Text>
                     <Text style={spacing}></Text>
 
@@ -20,7 +20,7 @@ export const WelcomeNewUserNewSpaceEmail = ({ url, space }: { url: string; space
 
                     <Text style={spacing}></Text>
 
-                    <Text style={footer}>Charlee</Text>
+                    <Text style={footer}>Frank</Text>
                 </Section>
             </Container>
         </Body>

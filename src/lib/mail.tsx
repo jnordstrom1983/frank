@@ -26,17 +26,17 @@ export async function sendEmail(subject: string, html: string, to: string) {
 
 export async function sendEmailSignin(code: number, token: string, to: string) {
     const html = render(<LoginEmail code={code} url={`${process.env.PUBLIC_URL}/login/verify?token=${token}&code=${code}` || ""}></LoginEmail>)
-    await sendEmail("Log in to Charlee", html, to)
+    await sendEmail("Log in to Frank", html, to)
 }
 
 export function sendWelcomeNewUserNewSpace(space: string, to: string) {
     const html = render(<WelcomeNewUserNewSpaceEmail space={space} url={`${process.env.PUBLIC_URL}` || ""}></WelcomeNewUserNewSpaceEmail>)
-    sendEmail("Welecome to Charlee", html, to)
+    sendEmail("Welecome to Frank", html, to)
 }
 
 export function sendWelcomeNewUser(to: string) {
     const html = render(<WelcomeNewUserEmail url={`${process.env.PUBLIC_URL}` || ""}></WelcomeNewUserEmail>)
-    sendEmail("Welecome to Charlee", html, to)
+    sendEmail("Welecome to Frank", html, to)
 }
 
 export function sendAddedToNewSpace(space: string, to: string) {
