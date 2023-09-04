@@ -252,7 +252,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                             </Button>
                         </Flex>
                     </Flex>
-                    <Flex background="#fff" height="40px" position={"fixed"} left="80px" right="0" top="0" zIndex={10} alignItems={"center"} justifyContent={"center"}>
+                    <Flex background="#fff" height="46px" position={"fixed"} left="80px" right="0" top="0" zIndex={10} alignItems={"center"} justifyContent={"center"}>
                         <Box  >
                             <Button
                                 variant="ghost"
@@ -275,7 +275,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                 </>
             )}
 
-            <Flex w="100%" pl={isMainMenuVisible ? "80px" : "0px"} mt={isMainMenuVisible ? "40px" : "0px"} flexDir={"column"}>
+            <Flex w="100%" pl={isMainMenuVisible ? "80px" : "0px"} mt={isMainMenuVisible ? "46px" : "0px"} flexDir={"column"}>
                 <Box>{children}</Box>
             </Flex>
         </>
