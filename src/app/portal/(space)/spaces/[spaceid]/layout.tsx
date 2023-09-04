@@ -287,7 +287,7 @@ export default function DashboardLayout({ children, params }: { children: React.
 function MenuButton({ text, selected, onClick, icon }: { text: string; selected: boolean; onClick?: () => void; icon: React.ReactElement }) {
     return (
         <Flex h="60px" alignItems={"center"} w="60px" justifyContent={"center"}>
-            <Button variant={"ghost"} color={selected ? "blue.500" : "#878787"} w="100%" h="100%" onClick={onClick}>
+            <Button variant={"ghost"} color={selected ? "#000" : "#878787"} w="100%" h="100%" onClick={onClick}>
                 <VStack>
                     {icon}
                     <Box fontSize="11px">{text}</Box>
