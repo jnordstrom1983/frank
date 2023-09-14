@@ -1,3 +1,8 @@
+## 0.0.5
+- Feature/Portal: Add setting to make Content Types hidden, meaning that they will be hidden from Content Listing page.
+- Fix/UX: Redesigning table on Content Listing page to fix more information
+  
+
 ## 0.0.4
 - Feature/Portal: Redesigned add field dialog
 - Feature/Portal: Options can be sorted when configuring a field
