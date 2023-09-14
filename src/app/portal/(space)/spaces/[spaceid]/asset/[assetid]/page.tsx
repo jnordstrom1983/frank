@@ -391,10 +391,10 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                             </Box>
                                                         </Box>
                                                     )}
-                                                    {asset.type === "image" && (
+                                                 
                                                         <HStack>
                                                             <UploadButton
-                                                                positiveImageButtonText="Replace image"
+                                                                positiveImageButtonText={`Replace ${asset.type === "image" ? "image" : "file"}`}
                                                                 type={asset.type === "image" ? "image" : "file"}
                                                                 assetId={asset.assetId}
                                                                 colorScheme="blue"
@@ -406,9 +406,9 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                                 }}
                                                             ></UploadButton>
 
-                                                            <EditButton></EditButton>
+                                                             {asset.type === "image" && (  <EditButton></EditButton>)}
                                                         </HStack>
-                                                    )}
+                                                    
                                                 </VStack>
                                             </Box>
                                             {asset.usedBy.length > 0 && (

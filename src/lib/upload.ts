@@ -24,7 +24,7 @@ export async function HandleUploadRequest(req: Request) {
 
     const ext = (filename?.toString() || "").split(".").pop() || "";
     let fileType: "file" | "image" = "file";
-    if (["png", "jpg", "jpeg"].includes(ext.toLocaleLowerCase())) {
+    if (["png", "jpg", "jpeg"].includes(ext.toLowerCase())) {
         fileType = "image";
     }
 
