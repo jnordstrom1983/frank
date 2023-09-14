@@ -67,7 +67,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const toast = useToast()
 
     const [filteredItems, setFilteredItems] = useState<ContentInternalViewModel[]>([])
-    const [allVisibleItems, setAllVisibileItems] = useState<ContentInternalViewModel[]>([])
+    const [allVisibleItems, setAllVisibileItems] = useState<ContentInternalViewModel[]>()
 
     useEffect(()=>{
         if(!contenttypes) return;
@@ -261,12 +261,13 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         if (!profile) return
         if (!spaces) return
         if (!contenttypes) return
-        if (!allVisibleItems) return
+        if (!allItems) return
+        if(!allVisibleItems) return;
         if (!folders) return
         const space = spaces.find((s) => s.spaceId === params.spaceid)
         setSpace(space)
         if (contenttypes.length > 0) {
-            if (allVisibleItems.length > 0) {
+            if (allItems.length > 0) {
                 setMode("list")
             } else {
                 setMode("create")
@@ -274,7 +275,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         } else {
             setMode("notready")
         }
-    }, [spaces, profile, contenttypes, allVisibleItems, folders])
+    }, [spaces, profile, contenttypes, allItems,allVisibleItems, folders])
 
     async function create(contentTypeId: string) {
         setCreateLoading(true)
