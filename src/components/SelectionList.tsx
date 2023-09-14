@@ -56,6 +56,8 @@ export function SelectionList({
                 if (item.id === selectedItemId) {
                     return (
                         <Button
+                            whiteSpace="break-spaces"
+                            textAlign="left"
                             variant={"ghost"}
                             key={item.id ? item.id : "all"}
                             fontWeight={"bold"}
@@ -75,6 +77,8 @@ export function SelectionList({
                     return (
                         <Button
                             variant={"ghost"}
+                            whiteSpace="break-spaces"
+                            textAlign="left"
                             key={item.id ? item.id : "all"}
                             fontSize={"14px"}
                             borderRadius="25px"

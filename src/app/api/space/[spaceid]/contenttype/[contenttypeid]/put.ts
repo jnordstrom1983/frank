@@ -8,7 +8,8 @@ const PutContentTypeItemRequestSchema = ContentTypeSchema.pick({
     name: true,
     enabled: true,
     fields: true,
-    generateSlug : true
+    generateSlug : true,
+    hidden : true
 })
 
 export type PutContentTypeItemRequest = z.infer<typeof PutContentTypeItemRequestSchema>

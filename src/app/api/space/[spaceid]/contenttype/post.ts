@@ -42,6 +42,7 @@ export async function POST(req: Request, context: { params: { spaceid: string } 
                         enabled: true,
                         fields: [],
                         generateSlug : false,
+                        hidden : false,
                         ...data,
                     }
                 );

@@ -58,6 +58,8 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
     const [name, setName] = useState<string>("")
     const [enabled, setEnabled] = useState<boolean>(false)
     const [generateSlug, setGenerateSlug] = useState<boolean>(false)
+    const [hidden, setHidden] = useState<boolean>(false)
+
     const toast = useToast()
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false)
     const queryClient = useQueryClient()
@@ -76,6 +78,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
         setEnabled(contenttype.enabled)
         setFields(contenttype.fields)
         setGenerateSlug(contenttype.generateSlug)
+        setHidden(contenttype.hidden)
     }, [contenttype])
 
     const sensors = useSensors(
@@ -95,6 +98,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                     enabled,
                     fields,
                     generateSlug,
+                    hidden,
                 },
                 isAuthRequired: true,
             })
@@ -117,7 +121,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                 position: "bottom-right",
             })
         }
-    }, [enabled, name, fields, generateSlug])
+    }, [enabled, name, fields, generateSlug, hidden])
 
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event
@@ -297,6 +301,15 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                                                 description="A slug will be generated for content of this type."
                                             ></SimpleCheckboxInput>
                                         </GridItem>
+                                        <GridItem></GridItem>
+                                        <GridItem>
+                                            <SimpleCheckboxInput
+                                                subject="Hidden"
+                                                checked={hidden}
+                                                onChange={setHidden}
+                                                description="This content type will be hidden from the Content listing."
+                                            ></SimpleCheckboxInput>
+                                        </GridItem>                                        
                                     </Grid>
 
                                     <Box w="100%">

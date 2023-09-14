@@ -38,7 +38,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-import { ChevronDown, Layers, Loader, Search, Trash2, X } from "react-feather"
+import { ChevronDown, Eye, EyeOff, Layers, Loader, Search, Trash2, X } from "react-feather"
 
 export default function Home({ params }: { params: { spaceid: string } }) {
     const router = useRouter()
@@ -63,13 +63,30 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const [createLoading, setCreateLoading] = useState<boolean>(false)
     const [creatableContentTypes, setCreatableContentTypes] = useState<string[]>([])
     const { folders, isLoading: isFoldersLoading } = useFolders(params.spaceid, {})
+    const [showHidden, setShowHidden] = useState<boolean>(false)
     const toast = useToast()
 
     const [filteredItems, setFilteredItems] = useState<ContentInternalViewModel[]>([])
+    const [allVisibleItems, setAllVisibileItems] = useState<ContentInternalViewModel[]>([])
+
+    useEffect(()=>{
+        if(!contenttypes) return;
+        if(!allItems) return;
+
+       if(showHidden){
+            setAllVisibileItems([...allItems])
+       }else{
+            setAllVisibileItems([...allItems].filter(p=>{
+                const contentType = contenttypes.find(c=>c.contentTypeId === p.contentTypeId);
+                if(contentType && contentType.hidden) return false
+                return true;
+            }))
+       }
+    }, [contenttypes, allItems, showHidden])
 
     useEffect(() => {
-        if (!allItems) return
-        const filtered = allItems.filter((item) => {
+        if (!allVisibleItems) return
+        const filtered = allVisibleItems.filter((item) => {
             if (filterFolder) {
                 if (item.folderId !== filterFolder) return false
             }
@@ -135,6 +152,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 setCreatableContentTypes(
                     contenttypes
                         ?.filter((item) => {
+                            if(!showHidden && item.hidden) return false;
                             if (filterContentType) {
                                 if (item.contentTypeId !== filterContentType) return false
                             }
@@ -150,6 +168,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             setCreatableContentTypes(
                 contenttypes
                     ?.filter((item) => {
+                        if(!showHidden && item.hidden) return false;
                         if (!item.enabled) return false
                         if (filterContentType) {
                             if (item.contentTypeId !== filterContentType) return false
@@ -161,10 +180,10 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         }
 
         setFilteredItems(filtered)
-    }, [allItems, filterFolder, filterContentType, filterUser, filterStatus, filterSearch, filterDates, filterDate])
+    }, [allVisibleItems, filterFolder, filterContentType, filterUser, filterStatus, filterSearch, filterDates, filterDate, showHidden])
 
     function extractFilters() {
-        if (!allItems) return
+        if (!allVisibleItems) return
         let folders: FilterItem[] = []
         let contenttypes: FilterItem[] = []
         let authors: FilterItem[] = []
@@ -178,7 +197,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             this_year: false,
             last_year: false,
         }
-        allItems.forEach((item) => {
+        allVisibleItems.forEach((item) => {
             if (item.folderId) {
                 const folder = folders.find((f) => f.id === item.folderId)
                 if (!folder) {
@@ -236,18 +255,18 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
     useEffect(() => {
         extractFilters()
-    }, [allItems])
+    }, [allVisibleItems])
 
     useEffect(() => {
         if (!profile) return
         if (!spaces) return
         if (!contenttypes) return
-        if (!allItems) return
+        if (!allVisibleItems) return
         if (!folders) return
         const space = spaces.find((s) => s.spaceId === params.spaceid)
         setSpace(space)
         if (contenttypes.length > 0) {
-            if (allItems.length > 0) {
+            if (allVisibleItems.length > 0) {
                 setMode("list")
             } else {
                 setMode("create")
@@ -255,7 +274,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         } else {
             setMode("notready")
         }
-    }, [spaces, profile, contenttypes, allItems, folders])
+    }, [spaces, profile, contenttypes, allVisibleItems, folders])
 
     async function create(contentTypeId: string) {
         setCreateLoading(true)
@@ -435,6 +454,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         selectedItemId={filterContentType}
                                         onClick={setFilterContentType}
                                         anyText="Any content type"
+                                        
+                                        settingsIcon={showHidden ? <EyeOff></EyeOff> : <Eye></Eye>}
+                                        onSettings={() => {
+                                            setShowHidden(!showHidden)
+                                        }}
                                     ></SelectionList>
 
                                     <SelectionList
@@ -533,10 +557,10 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                     <Tr>
                                                         <Th>TITLE</Th>
 
-                                                        <Th>MODIFIED</Th>
+                                                        <Th w="20%">MODIFIED</Th>
 
-                                                        <Th>STATUS</Th>
-                                                        <Th></Th>
+                                                        <Th w="10%" minWidth="150px">STATUS</Th>
+                                                        
                                                     </Tr>
                                                 </Thead>
                                                 <Tbody>
@@ -577,7 +601,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                                     </Tag>
                                                                 )}
                                                             </Td>
-                                                            <Td></Td>
+                                                            
                                                         </Tr>
                                                     ))}
                                                 </Tbody>

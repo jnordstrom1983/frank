@@ -30,6 +30,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
     const [filterStatus, setFilterStatus] = useState<string>("")
     const [filterSearch, setFilterSearch] = useState<string>("")
+    const [filterVisibility, setFilterVisibility] = useState<string>("")
     const [filteredItems, setFilteredItems] = useState<
         {
             enabled: boolean
@@ -39,11 +40,13 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     >([])
 
     useEffect(() => {
-        console.log("Effect running")
         if (!contenttypes) return
         const filtered = contenttypes.filter((item) => {
             if (filterStatus) {
                 if (item.enabled !== (filterStatus === "enabled")) return false
+            }
+            if (filterVisibility){
+                if (item.hidden !== (filterVisibility === "hidden")) return false
             }
             if (filterSearch) {
                 let searchMatch = false
@@ -55,7 +58,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         })
 
         setFilteredItems(filtered)
-    }, [contenttypes, filterStatus, filterSearch])
+    }, [contenttypes, filterStatus, filterSearch, filterVisibility])
 
     const languageOptions = languages.map((l) => ({ key: l.code, text: l.name }))
     useEffect(() => {
@@ -185,6 +188,17 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         onClick={setFilterStatus}
                                         anyText="Any status"
                                     ></SelectionList>
+                                    <SelectionList
+                                        subject="VISIBILITY"
+                                        items={[
+                                            { id: "visible", name: "Visible" },
+                                            { id: "hidden", name: "Hidden" },
+                                        ]}
+                                        selectedItemId={filterVisibility}
+                                        onClick={setFilterVisibility}
+                                        anyText="All"
+                                    ></SelectionList>
+
                                 </VStack>
                             </Flex>
                             <Flex flex={1}>

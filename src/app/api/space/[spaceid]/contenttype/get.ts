@@ -9,6 +9,7 @@ const GetContentTypeResponseItemSchema = ContentTypeSchema.pick({
     contentTypeId: true,
     name: true,
     enabled: true,
+    hidden : true
 })
 
 export type GetContentTypeResponseItem = z.infer<typeof GetContentTypeResponseItemSchema>
@@ -34,7 +35,8 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                     $project: {
                         contentTypeId: 1,
                         name: 1,
-                        enabled: 1
+                        enabled: 1,
+                        hidden : 1
                     }
                 },
                 {
