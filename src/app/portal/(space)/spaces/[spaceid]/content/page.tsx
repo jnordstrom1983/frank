@@ -448,7 +448,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         onClick={setFilterStatus}
                                         anyText="Any status"
                                         settingsIcon={<Trash2></Trash2>}
-                                        onSettings={()=>{
+                                        onSettings={() => {
                                             router.push(`/portal/spaces/${params.spaceid}/content/trash`)
                                         }}
                                         settingsTooltip="View trash"
@@ -532,9 +532,9 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 <Thead>
                                                     <Tr>
                                                         <Th>TITLE</Th>
-                                                        <Th>CONTENT TYPE</Th>
+
                                                         <Th>MODIFIED</Th>
-                                                        <Th>MODIFIED BY</Th>
+
                                                         <Th>STATUS</Th>
                                                         <Th></Th>
                                                     </Tr>
@@ -548,11 +548,18 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                                 router.push(`/portal/spaces/${params.spaceid}/content/${item.contentId}`)
                                                             }}
                                                         >
-                                                            <Td fontWeight="600">{item.title}</Td>
-                                                            <Td>{item.contentTypeName.toUpperCase()}</Td>
+                                                            <Td fontWeight="600">
+                                                                <Box mb={1}>{item.title}</Box>
+                                                                <Tag size="sm" colorScheme="gray">
+                                                                    {item.contentTypeName.toUpperCase()}
+                                                                </Tag>
+                                                            </Td>
 
-                                                            <Td>{dayjs(item.modifiedDate).format("YYYY-MM-DD")}</Td>
-                                                            <Td>{item.modifiedUserName}</Td>
+                                                            <Td>
+                                                                <Box>{dayjs(item.modifiedDate).format("YYYY-MM-DD")}</Box>
+                                                                <Box fontSize="12px">{item.modifiedUserName}</Box>
+                                                            </Td>
+
                                                             <Td>
                                                                 {item.status == "draft" ? (
                                                                     item.scheduledPublishDate ? (
