@@ -64,7 +64,7 @@ export async function PUT(req: Request, context: { params: { spaceid: string; co
                     return returnNotFound("Content Item not found")
                 }
 
-                const contentType = await collections.contentType.findOne({ contentTypeId: content.contentTypeId })
+                const contentType = await collections.contentType.findOne({ contentTypeId: content.contentTypeId, spaceId: context.params.spaceid  })
                 if (!contentType) {
                     return returnNotFound("Content Type not found")
                 }
