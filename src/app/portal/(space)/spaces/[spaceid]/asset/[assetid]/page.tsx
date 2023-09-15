@@ -406,7 +406,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                                 }}
                                                             ></UploadButton>
 
-                                                             {asset.type === "image" && (  <EditButton></EditButton>)}
+                                                             {asset.type === "image" && asset.ext !== "svg" && (  <EditButton></EditButton>)}
                                                         </HStack>
                                                     
                                                 </VStack>

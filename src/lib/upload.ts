@@ -9,7 +9,8 @@ export type UploadedFile = {
     buffer: Buffer,
     type: "file" | "image",
     ext: string,
-    filename: string
+    filename: string,
+    mimeType : string
 }
 
 export async function HandleUploadRequest(req: Request) {
@@ -24,12 +25,13 @@ export async function HandleUploadRequest(req: Request) {
 
     const ext = (filename?.toString() || "").split(".").pop() || "";
     let fileType: "file" | "image" = "file";
-    if (["png", "jpg", "jpeg"].includes(ext.toLowerCase())) {
+    if (["png", "jpg", "jpeg", "svg"].includes(ext.toLowerCase())) {
         fileType = "image";
     }
 
 
     if (file instanceof Blob) {
+        
         const stream = file.stream();
         const chunks = [];
         //@ts-ignore
@@ -38,7 +40,7 @@ export async function HandleUploadRequest(req: Request) {
         }
         let buffer = Buffer.concat(chunks);
 
-        if (fileType === "image") {
+        if (fileType === "image" && ext.toLowerCase() !== "svg") {
             const options: processImageOptions = {
                 mirrorX: formData.get("mirrorX") === "true",
                 mirrorY: formData.get("mirrorY") === "true",
@@ -57,6 +59,7 @@ export async function HandleUploadRequest(req: Request) {
             buffer,
             type: fileType,
             ext,
+            mimeType : file.type,
             filename: filename?.toString() || ""
         }
 
@@ -122,12 +125,12 @@ export async function StoreUploadedFile(uploadedFile: UploadedFile) {
 
     const filename = `${shortUUID().generate()}.${uploadedFile.ext}`
 
-    return await StoreFile(uploadedFile.buffer, filename)
+    return await StoreFile(uploadedFile.buffer, filename, uploadedFile.mimeType)
 }
 
 
-async function StoreFile(buffer: Buffer, filename: string) {
-    return await S3Upload(buffer, filename)
+async function StoreFile(buffer: Buffer, filename: string, mimeType : string) {
+    return await S3Upload(buffer, filename, mimeType )
 }
 
 export async function DeleteFile(key: string) {
@@ -170,7 +173,7 @@ function S3GetClient() {
 
     return client;
 }
-async function S3Upload(buffer: Buffer, key: string) {
+async function S3Upload(buffer: Buffer, key: string, mimeType : string) {
 
     const s3_prefix = process.env.S3_PREFIX || ""
     let path = key;
@@ -186,7 +189,8 @@ async function S3Upload(buffer: Buffer, key: string) {
             ACL: process.env.S3_ACL || 'public-read',
             Bucket: process.env.S3_BUCKET || "",
             Key: path,
-            Body: buffer
+            Body: buffer,
+            ContentType : mimeType
         },
     }).done()
 
