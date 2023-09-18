@@ -209,11 +209,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 <Thead>
                                                     <Tr>
                                                         <Th>NAME</Th>
-                                                        <Th>TYPE</Th>
-                                                        <Th>MODIFIED</Th>
-                                                        <Th>MODIFIED BY</Th>
-                                                        <Th>STATUS</Th>
-                                                        <Th></Th>
+                                                        
+                                                        <Th width="200px">MODIFIED</Th>
+                                                        
+                                                        <Th width="150px">STATUS</Th>
+                                                        
                                                     </Tr>
                                                 </Thead>
                                                 <Tbody>
@@ -225,11 +225,20 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                                 router.push(`/portal/spaces/${params.spaceid}/asset/${item.assetId}`)
                                                             }}
                                                         >
-                                                            <Td fontWeight="600">{item.name}</Td>
-                                                            <Td>{item.type.toUpperCase()}</Td>
+                                                            <Td fontWeight="600">
+                                                            <Box mb={1}>{item.name}</Box>
+                                                                <Tag size="sm" colorScheme="gray">
+                                                                    {item.type.toUpperCase()}
+                                                                </Tag>
+                                                                
+                                                                </Td>
+                                                            
 
-                                                            <Td>{dayjs(item.modifiedDate).format("YYYY-MM-DD")}</Td>
-                                                            <Td>{item.modifiedUserName}</Td>
+                                                            <Td>
+                                                                <Box>{dayjs(item.modifiedDate).format("YYYY-MM-DD")}</Box>
+                                                                <Box fontSize="12px">{item.modifiedUserName}</Box>
+                                                            </Td>
+                                                            
                                                             <Td>
                                                                 {item.status == "disabled" ? (
                                                                     <Tag colorScheme="red" ml={5}>
@@ -241,7 +250,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                                     </Tag>
                                                                 )}
                                                             </Td>
-                                                            <Td></Td>
+                                                            
                                                         </Tr>
                                                     ))}
                                                 </Tbody>
