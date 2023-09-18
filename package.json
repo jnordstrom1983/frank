@@ -39,6 +39,7 @@
     "nodemailer": "^6.9.3",
     "openai": "^3.3.0",
     "react": "18.2.0",
+    "react-code-blocks": "^0.1.4",
     "react-contenteditable": "^3.3.7",
     "react-copy-to-clipboard": "^5.1.0",
     "react-cropper": "^2.3.3",

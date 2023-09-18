@@ -31,6 +31,7 @@ import {
     Td,
     Th,
     Thead,
+    Tooltip,
     Tr,
     VStack,
     useDisclosure,
@@ -41,12 +42,14 @@ import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, v
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
-import { AlignJustify, Sliders, Trash } from "react-feather"
+import { AlignJustify, Copy, Sliders, Trash } from "react-feather"
 import { ConfigureField } from "./components/ConfigureField"
 import { CreateField } from "./components/CreateField"
-
+import { CodeBlock, nord, github, a11yLight,monokai } from "react-code-blocks"
 import { CSS } from "@dnd-kit/utilities"
-import { generate } from "short-uuid"
+
+import { dataTypes } from "@/lib/constants"
+import CopyToClipboard from "react-copy-to-clipboard"
 
 interface SortableFields extends Field {
     id: string
@@ -139,12 +142,45 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
     const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure()
     const { isOpen: isConfigureOpen, onOpen: onConfigureOpen, onClose: onConfigureClose } = useDisclosure()
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
+    const { isOpen: isInterfaceOpen, onOpen: onInterfaceOpen, onClose: onInterfaceClose } = useDisclosure()
+
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
 
     const sortableFields = fields.map((item) => ({
         id: item.fieldId,
         ...item,
     }))
+
+    function getContentTypeSchema() {
+        if (!contenttype) return ""
+        let schema = fields
+            .map((f) => {
+                const type = dataTypes.find((t) => t.id === f.dataTypeId)
+                if (type) {
+                    return `   ${f.fieldId}${f.validators.required?.enabled ? "" : "?"} : ${type.getDataTypeString(f)}`
+                }
+                return ""
+            })
+            .join("\n")
+
+        return `interface ${contenttype.contentTypeId}Data{
+${schema}
+}
+
+interface ${contenttype.contentTypeId}{
+   contentTypeId: "${contenttype.contentTypeId}"
+   contentId: string
+   folderId?: string
+   languageId: string
+   modifiedDate: Date
+   publishDate? : Date
+   slug? : string
+   data: ${contenttype.contentTypeId}Data
+}`
+    }
+
+
+const dataSchema = getContentTypeSchema()
 
     return (
         <>
@@ -214,6 +250,50 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                                 </Box>
                             </HStack>
                         </SaveMenuBar>
+
+                        <Modal isOpen={isInterfaceOpen} onClose={onInterfaceClose} isCentered={true}>
+                            <ModalOverlay />
+                            <ModalContent maxW="600px">
+                                <ModalHeader pt={10} px={10} pb={0}>
+                                    TypeScript interface
+                                </ModalHeader>
+                                <ModalCloseButton right={10} top={10} />
+                                <ModalBody overflow="auto" p={10}>
+                                    <CodeBlock text={dataSchema} theme={monokai} language="typescript" />
+                                </ModalBody>
+
+                                <ModalFooter pb={10} px={10} gap={10}>
+                                <CopyToClipboard
+                                                text={dataSchema}
+                            
+                            onCopy={() =>
+                                toast({
+                                    title: `Interface copied`,
+                                    status: "info",
+                                    position: "bottom-right",
+                                })
+                            }
+                        >
+                            
+                            <Button variant={"ghost"}>
+                                <Tooltip label={"Copy interface"}>
+                                    Copy to clipboard
+                                </Tooltip>
+                            </Button>
+                            
+                        </CopyToClipboard> 
+
+                                    <Button
+                                        colorScheme="blue"
+                                        onClick={() => {
+                                            onInterfaceClose()
+                                        }}
+                                    >
+                                        Close
+                                    </Button>
+                                </ModalFooter>
+                            </ModalContent>
+                        </Modal>
 
                         <Modal isOpen={isDeleteOpen} onClose={onDeleteClose} isCentered={true}>
                             <ModalOverlay />
@@ -309,7 +389,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                                                 onChange={setHidden}
                                                 description="This content type will be hidden from the Content listing."
                                             ></SimpleCheckboxInput>
-                                        </GridItem>                                        
+                                        </GridItem>
                                     </Grid>
 
                                     <Box w="100%">
@@ -375,7 +455,37 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                                             </Box>
                                         </GridItem>
 
-                                        <GridItem></GridItem>
+                                        <GridItem>
+                                        <Box mb={3}>Typescript</Box>
+                                            <HStack>
+                                                <Button
+                                                    onClick={() => {
+                                                        onInterfaceOpen();
+                                                    }}
+                                                >
+                                                    View Interface
+                                                </Button>
+                                                <CopyToClipboard
+                                                text={dataSchema}
+                            
+                            onCopy={() =>
+                                toast({
+                                    title: `Interface copied`,
+                                    status: "info",
+                                    position: "bottom-right",
+                                })
+                            }
+                        >
+                            
+                            <Button variant={"ghost"} w="60px">
+                                <Tooltip label={"Copy interface"}>
+                                    <Copy></Copy>
+                                </Tooltip>
+                            </Button>
+                            
+                        </CopyToClipboard>                           
+                                            </HStack>
+                                        </GridItem>
                                         <GridItem></GridItem>
                                     </Grid>
                                 </VStack>

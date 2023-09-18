@@ -5,6 +5,7 @@ import { MinLengthValidatorPropertiesSchema } from "@/components/FieldValidators
 import { MinValueValidatorPropertiesSchema } from "@/components/FieldValidators/MinValueUtils"
 import { RequiredValidatorPropertiesSchema } from "@/components/FieldValidators/RequiredUtils"
 import { UniqueValidatorPropertiesSchema } from "@/components/FieldValidators/UniqueSchemas"
+import { FieldSchema } from "./field"
 
 export const dataTypeValidatorProperties = z.object({ enabled: z.boolean() })
 export const dataTypeValidatorsSchema = z.object({
@@ -48,6 +49,7 @@ export const dataTypeSchema = z.object({
     name: z.string(),
     description: z.string(),
     variants: z.array(dataTypeVariantSchema),
+    getDataTypeString : z.function().args(z.any())
 })
 
 export type dataType = z.infer<typeof dataTypeSchema>
