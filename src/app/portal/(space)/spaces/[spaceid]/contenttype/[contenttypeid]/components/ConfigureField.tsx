@@ -286,7 +286,7 @@ export function ConfigureField({
                                 )}
                             </VStack>
                             <VStack w="30%" alignItems={"flex-start"} spacing={10}>
-                                <TextInput subject="fieldId" disabled={true} value={field.fieldId}></TextInput>
+                                <TextInput subject="fieldId" disabled={true} value={field.fieldId} enableCopy={true}></TextInput>
                                 <TextInput subject="Data type" disabled={true} value={typeObject.name}></TextInput>
                             </VStack>
                         </HStack>

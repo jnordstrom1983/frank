@@ -1,5 +1,7 @@
-import { Box, HStack, Input, Select, Textarea, VStack } from "@chakra-ui/react"
+import { Box, Button, HStack, Input, Select, Textarea, Tooltip, VStack, useToast } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
+import CopyToClipboard from "react-copy-to-clipboard"
+import { Copy } from "react-feather"
 import { ZodEffects, ZodEnum, ZodString } from "zod"
 export default function TextInput({
     subject,
@@ -17,6 +19,8 @@ export default function TextInput({
     bg,
     description,
     showValidation = false,
+    enableCopy = false,
+    copyMessage 
 }: {
     subject?: string | React.ReactNode
     placeholder?: string
@@ -33,10 +37,12 @@ export default function TextInput({
     bg?: string
     description?: string
     showValidation?: boolean
+    enableCopy? : boolean,
+    copyMessage? : string
 }) {
     const [internalValue, setInternalValue] = useState<string>(value)
     const [internalErrors, setInternalErrors] = useState<string[]>([])
-
+    const toast = useToast();
     useEffect(() => {
         setInternalValue(value)
         validateData(value, true)
@@ -122,6 +128,9 @@ export default function TextInput({
                             onChange && onChange(ev.currentTarget.value)
                         }} ></Textarea>
                 </>) : (
+
+
+                    <HStack w="100%" alignItems={"flex-start"}>
                     <Input
                         type={type}
                         autoFocus={focus}
@@ -141,7 +150,27 @@ export default function TextInput({
                             validateData(ev.currentTarget.value)
                             onChange && onChange(ev.currentTarget.value)
                         }}
-                    ></Input>)
+                    ></Input>
+                           {enableCopy && <CopyToClipboard
+                            text={internalValue}
+                            onCopy={() =>
+                                toast({
+                                    title: copyMessage ??  `${subject} copied`,
+                                    status: "info",
+                                    position: "bottom-right",
+                                })
+                            }
+                        >
+                            
+                            <Button variant={"ghost"} w="60px">
+                                <Tooltip label={subject ? `Copy ${subject}` : "Copy"}>
+                                    <Copy></Copy>
+                                </Tooltip>
+                            </Button>
+                            
+                        </CopyToClipboard>}
+                    </HStack>
+                    )
             )}
         </VStack>
     )

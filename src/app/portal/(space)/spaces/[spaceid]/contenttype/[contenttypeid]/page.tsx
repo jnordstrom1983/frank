@@ -282,7 +282,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                                             <TextInput subject="Name" placeholder="My Content Type" value={name} onChange={setName} focus={true}></TextInput>
                                         </GridItem>
                                         <GridItem>
-                                            <TextInput subject="contentTypeId" value={contenttype.contentTypeId} disabled={true}></TextInput>
+                                            <TextInput subject="contentTypeId" value={contenttype.contentTypeId} disabled={true} enableCopy={true}></TextInput>
                                         </GridItem>
                                         <GridItem>
                                             <SimpleCheckboxInput

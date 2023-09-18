@@ -324,7 +324,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                         <TextInput subject="Name" placeholder="My asset Type" value={name} onChange={setName} focus={true}></TextInput>
                                     </GridItem>
                                     <GridItem>
-                                        <TextInput subject="assetId" value={params.assetid} disabled={true}></TextInput>
+                                        <TextInput subject="assetId" value={params.assetid} disabled={true} enableCopy={true}></TextInput>
                                     </GridItem>
                                 </Grid>
                                 <Grid templateColumns="3fr 2fr" rowGap="60px" columnGap={20} w="100%">

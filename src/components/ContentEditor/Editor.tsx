@@ -837,7 +837,7 @@ export default function Editor({
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <Box fontWeight="bold">SLUG</Box>
                                                         <Box w="100%">
-                                                            <TextInput value={slug} onChange={updateSlug} placeholder="Will be generated when saved"></TextInput>
+                                                            <TextInput value={slug} onChange={updateSlug} placeholder="Will be generated when saved" enableCopy={!!slug} copyMessage="Slug copied"></TextInput>
                                                         </Box>
                                                     </VStack>
                                                 </Box>

@@ -198,7 +198,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                         <TextInput subject="Name" placeholder="My Content Type" value={name} onChange={setName} focus={true}></TextInput>
                                     </GridItem>
                                     <GridItem>
-                                        <TextInput subject="contentTypeId" value={params.folderid} disabled={true}></TextInput>
+                                        <TextInput subject="contentTypeId" value={params.folderid} disabled={true} enableCopy={true}></TextInput>
                                     </GridItem>
                                 </Grid>
                                 <CheckboxInput checked={limited} align="top" onChange={setLimited} uncheckedBody={<Box>Limit content that can be created in this folder</Box>} checkedBody={

@@ -193,7 +193,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                         <TextInput subject="Name" placeholder="My Content Type" value={name} onChange={setName} focus={true}></TextInput>
                                     </GridItem>
                                     <GridItem>
-                                        <TextInput subject="folderId" value={params.folderid} disabled={true}></TextInput>
+                                        <TextInput subject="folderId" value={params.folderid} disabled={true} enableCopy={true}></TextInput>
                                     </GridItem>
                                 </Grid>
 

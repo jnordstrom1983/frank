@@ -93,11 +93,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                     <Box bg="#fff" p={10} w="100%">
                         <VStack spacing={10} alignItems={"flex-start"}>
                             <HStack w="100%">
-                                <Box w="70%">
+                                <Box w="60%">
                                     <TextInput value={spaceName} validate={z.string().min(3)} onChange={setSpaceName} subject="Space name"></TextInput>
                                 </Box>
-                                <Box w="30%">
-                                    <TextInput value={spaceId} subject="spaceId" disabled={true}></TextInput>
+                                <Box w="40%">
+                                    <TextInput value={spaceId} subject="spaceId" disabled={true} enableCopy={true}></TextInput>
                                 </Box>
                             </HStack>
 
