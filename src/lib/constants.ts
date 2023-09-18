@@ -1,5 +1,6 @@
 import { BlockType } from "@/components/FieldEditors/Block/BlockEditor"
 import { dataType } from "@/models/datatype"
+import { Field } from "@/models/field"
 
 export enum Permissions {
     none = "none",
@@ -107,6 +108,12 @@ export const dataTypes: dataType[] = [
 
             },
         ],
+        getDataTypeString : (field : Field)=>{
+            if(field.options){
+                return field.options.map(n=>`"${n}"`).join(" | ")
+            }
+            return "string"
+        }
     },
     {
         id: "number",
@@ -152,6 +159,12 @@ export const dataTypes: dataType[] = [
 
             },
         ],
+        getDataTypeString : (field : Field)=>{
+            if(field.options){
+                return field.options.join(" | ")
+            }
+            return "number"
+        }        
     },
 
     {
@@ -182,6 +195,9 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+             return "string | FrankContentItem"
+        }                
     },
     {
         id: "referenceArray",
@@ -212,6 +228,9 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+            return "string | FrankContentItem[]"
+        }                        
     },
     {
         id: "asset",
@@ -243,6 +262,16 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+            return `{ 
+                assetId: string
+                url: string
+                type: string
+                filename: string
+                name: string
+                description: string
+            }`
+        }            
     },
     {
         id: "assetArray",
@@ -275,6 +304,16 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+            return `{ 
+                assetId: string
+                url: string
+                type: string
+                filename: string
+                name: string
+                description: string
+            }[]`
+        }              
     },
 
     {
@@ -317,6 +356,14 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+            return `{ 
+                id : string
+                type : string
+                variant : string
+                data : any
+            }[]`
+        }           
     },
     {
         id: "table",
@@ -343,6 +390,9 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+            return `string[][]`
+        }           
     },
 
     {
@@ -371,6 +421,9 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+            return `Record<string, string>`
+        }                   
     },
 
     {
@@ -399,6 +452,9 @@ export const dataTypes: dataType[] = [
             },
 
         ],
+        getDataTypeString : (field : Field)=>{
+            return `Record<string, string>[]`
+        }                           
     },
 
 
