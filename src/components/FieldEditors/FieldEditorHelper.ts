@@ -2,6 +2,7 @@ import { Field } from "@/models/field";
 import { ValidateAssetFieldValue } from "./Asset/FieldEditorAssetHelper";
 import { ValidateAssetArrayFieldValue } from "./AssetArray/FieldEditorAssetHelper";
 import { ValidateBlockFieldValue } from "./Block/FieldEditorBlockHelper";
+import { ValidateBooleanFieldValue } from "./Boolean/FieldEditorBooleanHelper";
 import { ValidateNumberFieldValue } from "./Number/FieldEditorNumberHelper";
 import { ValidateObjectFieldValue } from "./Object/FieldEditorObjectHelper";
 import { ValidateObjectArrayFieldValue } from "./ObjectArray/FieldEditorObjectArrayHelper";
@@ -47,5 +48,7 @@ export function ValidateFieldValueschema(field: Field, value: any) {
             return ValidateObjectFieldValue(field, value);
         case "objectArray":
             return ValidateObjectArrayFieldValue(field, value);
+        case "boolean":
+            return ValidateBooleanFieldValue(field, value)
     }
 }

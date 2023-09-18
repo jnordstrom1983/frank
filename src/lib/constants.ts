@@ -166,6 +166,38 @@ export const dataTypes: dataType[] = [
             return "number"
         }        
     },
+    {
+        id: "boolean",
+        name: "boolean",
+        description: "true/false value",
+        variants: [
+
+            {
+                id: "select",
+                name: "select",
+                options: "mandatory",
+                optionsType: "string",
+                canBeTitle: true,
+                validators: {
+                    required: { enabled: false },
+
+                },
+                settings: [
+                    
+                ],
+                defaultValue : false,
+                ai: {
+                    check: false,
+                    translate: false,
+                    reprahse: false,
+                },
+
+            },
+        ],
+        getDataTypeString : (field : Field)=>{
+            return "boolean"
+        }
+    },    
 
     {
         id: "reference",

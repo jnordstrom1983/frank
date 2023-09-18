@@ -2,7 +2,7 @@ import { Box, Button, HStack, Input, Select, Textarea, Tooltip, VStack, useToast
 import { useEffect, useState } from "react"
 import CopyToClipboard from "react-copy-to-clipboard"
 import { Copy } from "react-feather"
-import { ZodEffects, ZodEnum, ZodString } from "zod"
+import { ZodEffects, ZodEnum, ZodOptional, ZodString } from "zod"
 export default function TextInput({
     subject,
     placeholder,
@@ -30,7 +30,7 @@ export default function TextInput({
     options?: { key: string; text: string }[]
     disabled?: boolean
     focus?: boolean
-    validate?: ZodString | ZodEnum<any> | ZodEffects<any>
+    validate?: ZodString | ZodEnum<any> | ZodEffects<any> | ZodOptional<any>
     onValidation?: (valid: boolean) => void
     onChange?: (value: string) => void
     onSubmit?: (value: string) => void
