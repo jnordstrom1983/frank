@@ -19,6 +19,7 @@ import {
     Td,
     Th,
     Thead,
+    Tooltip,
     Tr, useToast, VStack
 } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -143,6 +144,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             selectedItemId={filterFolder}
                                             anyText="Any folder"
                                             onClick={setFilterFolder}
+                                            settingsTooltip="Manage folders"
                                             onSettings={() => {
                                                 router.push(`/portal/spaces/${params.spaceid}/asset/folder`)
                                             }}
@@ -198,10 +200,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 </Box>
                                             </HStack>
                                         </Box>
-                                        <UploadButton text="Create" spaceId={params.spaceid} onUploaded={(asset) => {
-                                            queryClient.invalidateQueries([["asset"]]);
-                                            router.push(`/portal/spaces/${params.spaceid}/asset/${asset.assetId}`)
-                                        }}></UploadButton>
+                                        
+                                            <UploadButton text="Create" spaceId={params.spaceid} onUploaded={(asset) => {
+                                                queryClient.invalidateQueries([["asset"]]);
+                                                router.push(`/portal/spaces/${params.spaceid}/asset/${asset.assetId}`)
+                                            }}></UploadButton>
+                                        
                                     </HStack>
                                     <Box pt={5}>
                                         {filteredItems.length > 0 ? (

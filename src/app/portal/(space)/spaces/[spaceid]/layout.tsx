@@ -7,7 +7,7 @@ import { apiClient } from "@/networking/ApiClient"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { useProfile } from "@/networking/hooks/user"
 import { useAppStore } from "@/stores/appStore"
-import { Box, Button, Flex, HStack, Image, VStack } from "@chakra-ui/react"
+import { Box, Button, Flex, HStack, Image, Tooltip, VStack } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -82,6 +82,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                         <HStack>
                                             <Box fontWeight={"bold"}>SPACES</Box>
                                             {["admin"].includes(profile.role) && (
+                                                <Tooltip label="Manage spaces" placement="top">
                                                 <Button
                                                     variant={"ghost"}
                                                     onClick={() => {
@@ -90,6 +91,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                                 >
                                                     <Sliders size={24} />
                                                 </Button>
+                                                </Tooltip>
                                             )}
                                         </HStack>
                                     </Box>
@@ -191,6 +193,7 @@ export default function DashboardLayout({ children, params }: { children: React.
 
                             <MenuButton
                                 text="Content"
+                                tooltip="Manage content"
                                 icon={<ContentIcon></ContentIcon>}
                                 selected={mainMenu === "content"}
                                 onClick={() => {
@@ -200,6 +203,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                             ></MenuButton>
                             <MenuButton
                                 text="Assets"
+                                tooltip="Manage assets"
                                 icon={<AssetIcon></AssetIcon>}
                                 selected={mainMenu === "asset"}
                                 onClick={() => {
@@ -211,6 +215,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                             {["admin"].includes(profile.role) && (
                                 <MenuButton
                                     text="Types"
+                                    tooltip="Manage content types"
                                     icon={<TypesIcon></TypesIcon>}
                                     selected={mainMenu === "contentType"}
                                     onClick={() => {
@@ -223,6 +228,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                             {["admin"].includes(profile.role) && (
                                 <MenuButton
                                     text="Settings"
+                                    tooltip="Manage system settings"
                                     icon={<SettingsIcon></SettingsIcon>}
                                     selected={mainMenu === "settings"}
                                     onClick={() => {
@@ -254,22 +260,27 @@ export default function DashboardLayout({ children, params }: { children: React.
                     </Flex>
                     <Flex background="#fff" height="46px" position={"fixed"} left="80px" right="0" top="0" zIndex={10} alignItems={"center"} justifyContent={"center"}>
                         <Box  >
-                            <Button
-                                variant="ghost"
-                                w="100%"
-                                height="32px"
+                            {spaces && 
+                            <Tooltip label="Switch space">
+                                <Button
+                                    variant="ghost"
+                                    w="100%"
+                                    height="32px"
 
-                                paddingY="5px"
-                                paddingX="15px"
-                                fontSize="13px"
-                                backgroundColor={"#f0f0f0"} borderRadius={"25px"}
-                                _hover={{ borderRadius: "25px" }}
-                                onClick={() => {
-                                    setShowOverlay(!showOverlay)
-                                }}
-                            >
-                                {spaces?.find((p) => p.spaceId === params.spaceid)?.name} <ChevronDown></ChevronDown>
-                            </Button>
+                                    paddingY="5px"
+                                    paddingX="15px"
+                                    fontSize="13px"
+                                    backgroundColor={"#f0f0f0"} borderRadius={"25px"}
+                                    _hover={{ borderRadius: "25px" }}
+                                    onClick={() => {
+                                        setShowOverlay(!showOverlay)
+                                    }}
+                                >
+                                    {spaces?.find((p) => p.spaceId === params.spaceid)?.name} <ChevronDown></ChevronDown>
+                                </Button>
+                            </Tooltip>
+                            }
+                            
                         </Box>
                     </Flex>
                 </>
@@ -284,24 +295,19 @@ export default function DashboardLayout({ children, params }: { children: React.
     )
 }
 
-function MenuButton({ text, selected, onClick, icon }: { text: string; selected: boolean; onClick?: () => void; icon: React.ReactElement }) {
+function MenuButton({ text, selected, onClick, icon, tooltip }: { text: string; tooltip : string, selected: boolean; onClick?: () => void; icon: React.ReactElement }) {
     return (
         <Flex h="60px" alignItems={"center"} w="60px" justifyContent={"center"}>
-            <Button variant={"ghost"} color={selected ? "#000" : "#878787"} w="100%" h="100%" onClick={onClick}>
-                <VStack>
-                    {icon}
-                    <Box fontSize="11px">{text}</Box>
-                </VStack>
-            </Button>
+            <Tooltip label={tooltip}  fontSize={"12px"} placement="right">
+                <Button variant={"ghost"} color={selected ? "#000" : "#878787"} w="100%" h="100%" onClick={onClick}>
+                    <VStack>
+                        {icon}
+                        <Box fontSize="11px">{text}</Box>
+                    </VStack>
+                </Button>
+            </Tooltip>
+           
         </Flex>
-        // <Flex h="60px"   alignItems={"center"} w="60px" justifyContent={"center"}>
-        //     <Button variant={"ghost"}  color={selected ? "#fff" : "#878787"} w="100%" h="100%" backgroundColor={selected ? "blue.500" : undefined}   borderRadius={"10px"} onClick={onClick} _hover={{ backgroundColor : "blue.500", opacity : "0.8", color :"#fff",  borderRadius : "10px"}}>
-        //         <VStack>
-        //             {icon}
-        //             <Box fontSize="11px">{text}</Box>
-        //         </VStack>
-        //     </Button>
-        // </Flex>
     )
 }
 

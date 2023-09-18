@@ -30,6 +30,7 @@ import {
     Td,
     Th,
     Thead,
+    Tooltip,
     Tr,
     VStack,
     useToast,
@@ -457,6 +458,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         anyText="Any content type"
                                         
                                         settingsIcon={showHidden ? <EyeOff></EyeOff> : <Eye></Eye>}
+                                        settingsTooltip={showHidden ?  "Hide hidden content types": "Show hidden content types"}
                                         onSettings={() => {
                                             setShowHidden(!showHidden)
                                         }}
@@ -506,15 +508,17 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         {contenttypes.filter((item) => creatableContentTypes.includes(item.contentTypeId)).length > 0 && (
                                             <Menu>
                                                 {contenttypes.filter((item) => creatableContentTypes.includes(item.contentTypeId)).length === 1 ? (
-                                                    <Button
-                                                        colorScheme="green"
-                                                        width="150px"
-                                                        onClick={() => {
-                                                            create(contenttypes.find((item) => creatableContentTypes.includes(item.contentTypeId))!.contentTypeId)
-                                                        }}
-                                                    >
-                                                        CREATE
-                                                    </Button>
+                                                    <Tooltip label={`Create content of type ${contenttypes.find((item) => creatableContentTypes.includes(item.contentTypeId))!.name}`}>
+                                                        <Button
+                                                            colorScheme="green"
+                                                            width="150px"
+                                                            onClick={() => {
+                                                                create(contenttypes.find((item) => creatableContentTypes.includes(item.contentTypeId))!.contentTypeId)
+                                                            }}
+                                                        >
+                                                            CREATE
+                                                        </Button>
+                                                    </Tooltip>
                                                 ) : (
                                                     ({ isOpen }) => (
                                                         <>

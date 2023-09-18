@@ -35,7 +35,7 @@ export function SelectionList({
                         {subject}
                     </Box>
                     {settingsTooltip ? (
-                        <Tooltip label={settingsTooltip}>
+                        <Tooltip label={settingsTooltip} placement="top">
                             <Button variant="ghost" onClick={onSettings}>
                                 {settingsIcon ? settingsIcon : <Sliders></Sliders>}
                             </Button>

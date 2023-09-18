@@ -29,6 +29,7 @@ import {
     Spinner,
     Stack,
     Tag,
+    Tooltip,
     useDisclosure,
     useToast,
     VStack,
@@ -635,14 +636,16 @@ export default function Editor({
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <HStack>
                                                             <Box fontWeight="bold">PUBLISHED</Box>
-                                                            <Button
-                                                                variant={"ghost"}
-                                                                onClick={() => {
-                                                                    onScheduleOpen()
-                                                                }}
-                                                            >
-                                                                <Clock size={24} />
-                                                            </Button>
+                                                            <Tooltip label="Schedule publishing / unpublishing" placement="top">
+                                                                <Button
+                                                                    variant={"ghost"}
+                                                                    onClick={() => {
+                                                                        onScheduleOpen()
+                                                                    }}
+                                                                >
+                                                                    <Clock size={24} />
+                                                                </Button>
+                                                            </Tooltip>
                                                         </HStack>
                                                         <VStack spacing={5} w="100%" alignItems={"flex-start"}>
                                                             {publishDate ? (
@@ -708,14 +711,16 @@ export default function Editor({
                                                         <Box fontWeight="bold">
                                                             <HStack>
                                                                 <Box>LANGUAGES</Box>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    onClick={() => {
-                                                                        setShowLanguages(true)
-                                                                    }}
-                                                                >
-                                                                    <Sliders></Sliders>
-                                                                </Button>
+                                                                <Tooltip label="Manage languages" placement="top">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        onClick={() => {
+                                                                            setShowLanguages(true)
+                                                                        }}
+                                                                    >
+                                                                        <Sliders></Sliders>
+                                                                    </Button>
+                                                                </Tooltip>
                                                             </HStack>
                                                         </Box>
                                                         <Flex flexWrap="wrap" gap="3">
@@ -862,14 +867,16 @@ export default function Editor({
                                                         <Box fontWeight="bold">
                                                             <HStack>
                                                                 <Box>HISTORY</Box>{" "}
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    onClick={() => {
-                                                                        router.push(`/portal/spaces/${spaceId}/content/${contentId}/history`)
-                                                                    }}
-                                                                >
-                                                                    <Clock></Clock>
-                                                                </Button>
+                                                                <Tooltip label="View history" placement="top">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        onClick={() => {
+                                                                            router.push(`/portal/spaces/${spaceId}/content/${contentId}/history`)
+                                                                        }}
+                                                                    >
+                                                                        <Clock></Clock>
+                                                                    </Button>
+                                                                </Tooltip>
                                                             </HStack>
                                                         </Box>
                                                         <VStack w="100%" alignItems={"flex-start"} divider={<Divider></Divider>}>
