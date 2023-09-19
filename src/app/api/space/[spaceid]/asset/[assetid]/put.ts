@@ -5,7 +5,7 @@ import { StoreUploadedFile, UploadedFile, processImage } from "@/lib/upload"
 import { Asset, AssetSchema } from "@/models/asset"
 import axios from "axios"
 import { z } from "zod"
-
+import mime from "mime-types"
 const PutAssetItemResponseSchema = AssetSchema
 
 const PutAssetItemRequestSchema = AssetSchema.pick({
@@ -71,7 +71,8 @@ export async function PUT(req: Request, context: { params: { spaceid: string; as
                             buffer,
                             type: "image",
                             ext: asset.ext,
-                            filename: asset.filename
+                            filename: asset.filename,
+                            mimeType : mime.lookup(asset.filename) || "application/octet-stream"
                         }
                         const result = await StoreUploadedFile(uploadedFile)
                         if (result) {
