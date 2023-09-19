@@ -1,6 +1,15 @@
+## 0.0.6
+- Feature: Handle SVG-files as images and not files
+- Feature: Adding Boolean data type
+- Feature/Portal: View Typescript interfaces on Content Type editing view
+- Feature/Portal: Add "Copy to clipboard" button on various places
+- Fix/UX: Adding some tooltips throughout the UI
+- Fix/UX: Redesigning asset list to align with content list
+
+
 ## 0.0.5
 - Feature/Portal: Add setting to make Content Types hidden, meaning that they will be hidden from Content Listing page.
-- Fix/UX: Redesigning table on Content Listing page to fix more information
+- Fix/UX: Redesigning table on Content Listing page to fit more information
   
 
 ## 0.0.4
