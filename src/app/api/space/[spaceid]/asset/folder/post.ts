@@ -10,6 +10,8 @@ import { z } from "zod"
 
 const PostAssetFolderRequestSchema = z.object({
     name: z.string()
+}).extend({
+    folderId  : z.string().optional()
 })
 
 export type PostAssetFolderRequest = z.infer<typeof PostAssetFolderRequestSchema>
@@ -24,7 +26,7 @@ export async function POST(req: Request, context: { params: { spaceid: string } 
             return await withRequestBody(req, PostAssetFolderRequestSchema, async (data) => {
 
 
-                let folderId = camelize(data.name)
+                let folderId = data.folderId ?? camelize(data.name)
                 let extra = 0;
                 let folder = await collections.assetFolder.findOne({ spaceId: context.params.spaceid, folderId: folderId })
                 while (folder) {

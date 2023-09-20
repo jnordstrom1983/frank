@@ -8,6 +8,8 @@ import { generateRouteInfoParams } from "@/lib/docs"
 
 const PostContentTypeRequestSchema = ContentTypeSchema.pick({
     name: true
+}).extend({
+    contentTypeId : z.string().optional()
 })
 export type PostContentTypeRequest = z.infer<typeof PostContentTypeRequestSchema>
 
@@ -25,7 +27,7 @@ export async function POST(req: Request, context: { params: { spaceid: string } 
         return await withSpaceRole(user, context.params.spaceid, "owner", async (role) => {
             return await withRequestBody(req, PostContentTypeRequestSchema, async (data) => {
 
-                let id = camelize(data.name)
+                let id = data.contentTypeId ?? camelize(data.name)
                 let cnt = 0;
                 let existing = await collections.contentType.findOne({ contentTypeId: id, spaceId: context.params.spaceid })
                 while (existing) {
@@ -36,7 +38,6 @@ export async function POST(req: Request, context: { params: { spaceid: string } 
 
                 const contenttype = await collections.contentType.create(
                     {
-                        contentTypeId: id,
                         spaceId: context.params.spaceid,
                         creatorUserId: user.userId,
                         enabled: true,
@@ -44,9 +45,10 @@ export async function POST(req: Request, context: { params: { spaceid: string } 
                         generateSlug : false,
                         hidden : false,
                         ...data,
+                        contentTypeId: id,
                     }
                 );
-
+                        console.log("contenttype", contenttype)
                 return returnJSON<PostContenTypeResponse>({ contenttype: contenttype! }, PostContenTypeResponseSchema)
 
             })

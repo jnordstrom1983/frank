@@ -11,6 +11,8 @@ const GetContentTypeItemResponseSchema = ContentTypeSchema.extend({})
 const PostContentRequestSchema = ContentSchema.pick({
     contentTypeId: true,
     folderId: true,
+}).extend({
+    contentId : z.string().optional()
 })
 
 export type PostContentRequest = z.infer<typeof PostContentRequestSchema>
@@ -23,7 +25,7 @@ export async function POST(req: Request, context: { params: { spaceid: string; c
                 if (!contentType) {
                     return returnNotFound("Content Type not found")
                 }
-                let id = short.generate()
+                let id = data.contentId ?? short.generate()
                 let existing = await collections.content.findOne({ contentId: id })
                 while (existing) {
                     id = short.generate()
@@ -34,7 +36,6 @@ export async function POST(req: Request, context: { params: { spaceid: string; c
                     contentId: id,
                     contentTypeId: data.contentTypeId,
                     spaceId: context.params.spaceid,
-
                     createdUserId: user.userId,
                     createdDate: new Date(),
                     modifiedUserId: user.userId,
