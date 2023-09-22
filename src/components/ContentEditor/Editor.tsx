@@ -118,9 +118,11 @@ export default function Editor({
     const { isOpen: isUnsavedOpen, onOpen: onUnsavedOpen, onClose: onUnsavedClose } = useDisclosure()
     const { isOpen: isScheduleOpen, onOpen: onScheduleOpen, onClose: onScheduleClose } = useDisclosure()
     const { isOpen: isCreateFolderOpen, onOpen: onCreateFolderOpen, onClose: onCreateFolderClose } = useDisclosure()
+    const { isOpen: isCopyLanguageOpen, onOpen: onCopyLanguageOpen, onClose: onCopyLanguageClose } = useDisclosure()
     const [publishDate, setPublishDate] = useState<Date | undefined>(undefined)
     const [DepublishDate, setDepublishDate] = useState<Date | undefined>(undefined)
-
+    const [copyContentLanguages, setCopyContentLanguages] = useState<SpaceLanguage[]>([])
+    const [copyLanguageFrom, setCopyLanguageFrom] = useState<SpaceLanguage>("en")
     const [createFolderName, setCreateFolderName] = useState<string>("")
     const [createFolderLoading, setCreateFolderLoading] = useState<boolean>(false)
     const [createFolderValid, setCreateFolderValid] = useState<boolean>(false)
@@ -134,7 +136,6 @@ export default function Editor({
         if (!contenttype) return ""
         if (!updatedContentDatas) return ""
         if (!spaces) return ""
-
 
         const titleField = contenttype.fields.find((f) => f.title)
         if (!titleField) return ""
@@ -170,7 +171,6 @@ export default function Editor({
         if (!spaces) return
         if (initialized) return
 
-        
         const space = spaces.find((p) => p.spaceId === spaceId)
         if (!space) {
             throw "Space not found"
@@ -401,6 +401,87 @@ export default function Editor({
                                 setDepublishDate(data.DepublishDate)
                             }}
                         ></EditorScheduling>
+
+                        <Modal isOpen={isCopyLanguageOpen} onClose={onCopyLanguageClose} isCentered={true}>
+                            <ModalOverlay />
+                            <ModalContent maxW="600px">
+                                <ModalHeader pt={10} px={10} pb={0}>
+                                    Copy content
+                                </ModalHeader>
+                                <ModalCloseButton right={10} top={10} />
+                                <ModalBody overflow="auto" p={10}>
+                                    <VStack alignItems={"flex-start"} spacing={5}>
+                                        <Box>Do you wish to copy existing content from another language to the language you just added?</Box>
+                                        <TextInput
+                                            subject="Copy from"
+                                            value={copyLanguageFrom}
+                                            type="select"
+                                            options={allLanguages
+                                                .filter((l) => languages.find((x) => x === l.code))
+                                                .filter((l) => !copyContentLanguages.find((p) => p === l.code))
+                                                .map((p) => ({ key: p.code, text: p.name }))}
+                                            focus={true}
+                                            onChange={(v) => {
+                                                setCopyLanguageFrom(v as SpaceLanguage)
+                                            }}
+                                            onSubmit={createFolder}
+                                        ></TextInput>
+                                    </VStack>
+                                </ModalBody>
+
+                                <ModalFooter pb={10} px={10} gap={10}>
+                                    <Button
+                                        colorScheme="blue"
+                                        mr={3}
+                                        minW="150px"
+                                        onClick={async () => {
+                                            const addedLanguages = copyContentLanguages
+
+                                            const defLanguage = updatedContentDatas.find((p) => p.languageId === copyLanguageFrom)
+
+                                            if (defLanguage) {
+                                                const updated = [...updatedContentDatas]
+
+                                                addedLanguages.forEach((lang) => {
+                                                    let dataItemIndex = updated.findIndex((p) => p.languageId === lang)
+                                                    if (dataItemIndex > -1) {
+                                                        updated[dataItemIndex].data = JSON.parse(JSON.stringify({ ...defLanguage.data }))
+                                                    } else {
+                                                        const dataItem = {
+                                                            spaceId: spaceId,
+                                                            contentDataId: uuidv4(),
+                                                            contentTypeId: contenttype.contentTypeId,
+                                                            contentId: contentId,
+                                                            languageId: lang,
+                                                            modifiedUserId: "",
+                                                            modifiedDate: new Date(),
+                                                            data: JSON.parse(JSON.stringify({ ...defLanguage.data })),
+                                                            slug: defLanguage.slug,
+                                                        }
+                                                        //@ts-ignore
+                                                        updated.push(dataItem)
+                                                    }
+                                                })
+
+                                                setUpdatedContentDatas(updated)
+                                                setHasChanges(true)
+                                            }
+                                            onCopyLanguageClose()
+                                        }}
+                                    >
+                                        Copy content
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => {
+                                            onCopyLanguageClose()
+                                        }}
+                                    >
+                                        Do not copy any content
+                                    </Button>
+                                </ModalFooter>
+                            </ModalContent>
+                        </Modal>
 
                         <Modal isOpen={isCreateFolderOpen} onClose={onCreateFolderClose} isCentered={true}>
                             <ModalOverlay />
@@ -697,11 +778,24 @@ export default function Editor({
                                                             onClose={() => {
                                                                 setShowLanguages(false)
                                                             }}
-                                                            onChange={(languages) => {
-                                                                setLanguages(languages)
-                                                                if (!languages.find((p) => p === currentLanguage)) {
-                                                                    setCurrentLanguage(languages[0])
+                                                            onChange={(newLangugaes) => {
+                                                                const addedLanguages = newLangugaes.filter((l) => !languages.find((e) => e === l))
+
+                                                       
+
+                                                                setLanguages(newLangugaes)
+                                                                if (!newLangugaes.find((p) => p === currentLanguage)) {
+                                                                    setCurrentLanguage(newLangugaes[0])
                                                                 }
+
+                                                                if (addedLanguages.length > 0) {
+                                                                    setCopyContentLanguages(addedLanguages)
+
+                                                                    setCopyLanguageFrom(space!.defaultLanguage)
+                                                                    onCopyLanguageOpen()
+                                                                }
+
+
                                                                 setShowLanguages(false)
                                                             }}
                                                         ></EditorLanguages>
