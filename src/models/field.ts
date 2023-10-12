@@ -32,6 +32,7 @@ export const FieldSchema = z.object({
     dataTypeVariantId: z.string(),
     options: z.array(FieldOptionSchema).optional(),
     validators: FieldValidatorsSchema,
+    output: z.boolean(),
     settings: z.array(FieldSettingSchema)
 })
 export type Field = z.infer<typeof FieldSchema>

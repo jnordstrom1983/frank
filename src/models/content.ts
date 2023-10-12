@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { SpaceModuleEnum } from "./space"
 
 export const ContentStatusSchema = z.enum(["new", "draft", "published"])
 export type  ContentStatus = z.infer<typeof ContentStatusSchema>
@@ -17,6 +18,7 @@ export const ContentSchema = z.object({
     status: ContentStatusSchema,
     scheduledPublishDate : z.date().optional(),
     scheduledDepublishDate : z.date().optional(),
+    managedByModule : SpaceModuleEnum.optional(),
 })
 
 export type Content = z.infer<typeof ContentSchema>
@@ -34,6 +36,7 @@ export const ContentInternalViewModelSchema = ContentSchema.pick({
     status : true,
     scheduledPublishDate : true,
     scheduledDepublishDate : true,
+    managedByModule : true
 }).extend({
     title : z.string(), 
     folderName : z.string().optional(),

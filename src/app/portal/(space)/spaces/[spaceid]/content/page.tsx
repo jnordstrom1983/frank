@@ -75,9 +75,10 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         if(!allItems) return;
 
        if(showHidden){
-            setAllVisibileItems([...allItems])
+            setAllVisibileItems([...allItems].filter(p=>!p.managedByModule))
        }else{
             setAllVisibileItems([...allItems].filter(p=>{
+                if(p.managedByModule) return false;
                 const contentType = contenttypes.find(c=>c.contentTypeId === p.contentTypeId);
                 if(contentType && contentType.hidden) return false
                 return true;
@@ -88,6 +89,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     useEffect(() => {
         if (!allVisibleItems) return
         const filtered = allVisibleItems.filter((item) => {
+            if(item.managedByModule) return false;
             if (filterFolder) {
                 if (item.folderId !== filterFolder) return false
             }

@@ -1,9 +1,9 @@
 "use client"
-import { Box, Button, Center, Container, Flex, Heading, HStack, Spinner, Table, Tbody, Td, Th, Thead, Tr, useToast, VStack } from "@chakra-ui/react"
+import { Box, Button, Center, Container, Flex, Heading, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Table, Tag, Tbody, Td, Th, Thead, Tr, useToast, VStack } from "@chakra-ui/react"
 import React, { useEffect, useState } from "react"
 import Link from "next/link"
 import TextInput from "@/components/TextInput"
-import { Inbox, Loader, Search, Sliders, X } from "react-feather"
+import { Inbox, Loader, Search, Sliders, Trash2, X } from "react-feather"
 import { PostSpaceRequest, PostSpaceResponse } from "@/app/api/space/post"
 import { apiClient } from "@/networking/ApiClient"
 import { useQueryClient } from "@tanstack/react-query"
@@ -16,6 +16,14 @@ import { useContentypes } from "@/networking/hooks/contenttypes"
 import { PostContentTypeRequest, PostContenTypeResponse } from "@/app/api/space/[spaceid]/contenttype/post"
 import { SelectionList } from "@/components/SelectionList"
 import { Empty } from "@/components/Empty"
+import { useContent } from "@/networking/hooks/content"
+import { Content, ContentInternalViewModel } from "@/models/content"
+import dayjs from "dayjs"
+import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
+import { PostContentRequest } from "@/app/api/space/[spaceid]/content/post"
+import { PutContentItemRequest, PutContentItemResponse } from "@/app/api/space/[spaceid]/content/[contentid]/put"
+import { slugify } from "@/lib/utils"
+import { SpaceLanguage } from "@/models/space"
 export default function Home({ params }: { params: { spaceid: string } }) {
     const router = useRouter()
     const [mode, setMode] = useState<"list" | "create" | "loading">("loading")
@@ -26,32 +34,23 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const queryClient = useQueryClient()
     const { profile } = useProfile()
     const { spaces, isLoading: isSpacesLoading } = useSpaces({ enabled: true })
-    const { contenttypes, isLoading: isContenttypesLoading } = useContentypes(params.spaceid, {})
+    const { items, isLoading: isContentLoading } = useContent(params.spaceid, {})
 
     const [filterStatus, setFilterStatus] = useState<string>("")
     const [filterSearch, setFilterSearch] = useState<string>("")
-    const [filterVisibility, setFilterVisibility] = useState<string>("")
-    const [filteredItems, setFilteredItems] = useState<
-        {
-            enabled: boolean
-            name: string
-            contentTypeId: string
-        }[]
-    >([])
+    const [filteredItems, setFilteredItems] = useState<ContentInternalViewModel[]>([])
 
     useEffect(() => {
-        if (!contenttypes) return
-        const filtered = contenttypes.filter((item) => {
-            if(item.managedByModule) return false;
+        if (!items) return
+        const filtered = items.filter((item) => {
+       
+            if (item.managedByModule !== "translation") return false
             if (filterStatus) {
-                if (item.enabled !== (filterStatus === "enabled")) return false
-            }
-            if (filterVisibility){
-                if (item.hidden !== (filterVisibility === "hidden")) return false
+                if (item.status !== filterStatus) return false
             }
             if (filterSearch) {
                 let searchMatch = false
-                if (item.name.toLocaleLowerCase().includes(filterSearch.toLocaleLowerCase())) searchMatch = true
+                if (item.title.toLowerCase().includes(filterSearch.toLowerCase())) searchMatch = true
                 if (!searchMatch) return false
             }
 
@@ -59,38 +58,101 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         })
 
         setFilteredItems(filtered)
-    }, [contenttypes, filterStatus, filterSearch, filterVisibility])
+    }, [items, filterStatus, filterSearch])
 
-    const languageOptions = languages.map((l) => ({ key: l.code, text: l.name }))
     useEffect(() => {
         if (!profile) return
         if (!spaces) return
-        if (!contenttypes) return
+        if (!items) return
         if (mode !== "loading") return
 
-        if (contenttypes.length > 0) {
+        if (items.length > 0) {
             setMode("list")
         } else {
             setMode("create")
         }
-    }, [profile, spaces, contenttypes, mode])
+    }, [profile, spaces, items, mode])
 
     async function create(name: string) {
         setCreateLoading(true)
         try {
-            const response = await apiClient.post<PostContenTypeResponse, PostContentTypeRequest>({
+            const contentTypeCreateResponse = await apiClient.post<PostContenTypeResponse, PostContentTypeRequest>({
                 path: `/space/${params.spaceid}/contenttype`,
                 isAuthRequired: true,
                 body: {
-                    name,
+                    name: `Translation - ${name}`,
+                    managedByModule: "translation",
                 },
             })
+
+            const contentTypeUpdateResponse = await apiClient.put<PutContentTypeItemResponse, PutContentTypeItemRequest>({
+                path: `/space/${params.spaceid}/contenttype/${contentTypeCreateResponse.contenttype.contentTypeId}`,
+                isAuthRequired: true,
+                body: {
+                    name : `Translation - ${name}`,
+                    enabled: true,
+                    fields: [
+                        {
+                            fieldId: "__name",
+                            dataTypeId: "string",
+                            dataTypeVariantId: "textbox",
+                            name: "Translation name",
+                            description: "",
+                            title: true,
+                            validators: { required: { enabled: true }, unique: { enabled: false }, minLength: { enabled: false, min: 0 }, maxLength: { enabled: true, max: 4096 } },
+                            settings: [],
+                            output : false
+                        },
+                    ],
+                    generateSlug: true,
+                    hidden: true,
+                    
+                },
+            })
+
+
+            const contentCreateResponse = await apiClient.post<Content, PostContentRequest>({
+                path: `/space/${params.spaceid}/content`,
+                isAuthRequired: true,
+                body: {
+                    contentTypeId: contentTypeCreateResponse.contenttype.contentTypeId,
+                    managedByModule: "translation",
+                },
+            })
+
+            const space = spaces!.find((p) => p.spaceId === params.spaceid)
+            if (!space) {
+                throw "Space not found"
+            }
+
+
+
+            const contentUpdateResponse = await apiClient.put<PutContentItemResponse, PutContentItemRequest>({
+                path: `/space/${params.spaceid}/content/${contentCreateResponse.contentId}`,
+                isAuthRequired: true,
+                body : {
+                    status: "draft",
+                    data: [{
+                        languageId : space.defaultLanguage,
+                        data : {
+                            __name : name 
+                        }
+                    }]
+                }
+            })
+            queryClient.invalidateQueries([["content", params.spaceid]])
+
+
+
+
+            setCreateLoading(false)
+            queryClient.invalidateQueries([["content", params.spaceid]])
             queryClient.invalidateQueries([["contenttypes", params.spaceid]])
-            router.push(`/portal/spaces/${params.spaceid}/contenttype/${response.contenttype.contentTypeId}`)
+            router.push(`/portal/spaces/${params.spaceid}/modules/translation/${contentCreateResponse.contentId}`)
         } catch (ex) {
             setCreateLoading(false)
             toast({
-                title: "Could not create content type",
+                title: "Could not create translation file",
                 description: "Please try again.",
                 status: "error",
                 position: "bottom-right",
@@ -108,7 +170,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             {mode == "create" && (
                 <Box bg="white" mt="-3px" padding="10">
                     <Container maxW="800px" py="50px">
-                        {spaces && spaces?.length > 0 && (
+                        {items && items?.length > 0 && (
                             <Flex justifyContent="flex-end" w="100%">
                                 <Button
                                     variant={"ghost"}
@@ -125,12 +187,15 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                         <HStack w="100%" spacing="10" alignItems="flex-start">
                             <Box w="50%">
                                 <VStack alignItems="flex-start" spacing="5">
-                                    <Heading>Create a content type.</Heading>
+                                    <Heading>Create a translation file.</Heading>
                                     <Box color="grey" fontSize="14px">
-                                        <Box>Content types is defining the format of your content.</Box>
+                                        <Box>
+                                            Translation files is a set of phrases that you can translate to various languages. On translation file can contain many phrases and
+                                            multiple languages.
+                                        </Box>
                                         <Box mt="5">
-                                            A content type is defining what fields of information your content should have. You can have multiple content types for different use
-                                            cases, for example one content type for news articles and one for a product information.
+                                            Translation files can be used to handle translations in apps with eg. i18n files. By managing your translations in Frank you can easily
+                                            keep all phrases and translations in sync between all languages.
                                         </Box>
                                     </Box>
                                 </VStack>
@@ -143,7 +208,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         disabled={createLoading}
                                         focus={true}
                                         onChange={setName}
-                                        placeholder="My Content Type"
+                                        placeholder="My Translation"
                                         validate={z.string().min(3)}
                                         onValidation={(valid) => {
                                             setNameValid(valid)
@@ -182,37 +247,26 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                     <SelectionList
                                         subject="STATUS"
                                         items={[
-                                            { id: "enabled", name: "Enabled" },
-                                            { id: "disabled", name: "Disabled" },
+                                            { id: "draft", name: "Draft" },
+                                            { id: "published", name: "Published" },
                                         ]}
                                         selectedItemId={filterStatus}
                                         onClick={setFilterStatus}
                                         anyText="Any status"
                                     ></SelectionList>
-                                    <SelectionList
-                                        subject="VISIBILITY"
-                                        items={[
-                                            { id: "visible", name: "Visible" },
-                                            { id: "hidden", name: "Hidden" },
-                                        ]}
-                                        selectedItemId={filterVisibility}
-                                        onClick={setFilterVisibility}
-                                        anyText="All"
-                                    ></SelectionList>
-
                                 </VStack>
                             </Flex>
                             <Flex flex={1}>
                                 <Box p={10} w="100%" maxW="1400px">
                                     <HStack w="100%" alignItems={"center"} gap={10}>
-                                        <Heading>Content types</Heading>
+                                        <Heading>Translation files</Heading>
                                         <Box flex={1}>
                                             <HStack justifyContent={"flex-start"} gap={3}>
                                                 <Search></Search>
                                                 <Box w="300px">
                                                     <TextInput
                                                         value=""
-                                                        placeholder="Search for content types"
+                                                        placeholder="Search for translation files"
                                                         bg="#fff"
                                                         focus={true}
                                                         onChange={setFilterSearch}
@@ -230,32 +284,35 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             <Table>
                                                 <Thead>
                                                     <Tr>
-                                                        <Th>NAME</Th>
-                                                        <Th>Id</Th>
-                                                        <Th></Th>
+                                                        <Th>Name</Th>
+                                                        <Th>Modified</Th>
+                                                        <Th>Status</Th>
                                                     </Tr>
                                                 </Thead>
                                                 <Tbody>
-                                                    {filteredItems?.map((s) => (
+                                                    {filteredItems?.map((item) => (
                                                         <Tr
-                                                            key={s.contentTypeId}
+                                                            key={item.contentId}
                                                             _hover={{ backgroundColor: "#fafafa", cursor: "pointer" }}
                                                             onClick={() => {
-                                                                router.push(`/portal/spaces/${params.spaceid}/contenttype/${s.contentTypeId}`)
+                                                                router.push(`/portal/spaces/${params.spaceid}/modules/translation/${item.contentId}`)
                                                             }}
                                                         >
-                                                            <Td fontWeight="600" color={s.enabled ? undefined : "gray.400"}>
-                                                                {s.name}
+                                                            <Td fontWeight="600">{item.title}</Td>
+                                                            <Td>
+                                                                <Box>{dayjs(item.modifiedDate).format("YYYY-MM-DD")}</Box>
+                                                                <Box fontSize="12px">{item.modifiedUserName}</Box>
                                                             </Td>
-                                                            <Td color={s.enabled ? undefined : "gray.400"}>{s.contentTypeId}</Td>
-                                                            <Td textAlign={"right"}>
-                                                                <Button variant={"ghost"}>
-                                                                    <HStack spacing={3}>
-                                                                        <Box color="blue.500">Configure</Box>
-
-                                                                        <Sliders size={24} />
-                                                                    </HStack>
-                                                                </Button>
+                                                            <Td>
+                                                                {item.status == "draft" ? (
+                                                                    <Tag colorScheme="red" ml={5}>
+                                                                        DRAFT
+                                                                    </Tag>
+                                                                ) : (
+                                                                    <Tag colorScheme="green" ml={5}>
+                                                                        PUBLISHED
+                                                                    </Tag>
+                                                                )}
                                                             </Td>
                                                         </Tr>
                                                     ))}
@@ -274,3 +331,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         </>
     )
 }
+
+
+
+

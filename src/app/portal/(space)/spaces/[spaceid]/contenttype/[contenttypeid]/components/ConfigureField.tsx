@@ -65,6 +65,7 @@ export function ConfigureField({
     const [validatorMaxValue, setValidatorMaxValue] = useState<MaxValueValidatorProperties | undefined>()
     const [validatorMinValueValid, setValidatorMinValueValid] = useState<boolean>(true)
     const [validatorMinValue, setValidatorMinValue] = useState<MinValueValidatorProperties | undefined>()
+    const [output, setOutput] = useState<boolean>(false)
     const [settings, setSettings] = useState<FieldSetting[]>([])
     const [options, setOptions] = useState<FieldOption[]>([])
     const [optionsEnabled, setOptionsEnabled] = useState<boolean>(false)
@@ -118,6 +119,7 @@ export function ConfigureField({
         setSettings(field.settings)
         setOptions(field.options || [])
         setOptionsEnabled(!!field.options)
+        setOutput(field.output)
     }, [field])
     useEffect(() => {
         mergeValidators(variant)
@@ -272,6 +274,10 @@ export function ConfigureField({
                                 {validatorRequired && <RequiredEditor settings={validatorRequired} onUpdate={setValidatorRequired}></RequiredEditor>}
 
                                 {validatorUnique && <UniqueEditor settings={validatorUnique} onUpdate={setValidatorUnique}></UniqueEditor>}
+
+                                <SimpleCheckboxInput subject="Output" checked={output} onChange={setOutput} description="Include field in content api output"></SimpleCheckboxInput>
+
+
                                 {validatorMinLenght && (
                                     <MinLengthEditor settings={validatorMinLenght} onUpdate={setValidatorMinLenght} onValidation={setValidatorMinLenghtValid}></MinLengthEditor>
                                 )}
@@ -318,7 +324,7 @@ export function ConfigureField({
                                     validators = { ...validators, maxValue: validatorMaxValue }
                                 }
 
-                                const updated: Field = { ...field, name, title, dataTypeVariantId: variant, settings, description, options, validators }
+                                const updated: Field = { ...field, name, title, dataTypeVariantId: variant, settings, description, options, validators, output }
 
                                 if (variantObject?.options === "enabled") {
                                     if (!optionsEnabled) {

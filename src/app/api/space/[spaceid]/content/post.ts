@@ -11,6 +11,7 @@ const GetContentTypeItemResponseSchema = ContentTypeSchema.extend({})
 const PostContentRequestSchema = ContentSchema.pick({
     contentTypeId: true,
     folderId: true,
+    managedByModule: true,
 }).extend({
     contentId : z.string().optional()
 })
@@ -50,6 +51,9 @@ export async function POST(req: Request, context: { params: { spaceid: string; c
                     //TODO: Validate if content type is allowed in folder
                     content = { ...content, folderId: data.folderId }
                 }
+                if (data.managedByModule){
+                    content = { ...content, managedByModule: data.managedByModule }
+                }   
                 const inserted = await collections.content.create(content)
 
                 return returnJSON<Content>(inserted!, ContentSchema)

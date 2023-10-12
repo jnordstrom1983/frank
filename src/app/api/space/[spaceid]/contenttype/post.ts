@@ -7,7 +7,8 @@ import { camelize, slugify } from "@/lib/utils"
 import { generateRouteInfoParams } from "@/lib/docs"
 
 const PostContentTypeRequestSchema = ContentTypeSchema.pick({
-    name: true
+    name: true,
+    managedByModule: true,
 }).extend({
     contentTypeId : z.string().optional()
 })

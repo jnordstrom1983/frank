@@ -2,6 +2,7 @@
 import { SpaceItem } from "@/app/api/space/get"
 import { PutProfileResponse } from "@/app/api/user/profile/put"
 import { AdminMenu } from "@/components/AdminMenu"
+import { SpaceModules } from "@/lib/spaceModules"
 import { chunks } from "@/lib/utils"
 import { apiClient } from "@/networking/ApiClient"
 import { useSpaces } from "@/networking/hooks/spaces"
@@ -34,7 +35,7 @@ export default function DashboardLayout({ children, params }: { children: React.
         if (!profile) return
 
         if (profile!.lastUsedSpaceId !== params.spaceid) {
-            ; (async () => {
+            ;(async () => {
                 apiClient.put<PutProfileResponse, PutProfileResponse>({
                     path: `/user/profile`,
                     body: {
@@ -83,14 +84,14 @@ export default function DashboardLayout({ children, params }: { children: React.
                                             <Box fontWeight={"bold"}>SPACES</Box>
                                             {["admin"].includes(profile.role) && (
                                                 <Tooltip label="Manage spaces" placement="top">
-                                                <Button
-                                                    variant={"ghost"}
-                                                    onClick={() => {
-                                                        router.push("/portal/spaces")
-                                                    }}
-                                                >
-                                                    <Sliders size={24} />
-                                                </Button>
+                                                    <Button
+                                                        variant={"ghost"}
+                                                        onClick={() => {
+                                                            router.push("/portal/spaces")
+                                                        }}
+                                                    >
+                                                        <Sliders size={24} />
+                                                    </Button>
                                                 </Tooltip>
                                             )}
                                         </HStack>
@@ -188,7 +189,6 @@ export default function DashboardLayout({ children, params }: { children: React.
                         <VStack spacing={5}>
                             <VStack w="60" pt={3}>
                                 <Image src="/static/logo_vertical.svg" maxW="46px"></Image>
-
                             </VStack>
 
                             <MenuButton
@@ -212,6 +212,21 @@ export default function DashboardLayout({ children, params }: { children: React.
                                     router.push(`/portal/spaces/${params.spaceid}/asset`)
                                 }}
                             ></MenuButton>
+                            {space?.modules
+                                .map((m) => SpaceModules.find((sm) => sm.id === m)).filter(m=>!!m)
+                                .map((m) => (
+                                    <MenuButton
+                                        key={m!.id}
+                                        text={m!.name}
+                                        icon={m!.icon}
+                                        selected={mainMenu === m!.id}
+                                        onClick={() => {
+                                            setShowOverlay(false)
+                                            router.push(`/portal/spaces/${params.spaceid}/modules/${m!.id}`)
+                                        }}
+                                        tooltip={m!.description}
+                                    ></MenuButton>
+                                ))}
                             {["admin"].includes(profile.role) && (
                                 <MenuButton
                                     text="Types"
@@ -259,28 +274,27 @@ export default function DashboardLayout({ children, params }: { children: React.
                         </Flex>
                     </Flex>
                     <Flex background="#fff" height="46px" position={"fixed"} left="80px" right="0" top="0" zIndex={10} alignItems={"center"} justifyContent={"center"}>
-                        <Box  >
-                            {spaces && 
-                            <Tooltip label="Switch space">
-                                <Button
-                                    variant="ghost"
-                                    w="100%"
-                                    height="32px"
-
-                                    paddingY="5px"
-                                    paddingX="15px"
-                                    fontSize="13px"
-                                    backgroundColor={"#f0f0f0"} borderRadius={"25px"}
-                                    _hover={{ borderRadius: "25px" }}
-                                    onClick={() => {
-                                        setShowOverlay(!showOverlay)
-                                    }}
-                                >
-                                    {spaces?.find((p) => p.spaceId === params.spaceid)?.name} <ChevronDown></ChevronDown>
-                                </Button>
-                            </Tooltip>
-                            }
-                            
+                        <Box>
+                            {spaces && (
+                                <Tooltip label="Switch space">
+                                    <Button
+                                        variant="ghost"
+                                        w="100%"
+                                        height="32px"
+                                        paddingY="5px"
+                                        paddingX="15px"
+                                        fontSize="13px"
+                                        backgroundColor={"#f0f0f0"}
+                                        borderRadius={"25px"}
+                                        _hover={{ borderRadius: "25px" }}
+                                        onClick={() => {
+                                            setShowOverlay(!showOverlay)
+                                        }}
+                                    >
+                                        {spaces?.find((p) => p.spaceId === params.spaceid)?.name} <ChevronDown></ChevronDown>
+                                    </Button>
+                                </Tooltip>
+                            )}
                         </Box>
                     </Flex>
                 </>
@@ -295,18 +309,17 @@ export default function DashboardLayout({ children, params }: { children: React.
     )
 }
 
-function MenuButton({ text, selected, onClick, icon, tooltip }: { text: string; tooltip : string, selected: boolean; onClick?: () => void; icon: React.ReactElement }) {
+function MenuButton({ text, selected, onClick, icon, tooltip }: { text: string; tooltip: string; selected: boolean; onClick?: () => void; icon: React.ReactElement }) {
     return (
         <Flex h="60px" alignItems={"center"} w="60px" justifyContent={"center"}>
-            <Tooltip label={tooltip}  fontSize={"12px"} placement="right">
+            <Tooltip label={tooltip} fontSize={"12px"} placement="right">
                 <Button variant={"ghost"} color={selected ? "#000" : "#878787"} w="100%" h="100%" onClick={onClick}>
                     <VStack>
                         {icon}
-                        <Box fontSize="11px">{text}</Box>
+                        <Box fontSize="11px" textOverflow={"ellipsis"} width={"60px"} overflow={"hidden"}>{text}</Box>
                     </VStack>
                 </Button>
             </Tooltip>
-           
         </Flex>
     )
 }

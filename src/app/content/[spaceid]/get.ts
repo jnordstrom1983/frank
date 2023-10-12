@@ -198,11 +198,15 @@ export async function GetContent(params: Record<string, string>, restrictedToCon
 function processDBItem(item: AggregatedContentDataItemSchema, contentTypes: ContentType[]) {
     //@ts-ignore
     delete item._id
+    
     const { contentDataId, modifiedUserId, spaceId, referencedAssets, status, ...rest } = item;
 
-    //Process assets
     const contentType = contentTypes.find(c => c.contentTypeId === rest.contentTypeId)
     if (contentType && rest.data) {
+        contentType.fields.filter(p => !p.output).forEach(f => {
+            //@ts-ignore
+            delete item.data[f.fieldId]
+        })
         contentType.fields.filter(p => p.dataTypeId === "asset").forEach(f => {
 
             if (rest.data && rest.data[f.fieldId]) {

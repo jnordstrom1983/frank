@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { FieldSchema } from "./field";
+import { SpaceModuleEnum } from "./space";
 
 
 
@@ -12,7 +13,8 @@ export const ContentTypeSchema = z.object({
     enabled: z.boolean(),
     generateSlug : z.boolean(),
     hidden: z.boolean(),
-    fields : z.array(FieldSchema)
+    fields : z.array(FieldSchema),
+    managedByModule : SpaceModuleEnum.optional(),
     
 })
 

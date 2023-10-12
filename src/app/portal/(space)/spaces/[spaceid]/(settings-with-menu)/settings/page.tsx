@@ -1,9 +1,11 @@
 "use client"
 import { PutSpaceRequest, PutSpaceResponse } from "@/app/api/space/[spaceid]/put"
 import { CheckboxInput } from "@/components/CheckboxInput"
+import { CheckboxList } from "@/components/CheckboxList"
 import TextInput from "@/components/TextInput"
 import { languages } from "@/lib/constants"
-import { SpaceLanguage } from "@/models/space"
+import { SpaceModules } from "@/lib/spaceModules"
+import { SpaceLanguage, SpaceModule, SpaceModuleEnum } from "@/models/space"
 import { apiClient } from "@/networking/ApiClient"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { useAppStore } from "@/stores/appStore"
@@ -23,6 +25,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const [language, setLanguage] = useState<SpaceLanguage>("en")
     const [openAccess, setOpenAccess] = useState<boolean>(true)
     const [mode, setMode] = useState<"loading" | "list" | "create">("loading")
+    const [modules, setModules] = useState<SpaceModule[]>([])
     const { spaces } = useSpaces({})
     const { setSettingsMenu } = useAppStore((state) => state)
     useEffect(() => {
@@ -36,6 +39,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         setSpaceName(space.name)
         setSpaceId(space.spaceId)
         setLanguage(space.defaultLanguage)
+        setModules(space.modules)
         setOpenAccess(space.contentAccess === "open")
         setMode("list")
     }, [spaces])
@@ -65,6 +69,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             name: spaceName,
                                             defaultLanguage: language,
                                             contentAccess: openAccess ? "open" : "closed",
+                                            modules,
                                         },
                                     })
 
@@ -117,15 +122,19 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 uncheckedBody={<Box>Content can only be accessed via access keys.</Box>}
                             ></CheckboxInput>
 
+                            <VStack w="100%" alignItems={"flex-start"}>
+                                <Box>Modules</Box>
+                                <CheckboxList
+                                    options={SpaceModules.map((m) => ({
+                                        key: m.id,
+                                        text: m.name,
+                                    }))}
+                                    value={modules}
+                                    onChange={(modules) => { setModules(modules as SpaceModule[])}}
+                                ></CheckboxList>
+                            </VStack>
 
-                            <TextInput
-                                value={APP_VERSION}
-                                type="text"
-                                disabled={true}
-                                subject="Frank Version"
-                            ></TextInput>
-
-
+                            <TextInput value={APP_VERSION} type="text" disabled={true} subject="Frank Version"></TextInput>
                         </VStack>
                     </Box>
                 </VStack>

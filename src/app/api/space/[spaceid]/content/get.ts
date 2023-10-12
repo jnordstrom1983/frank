@@ -5,6 +5,7 @@ import { generateRouteInfoParams } from "@/lib/docs"
 import { ContentInternalViewModelSchema, ContentSchema, ContentStatus } from "@/models/content"
 import { ContentData, ContentDataSchema } from "@/models/contentdata"
 import { Field } from "@/models/field"
+import { SpaceModule } from "@/models/space"
 import { z } from "zod"
 
 const GetContentResponseSchema = z.object({
@@ -23,7 +24,8 @@ interface ItemAggregationResult {
     contentTypeFields: Field[]
     folderName: string
     modifiedUserName: string
-    contentdata: ContentData[]
+    contentdata: ContentData[],
+    managedByModule?: SpaceModule
 }
 
 export type GetContentResponse = z.infer<typeof GetContentResponseSchema>
@@ -88,7 +90,8 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         contentdata: 1,
                         scheduledPublishDate : 1,
                         scheduledDepublishDate : 1,   
-                        publishDate : 1,                
+                        publishDate : 1,
+                        managedByModule : 1,                
                     },
                 },
                 {
@@ -108,6 +111,7 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         scheduledPublishDate : 1,
                         scheduledDepublishDate : 1,
                         publishDate : 1,
+                        managedByModule : 1,
                     },
                 },
                 {

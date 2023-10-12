@@ -70,6 +70,7 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
             validators,
             options: variantObject.options === "mandatory" ? [] : undefined,
             settings: [],
+            output : true,
         }
         onFieldAdded(field)
         onClose()

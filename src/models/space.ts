@@ -6,19 +6,23 @@ export const SpaceLanguageEnum = z.enum(["aa", "ab", "ae", "af", "ak", "am", "an
 
 export const ContentAccessEnum = z.enum(["open", "closed"]);
 
+export const SpaceModuleEnum = z.enum(["translation"])
+
 export const SpaceSchema = z.object({
     spaceId: z.string(),
     creatorUserId: z.string(),
     name: z.string().min(3),
     enabled: z.boolean(),
     defaultLanguage: SpaceLanguageEnum,
-    contentAccess : ContentAccessEnum
+    contentAccess : ContentAccessEnum,
+    modules : z.array(SpaceModuleEnum)
 
 })
 
 export type Space = z.infer<typeof SpaceSchema>
 export type SpaceLanguage = z.infer<typeof SpaceLanguageEnum>
 export type ContentAccess = z.infer<typeof ContentAccessEnum>
+export type SpaceModule = z.infer<typeof SpaceModuleEnum>
 
 
 
