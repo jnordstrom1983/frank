@@ -84,6 +84,8 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
     const [translateAllLoading, setTranslateAllLoading] = useState<boolean>(false)
     const [translateAllTotalAmount, setTranslateAllTotalAmount] = useState<number>(0)
     const [translateAllProgress, setTranslateAllProgress] = useState<number>(0)
+    const { isOpen: isDeleteTranslationOpen, onOpen: onDeleteTranslationOpen, onClose: onDeleteTranslationClose } = useDisclosure()
+    const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
     useEffect(() => {
         if (!content) return
         if (!contenttype) return
@@ -101,7 +103,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
         }
         setDefaultLanguage(space.defaultLanguage)
         setPublished(content.content.status === "published")
-        
+
         let langs = [space.defaultLanguage]
         let languageData: LanguageData = {}
         content.contentData.forEach((c) => {
@@ -109,13 +111,12 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
             languageData[c.languageId] = c.data
         })
         setLanguages([...langs])
-        //setLanguages(["en", "sv", "no"])
         setLanguageData(languageData)
-        const def = content.contentData.find(c=>c.languageId===defaultLanguage)
-        if(def){
+        const def = content.contentData.find(c => c.languageId === defaultLanguage)
+        if (def) {
             setSlug(def.slug || "")
         }
-        
+
 
         setIsLoading(false)
     }, [content, contenttype, spaces])
@@ -151,48 +152,48 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
         return title
     }
 
-    function startTranslatingPhrases(inital : boolean){
-        setLanguageData((languageData)=>{
-            if(!language){
+    function startTranslatingPhrases(inital: boolean) {
+        setLanguageData((languageData) => {
+            if (!language) {
                 return languageData
             }
 
-            let phrasesMissingTranslations : Record<string, string> = {} 
-            let data = languageData[language] || {};
-            let defaultData = languageData[defaultLanguage] || {};
-            phrases.forEach(p=>{
-                if(!data[p.id] &&  defaultData[p.id]){
+            let phrasesMissingTranslations: Record<string, string> = {}
+            let data = languageData[language] || {};
+            let defaultData = languageData[defaultLanguage] || {};
+            phrases.forEach(p => {
+                if (!data[p.id] && defaultData[p.id]) {
                     phrasesMissingTranslations[p.id] = defaultData[p.id]
                 }
             })
-            if(Object.keys(phrasesMissingTranslations).length === 0){
+            if (Object.keys(phrasesMissingTranslations).length === 0) {
                 setTranslateAllLoading(false)
                 return languageData;
             }
             setTranslateAllLoading(true)
-            let translateData : Record<string, string> = {};
-            if(inital){
+            let translateData: Record<string, string> = {};
+            if (inital) {
                 setTranslateAllProgress(0);
-                setTranslateAllTotalAmount( Object.keys(phrasesMissingTranslations).length)
-            }else{
-                setTranslateAllTotalAmount((translateAllTotalAmount)=>{
+                setTranslateAllTotalAmount(Object.keys(phrasesMissingTranslations).length)
+            } else {
+                setTranslateAllTotalAmount((translateAllTotalAmount) => {
                     let prog = (1 - (Object.keys(phrasesMissingTranslations).length / translateAllTotalAmount)) * 100
                     setTranslateAllProgress(prog)
                     return translateAllTotalAmount
                 })
             }
-            Object.keys(phrasesMissingTranslations).slice(0, 10).forEach(k=>{
+            Object.keys(phrasesMissingTranslations).slice(0, 10).forEach(k => {
                 translateData[k] = phrasesMissingTranslations[k]
             })
 
             setCurrentLanguageInitialValues(JSON.parse(JSON.stringify(languageData[language] || {})))
             let task = new AITranslateTask(params.spaceid, (result) => {
-                
-                setLanguageData((languageData)=>{
-                    if(!languageData[language]){
+
+                setLanguageData((languageData) => {
+                    if (!languageData[language]) {
                         languageData[language] = {}
                     }
-                    languageData[language] = {...languageData[language], ...result}
+                    languageData[language] = { ...languageData[language], ...result }
                     setCurrentLanguageInitialValues(JSON.parse(JSON.stringify(languageData[language] || {})))
                     startTranslatingPhrases(false);
                     return languageData
@@ -208,17 +209,17 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
 
     return (
         <>
-        {translateAllLoading && 
-            <Box position={"fixed"} left={0} right={0} top={0} bottom={0} backgroundColor="rgba(255,255,255,0.75)" zIndex="1000" display={"flex"} alignItems={"center"} justifyContent={"center"}>
-                <VStack spacing={10}>
-                <HStack>
-                    <img src="/static/ai.svg" width="64px"></img>
-                    <Box fontSize={"32px"} fontWeight={"bold"}>Translating...</Box>
-                </HStack>
-                    
-                <Progress colorScheme='green' size='sm' value={translateAllProgress}  w="500px"/>
-                </VStack>
-            </Box>
+            {translateAllLoading &&
+                <Box position={"fixed"} left={0} right={0} top={0} bottom={0} backgroundColor="rgba(255,255,255,0.75)" zIndex="1000" display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                    <VStack spacing={10}>
+                        <HStack>
+                            <img src="/static/ai.svg" width="64px"></img>
+                            <Box fontSize={"32px"} fontWeight={"bold"}>Translating...</Box>
+                        </HStack>
+
+                        <Progress colorScheme='green' size='sm' value={translateAllProgress} w="500px" />
+                    </VStack>
+                </Box>
             }
 
 
@@ -231,7 +232,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                     }}
                     onChange={(newLangugaes) => {
                         const addedLanguages = newLangugaes.filter((l) => !languages.find((e) => e === l))
-                 
+
                         setLanguages(newLangugaes)
                         if (!newLangugaes.find((p) => p === language) && language !== "") {
                             setLanguage(newLangugaes[0])
@@ -287,14 +288,14 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
 
                         setShowPhraseEditor(false)
                     }}
-                    onDelete={(phraseId : string)=>{
-                        const newPhrases = [...phrases.filter(p=>p.id != phraseId )]
+                    onDelete={(phraseId: string) => {
+                        const newPhrases = [...phrases.filter(p => p.id != phraseId)]
                         let newLanguageData: LanguageData = { ...languageData }
-                        for(const lang of Object.keys(newLanguageData)){
-                            if(newLanguageData[lang]){
+                        for (const lang of Object.keys(newLanguageData)) {
+                            if (newLanguageData[lang]) {
                                 delete newLanguageData[lang][phraseId]
                             }
-                            
+
                         }
                         setPhrases(newPhrases)
                         setLanguageData(newLanguageData)
@@ -322,6 +323,66 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                 content &&
                 contenttype && (
                     <>
+                        <Modal isOpen={isDeleteTranslationOpen} onClose={onDeleteTranslationClose} isCentered={true}>
+                            <ModalOverlay />
+                            <ModalContent maxW="500px">
+                                <ModalHeader pt={10} px={10} pb={0}>
+                                    Delete translation file
+                                </ModalHeader>
+                                <ModalBody overflow="auto" p={10}>
+                                    <Box>
+                                        Are you sure you wish to remove the translation file?
+                                    </Box>
+                                </ModalBody>
+
+                                <ModalFooter pb={10} px={10} gap={10}>
+                                    <Button
+                                        isLoading={isDeleteLoading}
+                                        colorScheme="red"
+                                        mr={3}
+                                        minW="150px"
+                                        onClick={async () => {
+                                            setIsDeleteLoading(true);
+                                            try {
+                                                await apiClient.delete({
+                                                    path: `/space/${params.spaceid}/content/${params.contentid}`,
+                                                    isAuthRequired: true,
+                                                })
+
+                                                await apiClient.delete({
+                                                    path: `/space/${params.spaceid}/contenttype/${contenttype.contentTypeId}`,
+                                                    isAuthRequired: true,
+                                                })
+                                                queryClient.removeQueries([["contenttypes", params.spaceid]])
+                                                queryClient.removeQueries([["content", params.spaceid]])
+                                                queryClient.removeQueries([["content", params.contentid]])
+                                                queryClient.removeQueries([["trash", params.spaceid]])
+                                                router.back();
+                                                toast({
+                                                    title: `Translation deleted.`,
+                                                    status: "success",
+                                                    position: "bottom-right",
+                                                })
+                                            } catch (ex) {
+                                                setIsDeleteLoading(false)
+                                            }
+
+
+                                        }}
+                                    >
+                                        Yes, delete translation
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => {
+                                            onDeleteTranslationClose()
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
+                                </ModalFooter>
+                            </ModalContent>
+                        </Modal>
                         <SaveMenuBar
                             positiveText="SAVE"
                             neutralText="CLOSE"
@@ -507,21 +568,21 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                 <HStack>
                                                     <TextInput value={params.contentid} disabled={true}  ></TextInput>
                                                     <CopyToClipboard
-                                                text={params.contentid}
-                                                onCopy={() =>
-                                                    toast({
-                                                        title: "contentId copied",
-                                                        status: "info",
-                                                        position: "bottom-right",
-                                                    })
-                                                }
-                                            >
-                                                <Button variant={"ghost"} w="60px">
-                                                    <Copy></Copy>
-                                                </Button>
-                                            </CopyToClipboard>
+                                                        text={params.contentid}
+                                                        onCopy={() =>
+                                                            toast({
+                                                                title: "contentId copied",
+                                                                status: "info",
+                                                                position: "bottom-right",
+                                                            })
+                                                        }
+                                                    >
+                                                        <Button variant={"ghost"} w="60px">
+                                                            <Copy></Copy>
+                                                        </Button>
+                                                    </CopyToClipboard>
                                                 </HStack>
-                                                
+
                                             </VStack>
                                         </Box>
 
@@ -531,24 +592,33 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                 <HStack>
                                                     <TextInput value={slug} disabled={true}  ></TextInput>
                                                     <CopyToClipboard
-                                                text={slug}
-                                                onCopy={() =>
-                                                    toast({
-                                                        title: "slug copied",
-                                                        status: "info",
-                                                        position: "bottom-right",
-                                                    })
-                                                }
-                                            >
-                                                <Button variant={"ghost"} w="60px">
-                                                    <Copy></Copy>
-                                                </Button>
-                                            </CopyToClipboard>
+                                                        text={slug}
+                                                        onCopy={() =>
+                                                            toast({
+                                                                title: "slug copied",
+                                                                status: "info",
+                                                                position: "bottom-right",
+                                                            })
+                                                        }
+                                                    >
+                                                        <Button variant={"ghost"} w="60px">
+                                                            <Copy></Copy>
+                                                        </Button>
+                                                    </CopyToClipboard>
                                                 </HStack>
-                                                
+
                                             </VStack>
                                         </Box>
-                                    }
+                                        }
+
+
+                                        <Box>
+                                            <VStack w="100%" alignItems={"flex-start"}>
+                                                <Box fontWeight="bold">Delete</Box>
+                                                <Button onClick={onDeleteTranslationOpen}>Delete translation</Button>
+                                            </VStack>
+                                        </Box>
+
 
                                     </VStack>
                                     <VStack spacing={"10"} alignItems={"flex-start"} flex={1}>
@@ -569,12 +639,12 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                 isLoading={translateAllLoading}
                                                 isDisabled={translateAllLoading}
                                                 onClick={() => {
-                                                       startTranslatingPhrases(true)
+                                                    startTranslatingPhrases(true)
                                                 }}
                                             >
                                                 Translate all
-                                            </Button>                                           
-} 
+                                            </Button>
+                                            }
                                         </HStack>
 
                                         {language === "" &&
@@ -708,7 +778,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                                                 toLanguage={language}
                                                                                 value={languageData[defaultLanguage][p.id]}
                                                                                 onUpdate={(value: string) => {
-                                                                                    setLanguageData((languageData)=>{
+                                                                                    setLanguageData((languageData) => {
                                                                                         let newLanguageData: LanguageData = { ...languageData }
                                                                                         if (!newLanguageData[language]) {
                                                                                             newLanguageData[language] = {}
@@ -804,8 +874,9 @@ function PhraseEditor({
     const { isOpen: isWarningOpen, onOpen: onWarningOpen, onClose: onWarningClose } = useDisclosure()
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
 
+
     function updateValue(language: string, value: string) {
-        setValues((values)=>{
+        setValues((values) => {
             values[language] = value
             return { ...values }
         })
@@ -867,33 +938,35 @@ function PhraseEditor({
                         Remove phrase
                     </ModalHeader>
                     <ModalBody overflow="auto" p={10}>
-                            <Box>
-                                Are you sure you wish to remove the phrase <Text as="span" fontWeight={"bold"}>{phraseId}</Text>?
-                            </Box>
+                        <Box>
+                            Are you sure you wish to remove the phrase <Text as="span" fontWeight={"bold"}>{phraseId}</Text>?
+                        </Box>
                     </ModalBody>
 
                     <ModalFooter pb={10} px={10} gap={10}>
-                    <Button
-                                    colorScheme="red"
-                                    mr={3}
-                                    minW="150px"
-                                    onClick={async () => {
-                                        onDelete(phraseId)
-                                    }}
-                                >
-                                    Delete phrase
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => {
-                                        onDeleteClose()
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
+                        <Button
+                            colorScheme="red"
+                            mr={3}
+                            minW="150px"
+                            onClick={async () => {
+                                onDelete(phraseId)
+                            }}
+                        >
+                            Delete phrase
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            onClick={() => {
+                                onDeleteClose()
+                            }}
+                        >
+                            Cancel
+                        </Button>
                     </ModalFooter>
                 </ModalContent>
-            </Modal>            
+            </Modal>
+
+
 
             <Modal
                 isOpen={true}
@@ -963,11 +1036,11 @@ function PhraseEditor({
                                 <Box>
                                     <Button leftIcon={<Flag></Flag>} h={"40px"} fontSize="12px" onClick={() => {
 
-                                        const triggers : Record<string, Date> = {}
+                                        const triggers: Record<string, Date> = {}
 
-                                        let langs = languages.filter((l) => l !== defaultLanguage).filter(l=>!values[l] )
+                                        let langs = languages.filter((l) => l !== defaultLanguage).filter(l => !values[l])
                                         console.log(langs)
-                                        langs.forEach(lang=>{
+                                        langs.forEach(lang => {
                                             triggers[lang] = new Date();
                                         })
                                         console.log(triggers)
@@ -1069,12 +1142,12 @@ function SingleTranslationButton({
     value: string
     onUpdate: (value: string) => void
     onClick?: () => void
-    triggerDate? : Date
+    triggerDate?: Date
 }) {
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    useEffect(()=>{
-        if(!triggerDate) return;
+    useEffect(() => {
+        if (!triggerDate) return;
         let task = new AITranslateTask(spaceId, (result) => {
             setIsLoading(false)
             if (result) onUpdate(result)
@@ -1172,9 +1245,9 @@ class AITranslateTask {
                         that.callback("")
                         clearInterval(that.interval)
                     }
-                } catch (ex) {}
+                } catch (ex) { }
             }, 2000)
-        } catch (ex) {}
+        } catch (ex) { }
     }
 
     async executeMultiple(value: Record<string, string>, fromLanguage: SpaceLanguage, toLanguage: SpaceLanguage) {
@@ -1211,9 +1284,9 @@ class AITranslateTask {
                         that.callback({})
                         clearInterval(that.interval)
                     }
-                } catch (ex) {}
+                } catch (ex) { }
             }, 2000)
-        } catch (ex) {}
+        } catch (ex) { }
     }
 
 }
