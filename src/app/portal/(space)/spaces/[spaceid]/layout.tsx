@@ -187,7 +187,7 @@ export default function DashboardLayout({ children, params }: { children: React.
             )}
             {isMainMenuVisible && (
                 <>
-                    <Flex background="#fff" width="80px" position={"fixed"} left="0" bottom="0" top="0" zIndex={10} flexDir={"column"} overflow={"auto"}>
+                    <Flex background="#fff" width="80px" position={"fixed"} left="0" bottom="0" top="0" zIndex={10} flexDir={"column"} overflowY={"auto"} overflowX="hidden">
                         <VStack spacing={5}>
                             <VStack w="60" pt={3}>
                                 <Image src="/static/logo_vertical.svg" maxW="46px"></Image>

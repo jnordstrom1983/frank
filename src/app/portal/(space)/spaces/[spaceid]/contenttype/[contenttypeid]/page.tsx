@@ -134,7 +134,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                 position: "bottom-right",
             })
         }
-    }, [enabled, name, fields, generateSlug, hidden])
+    }, [enabled, name, fields, generateSlug, hidden, externalPreview])
 
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event
