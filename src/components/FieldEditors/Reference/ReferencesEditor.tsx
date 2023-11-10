@@ -566,6 +566,7 @@ function ContentEditorPopup({ spaceId, contentId, onCancel, onSaved }: { spaceId
                             delete: false,
                             save: true,
                             slug : true,
+                            preview : true,
                         }}
                         showSaveBar={false}
                         onTitleChange={setTitle}

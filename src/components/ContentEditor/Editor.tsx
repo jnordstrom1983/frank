@@ -86,7 +86,7 @@ export default function Editor({
     onSaved?: () => void
     layout?: "column" | "row"
     showSaveBar?: boolean
-    tools?: { published: boolean; language: boolean; ai: boolean; history: boolean; folder: boolean; delete: boolean; save: boolean; slug: boolean; preview : false }
+    tools?: { published: boolean; language: boolean; ai: boolean; history: boolean; folder: boolean; delete: boolean; save: boolean; slug: boolean; preview : boolean }
     onTitleChange?: (title: string) => void
     onSave?: (data: PutContentItemRequest) => boolean
 }) {
