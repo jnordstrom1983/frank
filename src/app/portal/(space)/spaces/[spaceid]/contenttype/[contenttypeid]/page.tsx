@@ -50,6 +50,8 @@ import { CSS } from "@dnd-kit/utilities"
 
 import { dataTypes } from "@/lib/constants"
 import CopyToClipboard from "react-copy-to-clipboard"
+import { CheckboxInput } from "@/components/CheckboxInput"
+import { contentType } from "mime-types"
 
 interface SortableFields extends Field {
     id: string
@@ -62,7 +64,9 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
     const [enabled, setEnabled] = useState<boolean>(false)
     const [generateSlug, setGenerateSlug] = useState<boolean>(false)
     const [hidden, setHidden] = useState<boolean>(false)
+    const [externalPreview, setExternalPreview] = useState<string>("");
 
+    const [showExternalPreview, setShowExternalPreview] = useState<boolean>(false)
     const toast = useToast()
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false)
     const queryClient = useQueryClient()
@@ -82,6 +86,8 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
         setFields(contenttype.fields)
         setGenerateSlug(contenttype.generateSlug)
         setHidden(contenttype.hidden)
+        setExternalPreview(contenttype.externalPreview || "")
+        setShowExternalPreview(!!contenttype.externalPreview)
     }, [contenttype])
 
     const sensors = useSensors(
@@ -94,15 +100,19 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
     const save = useCallback(async () => {
         setIsSaveLoading(true)
         try {
+            let body : PutContentTypeItemRequest =  {
+                name,
+                enabled,
+                fields,
+                generateSlug,
+                hidden,
+            }
+            if(showExternalPreview){
+                body = {...body, externalPreview}
+            }
             await apiClient.put<PutContentTypeItemResponse, PutContentTypeItemRequest>({
                 path: `/space/${params.spaceid}/contenttype/${params.contenttypeid}`,
-                body: {
-                    name,
-                    enabled,
-                    fields,
-                    generateSlug,
-                    hidden,
-                },
+                body,
                 isAuthRequired: true,
             })
             toast({
@@ -390,6 +400,26 @@ const dataSchema = getContentTypeSchema()
                                                 description="This content type will be hidden from the Content listing."
                                             ></SimpleCheckboxInput>
                                         </GridItem>
+                                        <GridItem></GridItem>
+                                        <GridItem>
+                                            <CheckboxInput
+                                                subject="External preview"
+                                                checked={showExternalPreview}
+                                                onChange={setShowExternalPreview}
+                                                align="top"
+                                                checkedBody={<Box>
+                                                    <TextInput subject="" description="A HTTP POST with all data from the editors will be made to the preview URL."  value={externalPreview} onChange={setExternalPreview} ></TextInput>
+                                                </Box>
+                                               }
+                                               uncheckedBody={  <Box fontSize="14px" color={"gray.500"} onClick={() => {
+                                                setShowExternalPreview(true)
+                                            }}>
+                                                Check to enable preview of your content in an external system
+                                            </Box>}
+                                                
+                                            ></CheckboxInput>
+                                        </GridItem>
+                                        <GridItem></GridItem>                                        
                                     </Grid>
 
                                     <Box w="100%">

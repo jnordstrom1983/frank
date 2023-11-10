@@ -29,6 +29,7 @@ export default function Layout({ children, params }: { children: React.ReactNode
                                         router.push(`/portal/spaces/${params.spaceid}/settings`)
                                     }}
                                 ></SelectionButton>
+                                                         
                             </VStack>
 
                             <VStack alignItems={"flex-start"} w="100%">
@@ -64,6 +65,13 @@ export default function Layout({ children, params }: { children: React.ReactNode
                                 <Box fontWeight={"bold"} flex={1}>
                                     INTEGRATIONS
                                 </Box>
+                                <SelectionButton
+                                    text="External links"
+                                    selected={settingsMenu === "links"}
+                                    onClick={() => {
+                                        router.push(`/portal/spaces/${params.spaceid}/settings/links`)
+                                    }}
+                                ></SelectionButton>                                      
                                 <SelectionButton
                                     text="Webhooks"
                                     selected={settingsMenu === "webhooks"}

@@ -2,8 +2,9 @@
 import { SpaceItem } from "@/app/api/space/get"
 import { PutProfileResponse } from "@/app/api/user/profile/put"
 import { AdminMenu } from "@/components/AdminMenu"
+import { GetExternalLink, GetIcon } from "@/lib/link"
 import { SpaceModules } from "@/lib/spaceModules"
-import { chunks } from "@/lib/utils"
+import { chunks, getSpaceHome } from "@/lib/utils"
 import { apiClient } from "@/networking/ApiClient"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { useProfile } from "@/networking/hooks/user"
@@ -108,7 +109,8 @@ export default function DashboardLayout({ children, params }: { children: React.
                                                                 padding="5px"
                                                                 fontSize="12px"
                                                                 onClick={() => {
-                                                                    router.push(`/portal/spaces/${s.spaceId}/content`)
+                                                                    const url = getSpaceHome(profile, s)
+                                                                    router.push(url)
                                                                     setShowOverlay(false)
                                                                 }}
                                                             >
@@ -185,13 +187,13 @@ export default function DashboardLayout({ children, params }: { children: React.
             )}
             {isMainMenuVisible && (
                 <>
-                    <Flex background="#fff" width="80px" position={"fixed"} left="0" bottom="0" top="0" zIndex={10} flexDir={"column"}>
+                    <Flex background="#fff" width="80px" position={"fixed"} left="0" bottom="0" top="0" zIndex={10} flexDir={"column"} overflow={"auto"}>
                         <VStack spacing={5}>
                             <VStack w="60" pt={3}>
                                 <Image src="/static/logo_vertical.svg" maxW="46px"></Image>
                             </VStack>
 
-                            <MenuButton
+                            {(profile.role === "admin" ||  space?.role === "owner" || space?.userFeatures.includes("content")) && <MenuButton
                                 text="Content"
                                 tooltip="Manage content"
                                 icon={<ContentIcon></ContentIcon>}
@@ -200,8 +202,8 @@ export default function DashboardLayout({ children, params }: { children: React.
                                     setShowOverlay(false)
                                     router.push(`/portal/spaces/${params.spaceid}/content`)
                                 }}
-                            ></MenuButton>
-                            <MenuButton
+                            ></MenuButton>}
+                            {(profile.role === "admin" || space?.role === "owner" || space?.userFeatures.includes("asset")) && <MenuButton
                                 text="Assets"
                                 tooltip="Manage assets"
                                 icon={<AssetIcon></AssetIcon>}
@@ -211,7 +213,7 @@ export default function DashboardLayout({ children, params }: { children: React.
 
                                     router.push(`/portal/spaces/${params.spaceid}/asset`)
                                 }}
-                            ></MenuButton>
+                            ></MenuButton>}
                             {space?.modules
                                 .map((m) => SpaceModules.find((sm) => sm.id === m)).filter(m=>!!m)
                                 .map((m) => (
@@ -240,6 +242,26 @@ export default function DashboardLayout({ children, params }: { children: React.
                                     }}
                                 ></MenuButton>
                             )}
+                            {space?.links
+                                .filter(l=>l.placement === "menu")
+                                .map((m) => (
+                                    <MenuButton
+                                        key={m!.linkId}
+                                        text={m!.name}
+                                        icon={GetIcon(m.icon)}
+                                        selected={mainMenu === m.linkId}
+                                        onClick={() => {
+                                            if(m.type === "embedded"){
+                                                router.push(`/portal/spaces/${params.spaceid}/links/${m!.linkId}`)
+                                            }
+                                            if(m.type === "external"){
+                                                window.open(GetExternalLink(m.url), "_blank")
+                                            }
+                                        }}
+                                        tooltip={""}
+                                    ></MenuButton>
+                                ))}
+
                             {["admin"].includes(profile.role) && (
                                 <MenuButton
                                     text="Settings"

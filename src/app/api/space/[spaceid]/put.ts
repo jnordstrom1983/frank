@@ -7,7 +7,8 @@ const PutSpaceRequestSchema = SpaceSchema.pick({
     defaultLanguage: true,
     name: true,
     contentAccess: true,
-    modules: true
+    modules: true,
+    userFeatures : true
 })
 
 const PutSpaceResponseSchema = SpaceSchema

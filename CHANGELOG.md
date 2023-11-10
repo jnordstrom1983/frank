@@ -1,3 +1,10 @@
+## 0.0.7
+- Feature: Adding support for modules
+- Feature: Adding Translation files module
+- Feature: Adding support for links to external systems
+- Feature: Adding userFeatures settings to enable / disable features for regular users
+- Feature: Adding external preview
+
 ## 0.0.6
 - Feature: Handle SVG-files as images and not files
 - Feature: Adding Boolean data type

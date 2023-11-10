@@ -9,7 +9,8 @@ const PutContentTypeItemRequestSchema = ContentTypeSchema.pick({
     enabled: true,
     fields: true,
     generateSlug : true,
-    hidden : true
+    hidden : true,
+    externalPreview : true
 })
 
 export type PutContentTypeItemRequest = z.infer<typeof PutContentTypeItemRequestSchema>
@@ -27,6 +28,11 @@ export async function PUT(req: Request, context: { params: { spaceid: string, co
                     return returnNotFound("Content Type not found");
                 }
                 await collections.contentType.updateOne({ contentTypeId: context.params.contenttypeid, spaceId: context.params.spaceid }, { $set: { ...data } })
+
+                if(!data.externalPreview){
+                    await collections.contentType.updateOne({ contentTypeId: context.params.contenttypeid, spaceId: context.params.spaceid }, { $unset: { externalPreview : true } })
+                }
+                
                 return returnJSON<PutContentTypeItemResponse>({}, PutContentTypeItemResponseSchema)
             })
         })

@@ -5,7 +5,7 @@ import { CheckboxList } from "@/components/CheckboxList"
 import TextInput from "@/components/TextInput"
 import { languages } from "@/lib/constants"
 import { SpaceModules } from "@/lib/spaceModules"
-import { SpaceLanguage, SpaceModule, SpaceModuleEnum } from "@/models/space"
+import { SpaceFeature, SpaceFeatureEnum, SpaceLanguage, SpaceModule, SpaceModuleEnum } from "@/models/space"
 import { apiClient } from "@/networking/ApiClient"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { useAppStore } from "@/stores/appStore"
@@ -26,6 +26,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const [openAccess, setOpenAccess] = useState<boolean>(true)
     const [mode, setMode] = useState<"loading" | "list" | "create">("loading")
     const [modules, setModules] = useState<SpaceModule[]>([])
+    const [userFeatures, setUserFeatures] = useState<SpaceFeature[]>([])
     const { spaces } = useSpaces({})
     const { setSettingsMenu } = useAppStore((state) => state)
     useEffect(() => {
@@ -41,6 +42,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         setLanguage(space.defaultLanguage)
         setModules(space.modules)
         setOpenAccess(space.contentAccess === "open")
+        setUserFeatures(space.userFeatures)
         setMode("list")
     }, [spaces])
     return (
@@ -70,6 +72,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             defaultLanguage: language,
                                             contentAccess: openAccess ? "open" : "closed",
                                             modules,
+                                            userFeatures,
                                         },
                                     })
 
@@ -121,7 +124,17 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 checkedBody={<Box>All content is accessible without any authentification</Box>}
                                 uncheckedBody={<Box>Content can only be accessed via access keys.</Box>}
                             ></CheckboxInput>
-
+                            <VStack w="100%" alignItems={"flex-start"}>
+                                <Box>User enabled features</Box>
+                                <CheckboxList
+                                    options={Object.values(SpaceFeatureEnum.Values).map((m) => ({
+                                        key: m,
+                                        text: m,
+                                    }))}
+                                    value={userFeatures}
+                                    onChange={(features) => { setUserFeatures(features as SpaceFeature[])}}
+                                ></CheckboxList>
+                            </VStack>
                             <VStack w="100%" alignItems={"flex-start"}>
                                 <Box>Modules</Box>
                                 <CheckboxList

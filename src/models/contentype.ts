@@ -15,6 +15,7 @@ export const ContentTypeSchema = z.object({
     hidden: z.boolean(),
     fields : z.array(FieldSchema),
     managedByModule : SpaceModuleEnum.optional(),
+    externalPreview: z.string().optional()
     
 })
 

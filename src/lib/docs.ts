@@ -34,10 +34,12 @@ import { SPACE_DOC } from "@/app/api/space//doc";
 import { CONTENT_DOC } from "@/app/content/[spaceid]/doc";
 import { SpaceLanguageEnum } from "@/models/space";
 import { SPACE_TRASH_DOC } from "@/app/api/space/[spaceid]/trash/doc";
+import { SPACE_LINK_LINKID_DOC } from "@/app/api/space/[spaceid]/link/[linkid]/doc";
+import { SPACE_LINK_DOC } from "@/app/api/space/[spaceid]/link/doc";
 extendZodWithOpenApi(z);
 
 
-const paramsEmumSchema = z.enum(["spaceid", "userid", "keyid", "taskid", "assetid", "folderid", "contentid", "historyid", "contenttypeid", "webhookid"])
+const paramsEmumSchema = z.enum(["spaceid", "userid", "keyid", "taskid", "assetid", "folderid", "contentid", "historyid", "contenttypeid", "webhookid", "linkid"])
 type paramsEnum = z.infer<typeof paramsEmumSchema>
 
 type errorResponse = z.infer<typeof errorResponseSchema>
@@ -323,6 +325,18 @@ function registerParams(registry: OpenAPIRegistry, spaceId: string): Record<stri
         })
     );
 
+    params["linkid"] = registry.registerParameter(
+        'linkid',
+        z.string().openapi({
+            param: {
+                name: 'linkid',
+                in: 'path',
+            },
+            example: "l000000000000000000001",
+        })
+    );
+
+
 
 
 
@@ -410,7 +424,10 @@ export function generateSpaceDocs(spaceId: string) {
         ...SPACE_WEBHOOK_DOC,
         ...SPACE_WEBHOOK_WEBHOOKID_DOC,
         ...SPACE_DOC_SPACEID,
-        ...SPACE_TRASH_DOC
+        ...SPACE_TRASH_DOC,
+        ...SPACE_LINK_DOC,
+        ...SPACE_LINK_LINKID_DOC,
+        
 
     ];
 

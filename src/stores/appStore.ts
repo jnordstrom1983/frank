@@ -1,11 +1,11 @@
 import { create } from 'zustand'
 
 interface AppStoreState {
-    mainMenu: "content" | "contentType" | "settings" | "asset" | "translation",
+    mainMenu: string,
     isMainMenuVisible: boolean,
-    settingsMenu: "main" | "users" | "keys" | "api" | "webhooks",
-    setMainMenu: (menu: "content" | "contentType" | "settings" | "asset" | "translation") => void,
-    setSettingsMenu: (menu: "main" | "users" | "api" | "keys" | "webhooks") => void,
+    settingsMenu: "main" | "users" | "keys" | "api" | "webhooks" | "links",
+    setMainMenu: (menu: string) => void,
+    setSettingsMenu: (menu: "main" | "users" | "api" | "keys" | "webhooks" | "links") => void,
     showMainMenu: () => void
     hideMainMenu: () => void
     isSignoutVisible: boolean;

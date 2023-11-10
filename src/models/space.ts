@@ -7,6 +7,22 @@ export const SpaceLanguageEnum = z.enum(["aa", "ab", "ae", "af", "ak", "am", "an
 export const ContentAccessEnum = z.enum(["open", "closed"]);
 
 export const SpaceModuleEnum = z.enum(["translation"])
+export const SpaceLinkTypeEnum = z.enum(["external", "embedded"])
+
+export const SpaceLinkPlacementEnum = z.enum(["menu"]);
+export const SpaceFeatureEnum = z.enum(["content", "asset" ])
+
+
+
+export const SpaceLinkSchema = z.object({
+    linkId : z.string(),
+    name : z.string(),
+    icon : z.string(),
+    url : z.string(),
+    placement : SpaceLinkPlacementEnum,
+    type : SpaceLinkTypeEnum,
+
+})
 
 export const SpaceSchema = z.object({
     spaceId: z.string(),
@@ -15,14 +31,19 @@ export const SpaceSchema = z.object({
     enabled: z.boolean(),
     defaultLanguage: SpaceLanguageEnum,
     contentAccess : ContentAccessEnum,
-    modules : z.array(SpaceModuleEnum)
+    modules : z.array(SpaceModuleEnum),
+    links : z.array(SpaceLinkSchema),
+    userFeatures : z.array(SpaceFeatureEnum)
 
 })
+
 
 export type Space = z.infer<typeof SpaceSchema>
 export type SpaceLanguage = z.infer<typeof SpaceLanguageEnum>
 export type ContentAccess = z.infer<typeof ContentAccessEnum>
 export type SpaceModule = z.infer<typeof SpaceModuleEnum>
-
-
+export type SpaceLinkPlacement = z.infer<typeof SpaceLinkPlacementEnum>
+export type SpaceLink = z.infer<typeof SpaceLinkSchema>
+export type SpaceLinkType = z.infer<typeof SpaceLinkTypeEnum>
+export type SpaceFeature = z.infer<typeof SpaceFeatureEnum>
 

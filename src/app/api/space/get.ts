@@ -16,7 +16,9 @@ export const GetSpaceItemSchema = SpaceSchema.pick({
     name: true,
     defaultLanguage: true,
     contentAccess: true,
-    modules : true
+    modules : true,
+    links : true,
+    userFeatures : true
 }).extend({
     role: SpaceUserRoleEnum.optional(),
     creatorName: z.string(),
@@ -60,6 +62,8 @@ export async function GET(req: Request) {
                     defaultLanguage: 1,
                     contentAccess: 1,
                     modules : 1,
+                    links : 1,
+                    userFeatures : 1,
                     role: { $arrayElemAt: ["$roles", 0] },
                     creator: { $arrayElemAt: ["$creators", 0] },
                 },
@@ -73,6 +77,8 @@ export async function GET(req: Request) {
                     defaultLanguage: 1,
                     contentAccess: 1,
                     modules : 1,
+                    links : 1, 
+                    userFeatures : 1,
                     role: "$role.role",
                     creatorName: "$creator.name",
 

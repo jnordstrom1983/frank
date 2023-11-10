@@ -75,6 +75,7 @@ export default function Editor({
         delete: true,
         slug: true,
         save: false,
+        preview : true,
     },
     onSave,
     onTitleChange,
@@ -85,7 +86,7 @@ export default function Editor({
     onSaved?: () => void
     layout?: "column" | "row"
     showSaveBar?: boolean
-    tools?: { published: boolean; language: boolean; ai: boolean; history: boolean; folder: boolean; delete: boolean; save: boolean; slug: boolean }
+    tools?: { published: boolean; language: boolean; ai: boolean; history: boolean; folder: boolean; delete: boolean; save: boolean; slug: boolean; preview : false }
     onTitleChange?: (title: string) => void
     onSave?: (data: PutContentItemRequest) => boolean
 }) {
@@ -766,6 +767,51 @@ export default function Editor({
                                                                 </Box>
                                                             )}
                                                         </VStack>
+                                                    </VStack>
+                                                </Box>
+                                            )}
+
+                                            {tools.preview && contenttype.externalPreview && (
+                                                <Box>
+                                                    <VStack w="100%" alignItems={"flex-start"}>
+                                                        <Box fontWeight="bold">PREVIEW</Box>
+                                                        <Box>
+                                                            <Button
+                                                                
+                                                                isLoading={isSaveLoading}
+                                                                onClick={async () => {
+                                                                  let form = document.createElement("form");
+                                                                  form.method = "POST";
+                                                                  form.action = contenttype.externalPreview || "";
+                                                                  form.target = "_blank"
+                                                                  
+
+                                                                  const currentContentData = updatedContentDatas.find((p) => p.languageId === currentLanguage)
+                                                                  
+                                                                  let field=document.createElement('input');
+                                                                  field.type='HIDDEN';
+                                                                  field.name= "contentId";
+                                                                  field.value = contentId;
+                                                                  form.appendChild(field)
+
+                                                                  if(currentContentData?.data){
+                                                                    Object.keys(currentContentData.data).forEach(k=>{
+                                                                        const value = currentContentData.data[k]
+                                                                        let field=document.createElement('input');
+                                                                        field.type='HIDDEN';
+                                                                        field.name= k;
+                                                                        field.value = value;
+                                                                        form.appendChild(field)
+
+                                                                    })
+                                                                  }
+                                                                  document.body.appendChild(form);
+                                                                  form.submit();
+                                                                  document.body.removeChild(form);
+
+                                                                }}
+                                                            >OPEN PREVIEW</Button>
+                                                        </Box>
                                                     </VStack>
                                                 </Box>
                                             )}

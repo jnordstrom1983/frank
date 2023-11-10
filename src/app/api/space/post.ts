@@ -34,7 +34,9 @@ export async function POST(req: Request) {
                 name: data.name,
                 defaultLanguage: data.language,
                 contentAccess: "open",
-                modules : []
+                modules : [],
+                links : [],
+                userFeatures : ["content", "asset"]
             })
 
             await collections.spaceUser.create({

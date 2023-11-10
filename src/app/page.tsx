@@ -9,6 +9,8 @@ import { useEffect, useState } from "react"
 import { z } from "zod"
 import { PutProfileRequest, PutProfileResponse } from "./api/user/profile/put"
 import { useQueryClient } from "@tanstack/react-query"
+import { getSpaceHome } from "@/lib/utils"
+import { SpaceItem } from "./api/space/get"
 
 export default function Home() {
     const { profile, isLoading: isProfileLoading } = useProfile()
@@ -39,11 +41,14 @@ export default function Home() {
         } else {
             if(profile!.lastUsedSpaceId){
                 if(spaces.find(p=>p.spaceId === profile!.lastUsedSpaceId)){
-                    router.replace(`/portal/spaces/${profile!.lastUsedSpaceId}/content`)        
+                    const space = spaces.find(p=>p.spaceId === profile!.lastUsedSpaceId)
+                    const url = getSpaceHome(profile!, space as SpaceItem)
+                    router.replace(url);        
                     return;
                 }
             }
-            router.replace(`/portal/spaces/${spaces[0].spaceId}/content`)
+            const url = getSpaceHome(profile!, spaces[0] as SpaceItem)
+            router.replace(url)
         }
     }, [isProfileLoading, profile, spaces])
 
