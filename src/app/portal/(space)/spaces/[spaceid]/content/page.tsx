@@ -571,7 +571,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                     </Tr>
                                                 </Thead>
                                                 <Tbody>
-                                                    {filteredItems.map((item) => (
+                                                    {filteredItems.slice(0, 250).map((item) => (
                                                         <Tr
                                                             _hover={{ backgroundColor: "#fff", cursor: "pointer" }}
                                                             key={item.contentId}
