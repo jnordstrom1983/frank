@@ -59,3 +59,42 @@ npx ts-node frank.ts user-create john.doe@frank.app "John Doe" "admin"
 |S3_ACL  | ACL to add to uploade files |  
 
 
+## Theme Environment variables
+| Variable | Description 
+|--|--
+|THEME_BLUE_50 | Theme color blue50 |
+|THEME_BLUE_100 | Theme color blue100 |
+|THEME_BLUE_200 | Theme color blue200 |
+|THEME_BLUE_300 | Theme color blue300 |
+|THEME_BLUE_400 | Theme color blue400 |
+|THEME_BLUE_500 | Theme color blue500 |
+|THEME_BLUE_600 | Theme color blue600 |
+|THEME_BLUE_700 | Theme color blue700 |
+|THEME_BLUE_800 | Theme color blue800 |
+|THEME_BLUE_900 | Theme color blue900 |
+|THEME_BLUE_50 | Theme color blue50 |
+|THEME_GREEN_100 | Theme color green100 |
+|THEME_GREEN_200 | Theme color green200 |
+|THEME_GREEN_300 | Theme color green300 |
+|THEME_GREEN_400 | Theme color green400 |
+|THEME_GREEN_500 | Theme color green500 |
+|THEME_GREEN_600 | Theme color green600 |
+|THEME_GREEN_700 | Theme color green700 |
+|THEME_GREEN_800 | Theme color green800 |
+|THEME_GREEN_900 | Theme color green900 |
+|THEME_RED_100 | Theme color red100 |
+|THEME_RED_200 | Theme color red200 |
+|THEME_RED_300 | Theme color red300 |
+|THEME_RED_400 | Theme color red400 |
+|THEME_RED_500 | Theme color red500 |
+|THEME_RED_600 | Theme color red600 |
+|THEME_RED_700 | Theme color red700 |
+|THEME_RED_800 | Theme color red800 |
+|THEME_RED_900 | Theme color red900 |
+|THEME_RED_800 | Theme color red800 |
+|THEME_RED_900 | Theme color red900 |
+|THEME_VERTICAL_LOGO | Vertical logo |
+|THEME_HORIZONTAL_LOGO | Horizontal logo |
+
+
+

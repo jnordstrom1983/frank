@@ -3,13 +3,16 @@ import TextInput from "@/components/TextInput"
 import { apiClient } from "@/networking/ApiClient"
 import { Box, Button, Center, Heading, Image, VStack } from "@chakra-ui/react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { UserLoginPostResponse } from "../api/user/login/route"
+import { ThemeContext } from "../theme"
 
 export default function Login() {
     const router = useRouter()
     const [email, setEmail] = useState<string>("")
     const [loading, setLoading] = useState<boolean>()
+    const theme = useContext(ThemeContext);
+
     async function login(email: string) {
         if (loading) return
 
@@ -32,7 +35,7 @@ export default function Login() {
 
     return (
         <>
-            <Image src="/static/logo_horizontal.svg" w="150px" position={"fixed"} right="20px" top="20px"></Image>
+            <Image src={theme!.horizontalLogo} w="150px" position={"fixed"} right="20px" top="20px"></Image>
 
             <Center w="100%" h="100vh">
                 <Box bg={"white"} padding={20} width="600px">

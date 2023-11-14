@@ -1,11 +1,12 @@
 "use client"
 import { UserVerifyPostResponse } from "@/app/api/user/verify/route"
+import { ThemeContext } from "@/app/theme"
 import TextInput from "@/components/TextInput"
 import { apiClient } from "@/networking/ApiClient"
 import { Box, Button, Center, Flex, Heading, Image, Text, VStack, useToast } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { X } from "react-feather"
 export default function Verify() {
     const router = useRouter()
@@ -13,7 +14,8 @@ export default function Verify() {
     const urlParams = new URLSearchParams(typeof (window) !== "undefined" ? window.location.search : "")
     const token = urlParams.get("token")
     const toast = useToast()
-
+    const theme = useContext(ThemeContext);
+    
     const [code, setCode] = useState<string>(urlParams.get("code") || "")
     const [loading, setLoading] = useState<boolean>()
     async function login(code: string) {
@@ -57,7 +59,7 @@ export default function Verify() {
 
     return (
         <>
-            <Image src="/static/logo_horizontal.svg" w="150px" position={"fixed"} right="20px" top="20px"></Image>
+            <Image src={theme!.horizontalLogo} w="150px" position={"fixed"} right="20px" top="20px"></Image>
 
             <Center w="100%" h="100vh">
                 <Box bg={"white"} padding={20} width="600px">

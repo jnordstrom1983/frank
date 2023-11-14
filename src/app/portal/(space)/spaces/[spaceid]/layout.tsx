@@ -1,6 +1,7 @@
 "use client"
 import { SpaceItem } from "@/app/api/space/get"
 import { PutProfileResponse } from "@/app/api/user/profile/put"
+import { ThemeContext } from "@/app/theme"
 import { AdminMenu } from "@/components/AdminMenu"
 import { GetExternalLink, GetIcon } from "@/lib/link"
 import { SpaceModules } from "@/lib/spaceModules"
@@ -12,7 +13,7 @@ import { useAppStore } from "@/stores/appStore"
 import { Box, Button, Flex, HStack, Image, Tooltip, VStack } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Book, ChevronDown, Sliders, X } from "react-feather"
 export default function DashboardLayout({ children, params }: { children: React.ReactNode; params: { spaceid: string } }) {
     const { profile, isLoading } = useProfile()
@@ -31,6 +32,8 @@ export default function DashboardLayout({ children, params }: { children: React.
     const [showOverlay, setShowOverlay] = useState<boolean>(false)
     const router = useRouter()
 
+    const theme = useContext(ThemeContext);
+    
     useEffect(() => {
         if (!params.spaceid) return
         if (!profile) return
@@ -66,7 +69,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                     <Flex width={"100%"} backgroundColor={"white"} minHeight={"300px"} boxShadow="0px 10px 20px rgba(0, 0, 0, 0.1);">
                         <VStack width={"100%"} alignItems={"flex-start"}>
                             <HStack w="100%" p="3" height={"75px"}>
-                                <Image src="/static/logo_horizontal.svg" w="150px"></Image>
+                                <Image src={theme!.horizontalLogo} w="150px"></Image>
                                 <Flex flex={1}></Flex>
                                 <Button
                                     variant={"ghost"}
@@ -190,7 +193,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                     <Flex background="#fff" width="80px" position={"fixed"} left="0" bottom="0" top="0" zIndex={10} flexDir={"column"} overflowY={"auto"} overflowX="hidden">
                         <VStack spacing={5}>
                             <VStack w="60" pt={3}>
-                                <Image src="/static/logo_vertical.svg" maxW="46px"></Image>
+                                <Image src={theme!.verticalLogo} maxW="46px"></Image>
                             </VStack>
 
                             {(profile.role === "admin" ||  space?.role === "owner" || space?.userFeatures.includes("content")) && <MenuButton
