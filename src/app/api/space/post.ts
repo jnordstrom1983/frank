@@ -43,6 +43,7 @@ export async function POST(req: Request) {
                 spaceId: space!.spaceId,
                 userId: user.userId,
                 role: "owner",
+                tags : []
             })
 
             return returnJSON<z.infer<typeof PostSpaceResponseSchema>>({ space: space! }, PostSpaceResponseSchema)
