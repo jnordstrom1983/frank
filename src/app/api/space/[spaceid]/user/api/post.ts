@@ -37,6 +37,7 @@ export async function POST(req: Request, context: { params: { spaceid: string } 
                     userId: user.userId,
                     spaceId: context.params.spaceid,
                     role: data.role,
+                    tags : [],
                 })
 
                 return returnJSON<PostSpaceApiUserResponse>({ userId: user.userId }, PostSpaceApiUserResponseSchema)

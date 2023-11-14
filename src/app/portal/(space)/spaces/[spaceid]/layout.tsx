@@ -244,6 +244,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                             )}
                             {space?.links
                                 .filter(l=>l.placement === "menu")
+                                .filter(l=>!l.requiredTag || space.tags?.includes(l.requiredTag))
                                 .map((m) => (
                                     <MenuButton
                                         key={m!.linkId}

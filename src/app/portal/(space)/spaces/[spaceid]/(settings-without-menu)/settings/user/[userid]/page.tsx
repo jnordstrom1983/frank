@@ -30,6 +30,7 @@ import { Trash } from "react-feather"
 import { PutSpaceUserItemRequest, PutSpaceUserItemResponse } from "@/app/api/space/[spaceid]/user/[userid]/put"
 import { SpaceUserRole } from "@/models/spaceuser"
 import { useSpaceUsers } from "@/networking/hooks/spaces"
+import { OptionsEditor } from "@/components/OptionsEditor"
 
 interface SortableFields extends Field {
     id: string
@@ -41,6 +42,7 @@ export default function Home({ params }: { params: { spaceid: string; userid: st
     const [name, setName] = useState<string>("")
     const [role, setRole] = useState<string>("editor")
     const [email, setEmail] = useState<string>("")
+    const [tags, setTags] = useState<string[]>([]);
 
     const [isLoading, setIsLoading] = useState(true)
     const toast = useToast()
@@ -64,6 +66,7 @@ export default function Home({ params }: { params: { spaceid: string; userid: st
         setName(user.name)
         setEmail(user.email)
         setRole(user.role)
+        setTags(user.tags)
         setIsLoading(false)
     }, [users])
 
@@ -74,6 +77,7 @@ export default function Home({ params }: { params: { spaceid: string; userid: st
                 path: `/space/${params.spaceid}/user/${params.userid}`,
                 body: {
                     role: role as SpaceUserRole,
+                    tags,
                 },
                 isAuthRequired: true,
             })
@@ -85,6 +89,7 @@ export default function Home({ params }: { params: { spaceid: string; userid: st
             setIsSaveLoading(false)
 
             queryClient.invalidateQueries([["space_user", params.spaceid]])
+            queryClient.invalidateQueries(["spaces"])
             router.back()
         } catch (ex) {
             setIsSaveLoading(false)
@@ -199,7 +204,7 @@ export default function Home({ params }: { params: { spaceid: string; userid: st
                                     </Box>
                                 </HStack>
 
-                                <HStack spacing={20} w="100%">
+                                <HStack spacing={20} w="100%" alignItems={"flex-start"}>
                                     <Box w="50%">
                                         <TextInput
                                             value={role}
@@ -212,7 +217,9 @@ export default function Home({ params }: { params: { spaceid: string; userid: st
                                             ]}
                                         ></TextInput>
                                     </Box>
-                                    <Box w="50%"></Box>
+                                    <Box w="50%">
+                                        <OptionsEditor subject="Tags" options={tags} type="string"  onChange={(v) => setTags(v as string[]) } placeHolder="Enter new tag and press enter"></OptionsEditor>
+                                    </Box>
                                 </HStack>
 
                                 <Box w="100%">

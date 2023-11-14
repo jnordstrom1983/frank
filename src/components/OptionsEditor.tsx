@@ -37,6 +37,7 @@ export function OptionsEditor({ options, type, onChange, subject, placeHolder }:
         onChange(newOptions)
     }
     function removeOption(option: FieldOption) {
+        
         const newOptions = [...internalOptions].filter(o => o !== option)
         setInternalOptions(newOptions);
         onChange(newOptions)
@@ -109,7 +110,7 @@ function SortableItem({ value, onRemove }: { value: string | number, onRemove: (
     return <Box bg="gray.100" p={1} fontSize="12px" key={value} ref={setNodeRef} style={style} {...attributes} {...listeners}>
         <HStack spacing={1} w="100%">
             <Box pl={3}>{value}</Box>
-            <Button variant={"ghost"} onClick={() => {
+            <Button variant={"ghost"} onClickCapture={() => {
                 onRemove()
             }}>
                 <X size="16px"></X>

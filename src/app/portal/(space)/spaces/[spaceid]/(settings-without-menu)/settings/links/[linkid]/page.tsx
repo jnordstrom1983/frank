@@ -59,6 +59,8 @@ export default function Home({ params }: { params: { spaceid: string; linkid: st
     const [placement, setPlacement] = useState<SpaceLinkPlacement>("menu");
     const [icon, setIcon] = useState<string>("link")
 
+    const [requiredTag, setRequiredTag] = useState<string>("");
+
 
 
     useEffect(() => {
@@ -95,6 +97,7 @@ export default function Home({ params }: { params: { spaceid: string; linkid: st
         setPlacement(link.placement);
         setType(link.type);
         setIcon(link.icon)
+        setRequiredTag(link.requiredTag || "");
 
         //Set values
 
@@ -111,7 +114,8 @@ export default function Home({ params }: { params: { spaceid: string; linkid: st
                     url,
                     type,
                     placement,
-                    icon
+                    icon,
+                    requiredTag : !!requiredTag ? requiredTag : undefined
                 },
                 isAuthRequired: true,
             })
@@ -274,6 +278,8 @@ export default function Home({ params }: { params: { spaceid: string; linkid: st
                                     ></TextInput>
                                 </HStack>
 
+                                
+
                                 <VStack w="100%" alignItems={"flex-start"}>
                                     <Box>Icon</Box>
                                     <Box gap={5} display={"flex"}>
@@ -287,6 +293,16 @@ export default function Home({ params }: { params: { spaceid: string; linkid: st
                                     </Box>
 
                                 </VStack>
+
+
+                                <TextInput
+                                    subject="Required tag"
+                                    value={requiredTag}
+                                    disabled={isSaveLoading}
+
+                                    onChange={setRequiredTag}
+                                    placeholder="Set if you like to require a specific tag on the user to show the link"
+                                ></TextInput>
 
 
 
