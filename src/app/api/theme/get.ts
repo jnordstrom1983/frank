@@ -1,4 +1,5 @@
-import { themeColors } from "@/app/(portal)/theme"
+
+import { themeColors } from "@/app/(portal)/themeColors"
 import { returnJSON } from "@/lib/apiUtils"
 import { z } from "zod"
 
