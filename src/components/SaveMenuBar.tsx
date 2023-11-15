@@ -1,4 +1,4 @@
-import { ThemeContext } from "@/app/theme"
+import { ThemeContext } from "@/app/(portal)/theme"
 import { Box, Button, Container, Flex, HStack, Heading, Image } from "@chakra-ui/react"
 import { useContext } from "react"
 import { X } from "react-feather"

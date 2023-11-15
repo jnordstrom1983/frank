@@ -7,10 +7,10 @@ import { Box, Button, Center, HStack, Modal, ModalBody, ModalCloseButton, ModalC
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { z } from "zod"
-import { PutProfileRequest, PutProfileResponse } from "./api/user/profile/put"
+import { PutProfileRequest, PutProfileResponse } from "../api/user/profile/put"
 import { useQueryClient } from "@tanstack/react-query"
 import { getSpaceHome } from "@/lib/utils"
-import { SpaceItem } from "./api/space/get"
+import { SpaceItem } from "../api/space/get"
 
 export default function Home() {
     const { profile, isLoading: isProfileLoading } = useProfile()

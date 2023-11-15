@@ -1,6 +1,6 @@
 import { returnJSON } from "@/lib/apiUtils"
 import { z } from "zod"
-export const dynamic = 'force-dynamic'
+
 
 export const GetThemeResponseSchema = z.object({
     verticalLogo : z.string(),

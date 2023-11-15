@@ -4,7 +4,7 @@ import { apiClient } from "@/networking/ApiClient"
 import { Box, Button, Center, Heading, Image, VStack } from "@chakra-ui/react"
 import { useRouter } from "next/navigation"
 import { useContext, useState } from "react"
-import { UserLoginPostResponse } from "../api/user/login/route"
+import { UserLoginPostResponse } from "../../api/user/login/route"
 import { ThemeContext } from "../theme"
 
 export default function Login() {

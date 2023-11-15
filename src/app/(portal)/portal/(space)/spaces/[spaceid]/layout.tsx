@@ -1,7 +1,7 @@
 "use client"
 import { SpaceItem } from "@/app/api/space/get"
 import { PutProfileResponse } from "@/app/api/user/profile/put"
-import { ThemeContext } from "@/app/theme"
+import { ThemeContext } from "@/app/(portal)/theme"
 import { AdminMenu } from "@/components/AdminMenu"
 import { GetExternalLink, GetIcon } from "@/lib/link"
 import { SpaceModules } from "@/lib/spaceModules"

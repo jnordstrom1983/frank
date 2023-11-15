@@ -1,6 +1,6 @@
 "use client"
 import { UserVerifyPostResponse } from "@/app/api/user/verify/route"
-import { ThemeContext } from "@/app/theme"
+import { ThemeContext } from "@/app/(portal)/theme"
 import TextInput from "@/components/TextInput"
 import { apiClient } from "@/networking/ApiClient"
 import { Box, Button, Center, Flex, Heading, Image, Text, VStack, useToast } from "@chakra-ui/react"

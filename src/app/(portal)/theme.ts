@@ -1,6 +1,6 @@
 import { extendTheme } from "@chakra-ui/react"
 import { createContext } from "react"
-import { GetThemeResponse } from "./api/theme/get"
+import { GetThemeResponse } from "../api/theme/get"
 
 export const ThemeContext = createContext<GetThemeResponse | null>(null)
 

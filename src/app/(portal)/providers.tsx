@@ -8,7 +8,7 @@ import { ThemeContext, getTheme } from "./theme"
 import { useEffect, useState } from "react"
 import { useTheme } from "@/networking/hooks/theme"
 import { createContext } from "vm"
-import { GetThemeResponse, GetThemeResponseSchema } from "./api/theme/get"
+import { GetThemeResponse, GetThemeResponseSchema } from "../api/theme/get"
 
 
 

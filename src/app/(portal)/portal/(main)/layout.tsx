@@ -1,5 +1,5 @@
 "use client"
-import { ThemeContext } from "@/app/theme"
+import { ThemeContext } from "@/app/(portal)/theme"
 import { AdminMenu } from "@/components/AdminMenu"
 import { useProfile } from "@/networking/hooks/user"
 import { useAppStore } from "@/stores/appStore"
