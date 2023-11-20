@@ -13,7 +13,7 @@ interface SortableOption {
     id: string
 }
 
-export function OptionsEditor({ options, type, onChange, subject, placeHolder }: { options: FieldOption[], type: "string" | "number", onChange: (options: FieldOption[]) => void, subject?: string, placeHolder?: string }) {
+export function OptionsEditor({ options, type, onChange, subject, placeHolder, countUnsubmittedValue = false }: { options: FieldOption[], type: "string" | "number", onChange: (options: FieldOption[]) => void, subject?: string, placeHolder?: string, countUnsubmittedValue? : boolean }) {
 
     const [valid, setValid] = useState<boolean>(true)
     const [internalValue, setInternalValue] = useState<string>("");
@@ -74,10 +74,19 @@ export function OptionsEditor({ options, type, onChange, subject, placeHolder }:
         })
     )
 
+    const onTextChange = (value : string) => {
+        setInternalValue(value)
+        if(countUnsubmittedValue){
+            if (internalOptions.includes(value)) return;
+            let newOptions = [...internalOptions, value];
+            onChange(newOptions)
+        }
+    }
+
 
 
     return <VStack w="100%" alignItems={"flex-start"}>
-        <TextInput value={internalValue} subject={subject} placeholder={placeHolder || "Enter value and press enter to add to list of accepted values"} onChange={setInternalValue} onSubmit={onSubmit} validate={validator} onValidation={setValid}></TextInput>
+        <TextInput value={internalValue} subject={subject} placeholder={placeHolder || "Enter value and press enter to add to list of accepted values"} onChange={onTextChange} onSubmit={onSubmit} validate={validator} onValidation={setValid}></TextInput>
         <Flex flexWrap={"wrap"} gap={5} >
 
 

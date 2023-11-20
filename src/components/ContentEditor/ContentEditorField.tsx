@@ -13,6 +13,7 @@ import { FieldEditorAssetArray } from "../FieldEditors/AssetArray/FieldEditorAss
 import { FieldEditorObject } from "../FieldEditors/Object/FieldEditorObject"
 import { FieldEditorObjectArray } from "../FieldEditors/ObjectArray/FieldEditorObjectArray"
 import { FieldEditorBoolean } from "../FieldEditors/Boolean/FieldEditorBoolean"
+import { FieldEditorStringArray } from "../FieldEditors/StringArray/FieldEditorStringArray"
 
 
 
@@ -61,6 +62,9 @@ export function ContentEditorField({ spaceId, field, data, onDataChange, showVal
     if (field.dataTypeId === "boolean") {
         return <FieldEditorBoolean value={fieldValue} field={field} onChange={(value) => onDataChange(field.fieldId, value)} key={field.fieldId} onValidation={onValidation} showValidation={showValidation} ></FieldEditorBoolean>
     }    
+    if(field.dataTypeId === "stringArray"){
+        return <FieldEditorStringArray value={fieldValue} field={field} onChange={(value) => onDataChange(field.fieldId, value)} key={field.fieldId} onValidation={onValidation} showValidation={showValidation} ></FieldEditorStringArray>
+    }
 
     return (
         <FieldEditorNotImplementedYet
