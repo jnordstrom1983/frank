@@ -5,7 +5,7 @@ import { z } from "zod"
 
 export async function DELETE(req: Request, context: { params: { spaceid: string; folderid: string } }) {
     return await withUser(req, "any", async (user) => {
-        return await withSpaceRole(user, context.params.spaceid, "owner", async (role) => {
+        return await withSpaceRole(user, context.params.spaceid, "any", async (role) => {
             const folder = await collections.folder.findOne({ spaceId: context.params.spaceid, folderId: context.params.folderid })
             if (!folder) {
                 return returnNotFound("Folder not found")

@@ -908,7 +908,7 @@ export default function Editor({
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <HStack>
                                                             <Box fontWeight="bold">FOLDER</Box>
-                                                            {space!.role === "owner" && <Button
+                                                            <Button
                                                                 variant={"ghost"}
                                                                 onClick={() => {
                                                                     setCreateFolderName("")
@@ -917,7 +917,7 @@ export default function Editor({
                                                                 }}
                                                             >
                                                                 <PlusCircle></PlusCircle>
-                                                            </Button>}
+                                                            </Button>
                                                         </HStack>
 
                                                         <Box w="100%">

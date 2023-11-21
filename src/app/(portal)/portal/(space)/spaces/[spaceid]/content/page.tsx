@@ -429,29 +429,19 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                         <Flex flex={1} flexDir={"row"}>
                             <Flex bg="#fff" width="250px" p={5}>
                                 <VStack spacing={10} alignItems={"flex-start"} w="100%">
-                                    {space!.role === "owner" || profile?.role === "admin" ? (
-                                        <SelectionList
-                                            subject="FOLDER"
-                                            items={filterFolders}
-                                            selectedItemId={filterFolder}
-                                            anyText="Any folder"
-                                            onClick={setFilterFolder}
-                                            onSettings={() => {
-                                                router.push(`/portal/spaces/${params.spaceid}/content/folder`)
-                                            }}
-                                            settingsTooltip="Manage folders"
-                                        ></SelectionList>
-                                    ) : (
-                                        <SelectionList
-                                            minElements={1}
-                                            subject="FOLDER"
-                                            items={filterFolders}
-                                            selectedItemId={filterFolder}
-                                            anyText="Any folder"
-                                            onClick={setFilterFolder}
-                                        ></SelectionList>
-                                    )}
-
+                                
+                                    <SelectionList
+                                        subject="FOLDER"
+                                        items={filterFolders}
+                                        selectedItemId={filterFolder}
+                                        anyText="Any folder"
+                                        onClick={setFilterFolder}
+                                        onSettings={() => {
+                                            router.push(`/portal/spaces/${params.spaceid}/content/folder`)
+                                        }}
+                                        settingsTooltip="Manage folders"
+                                    ></SelectionList>
+                                    
                                     <SelectionList
                                         subject="CONTENT TYPE"
                                         items={filterContentTypes}
