@@ -144,7 +144,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         focus={true}
                                         onChange={setName}
                                         placeholder="My Content Type"
-                                        validate={z.string().min(3)}
+                                        validate={z.string().min(1)}
                                         onValidation={(valid) => {
                                             setNameValid(valid)
                                         }}

@@ -101,7 +101,7 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
                                 value={name}
                                 focus={true}
                                 onChange={nameChanged}
-                                validate={z.string().min(3)}
+                                validate={z.string().min(1)}
                                 onValidation={(valid) => {
                                     setNameValid(valid)
                                 }}

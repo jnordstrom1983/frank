@@ -163,7 +163,7 @@ export function ConfigureField({
                                     value={name}
                                     focus={true}
                                     onChange={setName}
-                                    validate={z.string().min(3)}
+                                    validate={z.string().min(1)}
                                     onValidation={(valid) => {
                                         setNameValid(valid)
                                     }}
