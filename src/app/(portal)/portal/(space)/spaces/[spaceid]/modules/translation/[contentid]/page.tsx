@@ -1001,7 +1001,7 @@ function PhraseEditor({
                                         value={phraseId}
                                         onChange={setPhraseId}
                                         subject="phraseId"
-                                        validate={z.string().min(3)}
+                                        validate={z.string().min(1)}
                                         onValidation={(valid) => {
                                             setPhraseIdValid(valid)
                                         }}
