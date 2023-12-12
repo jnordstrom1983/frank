@@ -6,6 +6,7 @@ import { z } from "zod"
 
 const PutSpaceUserItemRequestSchema = SpaceUserSchema.pick({
     role: true,
+    tags: true
 })
 export type PutSpaceUserItemRequest = z.infer<typeof PutSpaceUserItemRequestSchema>
 

@@ -1,9 +1,3 @@
-import { Providers } from "./providers"
-import "./globals.css"
-import dayjs from "dayjs"
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { Dialogs } from "./dialogs"
-dayjs.extend(relativeTime)
 
 
 export const metadata = {
@@ -15,9 +9,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <body>
-                <Providers>
-                    <Dialogs>{children}</Dialogs>
-                </Providers>
+                {children}
             </body>
         </html>
     )

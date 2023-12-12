@@ -6,6 +6,7 @@ import { generateRouteInfoParams } from "@/lib/docs"
 import { AssetSchema } from "@/models/asset"
 import { ContentData, ContentDataAggregationSchema, ContentDataSchema, ContentDataViewSchema } from "@/models/contentdata"
 import { ContentType } from "@/models/contentype"
+import { SpaceLanguageEnum } from "@/models/space"
 import { SpaceUserRoleEnum } from "@/models/spaceuser"
 import { UserSchema } from "@/models/user"
 import { Filter } from "mongodb"
@@ -100,8 +101,12 @@ export async function GetContent(params: Record<string, string>, restrictedToCon
     //Query on language
     let languages: string[] = [space!.defaultLanguage]
     if (params["languageId"]) {
-        query.push({ "languageId": { $in: params["languageId"].split(",") } })
-        languages = params["languageId"].split(",");
+        if(params["languageId"] !== "*"){
+            query.push({ "languageId": { $in: params["languageId"].split(",") } })
+            languages = params["languageId"].split(",");
+        }else{
+            languages = SpaceLanguageEnum.options;
+        }
     } else {
         query.push({ "languageId": space!.defaultLanguage })
     }

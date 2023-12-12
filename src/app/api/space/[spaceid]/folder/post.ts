@@ -21,7 +21,7 @@ export type PostFolderResponse = z.infer<typeof PostFolderResponseSchema>
 
 export async function POST(req: Request, context: { params: { spaceid: string } }) {
     return await withUser(req, "any", async (user) => {
-        return await withSpaceRole(user, context.params.spaceid, "owner", async (role) => {
+        return await withSpaceRole(user, context.params.spaceid, "any", async (role) => {
             return await withRequestBody(req, PostFolderRequestSchema, async (data) => {
 
 

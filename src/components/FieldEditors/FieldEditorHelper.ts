@@ -10,6 +10,7 @@ import { ValidateReferenceFieldValue } from "./Reference/FieldEditorReferenceHel
 import { ValidateReferenceArrayFieldValue } from "./ReferenceArray/FieldEditorReferenceArrayHelper";
 import { ValidateStringFieldValue } from "./String/FieldEditorStringHelper";
 import { ValidateTableFieldValue } from "./Table/FieldEditorTableHelper";
+import { ValidateStringArrayFieldValue } from "./StringArray/FieldEditorStringArrayHelper";
 
 export function GetFieldValidationErrors(field: Field, value: any) {
 
@@ -26,7 +27,6 @@ export function GetFieldValidationErrors(field: Field, value: any) {
 }
 
 export function ValidateFieldValueschema(field: Field, value: any) {
-    console.log(field.dataTypeId)
     switch (field.dataTypeId) {
         case "string":
             return ValidateStringFieldValue(field, value as string | undefined);
@@ -50,5 +50,7 @@ export function ValidateFieldValueschema(field: Field, value: any) {
             return ValidateObjectArrayFieldValue(field, value);
         case "boolean":
             return ValidateBooleanFieldValue(field, value)
+        case "stringArray":
+            return ValidateStringArrayFieldValue(field, value);
     }
 }

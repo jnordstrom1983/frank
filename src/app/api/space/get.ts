@@ -21,6 +21,7 @@ export const GetSpaceItemSchema = SpaceSchema.pick({
     userFeatures : true
 }).extend({
     role: SpaceUserRoleEnum.optional(),
+    tags: z.array(z.string()).optional(),
     creatorName: z.string(),
     enableAi: z.boolean(),
 })
@@ -80,6 +81,7 @@ export async function GET(req: Request) {
                     links : 1, 
                     userFeatures : 1,
                     role: "$role.role",
+                    tags: "$role.tags",
                     creatorName: "$creator.name",
 
                 },

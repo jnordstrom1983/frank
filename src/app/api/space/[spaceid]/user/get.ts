@@ -10,6 +10,7 @@ const SpaceUserItemSchema = z.object({
     role: SpaceUserRoleEnum,
     email: z.string().email().toLowerCase(),
     name: z.string(),
+    tags : z.array(z.string()),
 })
 type SpaceUserItem = z.infer<typeof SpaceUserItemSchema>
 
@@ -42,6 +43,7 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                     $project: {
                         userId: 1,
                         role: 1,
+                        tags: 1,
                         user: { $arrayElemAt: ["$users", 0] },
                     },
                 },
@@ -56,6 +58,7 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         _id: 0,
                         userId: 1,
                         role: 1,
+                        tags: 1,
                         email: "$user.email",
                         name: "$user.name",
                     },

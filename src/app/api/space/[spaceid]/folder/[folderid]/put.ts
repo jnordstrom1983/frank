@@ -17,7 +17,7 @@ export type PutFolderItemResponse = z.infer<typeof PutFolderItemResponseSchema>
 
 export async function PUT(req: Request, context: { params: { spaceid: string; folderid: string } }) {
     return await withUser(req, "any", async (user) => {
-        return await withSpaceRole(user, context.params.spaceid, "owner", async (role) => {
+        return await withSpaceRole(user, context.params.spaceid, "any", async (role) => {
             return await withRequestBody(req, PutFolderItemRequestSchema, async (data) => {
                 const updated = await collections.folder.updateOne(
                     {

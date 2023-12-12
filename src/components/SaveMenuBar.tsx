@@ -1,4 +1,6 @@
+import { ThemeContext } from "@/app/(portal)/theme"
 import { Box, Button, Container, Flex, HStack, Heading, Image } from "@chakra-ui/react"
+import { useContext } from "react"
 import { X } from "react-feather"
 
 export function SaveMenuBar({
@@ -20,11 +22,12 @@ export function SaveMenuBar({
     positiveLoading?: boolean
     neutralLoading?: boolean
 }) {
+    const theme = useContext(ThemeContext);
     return (
         <Box backgroundColor="#fff" position={"fixed"} left="0" right="0" top="0" zIndex={10}>
             <HStack w="100%" p="3" height={"75px"}>
                 <Box width="150px">
-                    <Image src="/static/logo_horizontal.svg" w="150px"></Image>
+                    <Image src={theme!.horizontalLogo} w="150px"></Image>
                 </Box>
 
                 <Flex flex={1} alignItems={"center"}>

@@ -25,7 +25,7 @@ export type FieldOption = z.infer<typeof FieldOptionSchema>
 
 export const FieldSchema = z.object({
     fieldId: z.string(),
-    name: z.string().min(3),
+    name: z.string().min(1),
     title: z.boolean(),
     description: z.string().min(0),
     dataTypeId: z.string(),

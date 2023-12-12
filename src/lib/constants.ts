@@ -117,6 +117,39 @@ export const dataTypes: dataType[] = [
         }
     },
     {
+        id: "stringArray",
+        name: "string[]",
+        description: "Array of strings",
+        variants: [
+            {
+                id: "tags",
+                name: "tags",
+                options: "enabled",
+                optionsType: "string",
+                canBeTitle: false,
+                validators: {
+                    required: { enabled: false },
+                },
+                settings: [
+                    
+                ],
+                ai: {
+                    check: false,
+                    translate: false,
+                    reprahse: false
+                },
+
+            },
+       
+        ],
+        getDataTypeString : (field : Field)=>{
+            if(field.options){
+                //return field.options.map(n=>`"${n}"`).join(" | ")
+            }
+            return "string[]"
+        }
+    },    
+    {
         id: "number",
         name: "number",
         description: "Regular number",

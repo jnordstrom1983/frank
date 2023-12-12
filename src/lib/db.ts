@@ -52,6 +52,8 @@ export class DatabaseCollection<T extends Document>{
 
     async aggregate<R extends Document>(pipeline: Document[]) {
         const client = await clientPromise;
+        //return await (await this.collection()).aggregate<R>(pipeline).toArray()
+
         return await (await this.collection()).aggregate<R>(pipeline).toArray()
     }
 

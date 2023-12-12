@@ -2,9 +2,8 @@ import { returnJSON, returnNotFound, withSpaceRole, withUser } from "@/lib/apiUt
 import { dbCollection } from "@/lib/constants"
 import { collections } from "@/lib/db"
 import { generateRouteInfoParams } from "@/lib/docs"
-import { ContentInternalViewModelSchema, ContentSchema, ContentStatus } from "@/models/content"
-import { ContentData, ContentDataSchema } from "@/models/contentdata"
-import { Field } from "@/models/field"
+import { ContentInternalViewModelSchema, ContentStatus } from "@/models/content"
+import { ContentData } from "@/models/contentdata"
 import { SpaceModule } from "@/models/space"
 import { z } from "zod"
 
@@ -20,11 +19,7 @@ interface ItemAggregationResult {
     modifiedUserId: string
     modifiedDate: Date
     status: ContentStatus
-    contentTypeName: string
-    contentTypeFields: Field[]
-    folderName: string
-    modifiedUserName: string
-    contentdata: ContentData[],
+    //contentdata: ContentData[],
     managedByModule?: SpaceModule
 }
 
@@ -38,44 +33,36 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                 return returnNotFound("Space not found")
             }
 
+            const contentTypes = await collections.contentType.findMany({ spaceId: context.params.spaceid })
+            const folders = await collections.folder.findMany({ spaceId: context.params.spaceid });
+            const users = await collections.user.findMany({});
+
+            //Generate a projection and get only required data
+            let contentDatasProjection : any = { contentId : 1, languageId : 1 } 
+            contentTypes.forEach(c=>{
+                const titleField = c.fields.find(f=>f.title);
+                if(titleField){
+                    contentDatasProjection[`data.${titleField.fieldId}`] = 1;
+                }
+            })
+            const contentDatas = await collections.contentData.aggregate([ 
+                { 
+                    $match : { spaceId: context.params.spaceid, languageId : space.defaultLanguage }
+                },
+                {
+                    $project : contentDatasProjection 
+                }
+            ])
+            let contentDatasRecord : Record<string, any> = {};
+            contentDatas.forEach(c=>{
+                contentDatasRecord[c.contentId] = c
+            })           
+
             const aggregatedData = await collections.content.aggregate<ItemAggregationResult>([
                 {
                     $match: { spaceId: context.params.spaceid, status: { $ne: "new" } },
                 },
                 {
-                    $lookup: {
-                        from: dbCollection.contentType,
-                        localField: "contentTypeId",
-                        foreignField: "contentTypeId",
-
-                        as: "contentTypes",
-                    },
-                },
-                {
-                    $lookup: {
-                        from: dbCollection.folder,
-                        localField: "folderId",
-                        foreignField: "folderId",
-                        as: "folders",
-                    },
-                },
-                {
-                    $lookup: {
-                        from: dbCollection.user,
-                        localField: "modifiedUserId",
-                        foreignField: "userId",
-                        as: "users",
-                    },
-                },
-                {
-                    $lookup: {
-                        from: dbCollection.contentData,
-                        localField: "contentId",
-                        foreignField: "contentId",
-                        as: "contentdata",
-                    },
-                },
-                {
                     $project: {
                         contentId: 1,
                         contentTypeId: 1,
@@ -84,34 +71,10 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                         modifiedUserId: 1,
                         modifiedDate: 1,
                         status: 1,
-                        contentType: { $arrayElemAt: ["$contentTypes", 0] },
-                        folder: { $arrayElemAt: ["$folders", 0] },
-                        user: { $arrayElemAt: ["$users", 0] },
-                        contentdata: 1,
-                        scheduledPublishDate : 1,
-                        scheduledDepublishDate : 1,   
-                        publishDate : 1,
-                        managedByModule : 1,                
-                    },
-                },
-                {
-                    $project: {
-                        contentId: 1,
-                        contentTypeId: 1,
-                        folderId: 1,
-                        createdDate: 1,
-                        modifiedUserId: 1,
-                        modifiedDate: 1,
-                        status: 1,
-                        contentTypeName: "$contentType.name",
-                        contentTypeFields: "$contentType.fields",
-                        folderName: "$folder.name",
-                        modifiedUserName: "$user.name",
-                        contentdata: 1,
-                        scheduledPublishDate : 1,
-                        scheduledDepublishDate : 1,
-                        publishDate : 1,
-                        managedByModule : 1,
+                        scheduledPublishDate: 1,
+                        scheduledDepublishDate: 1,
+                        publishDate: 1,
+                        managedByModule: 1,
                     },
                 },
                 {
@@ -121,20 +84,27 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
                 },
             ])
 
-            //TODO: This must be possible to do in a more efficient way, in aggreation?
+          
+
             const items = aggregatedData.map((item) => {
-                const { contentdata, contentTypeFields, ...rest } = item
+                const {  ...rest } = item
+                const contentdata = contentDatasRecord[item.contentId]
+                const contentType = contentTypes.find(p => p.contentTypeId === item.contentTypeId)
+                const folder = folders.find(p => p.folderId === item.folderId)
+                const user = users.find(p => p.userId === item.modifiedUserId)
 
                 let title = "(Unnamed)"
-                const titleField = contentTypeFields.find((p) => p.title)
-                if (titleField && contentdata && contentdata.length > 0) {
-                    const data = contentdata.find((p) => p.languageId === space.defaultLanguage) || contentdata[0]
+                const titleField = contentType?.fields.find((p) => p.title)
+                if (titleField && contentdata) {
                     //@ts-ignore
-                    title = getTitleMaxLength(data.data[titleField.fieldId] || title)
+                    title = getTitleMaxLength(contentdata.data[titleField.fieldId] || title)
                 }
 
                 return {
                     title: title,
+                    contentTypeName: contentType?.name || "-",
+                    folderName: folder?.name,
+                    modifiedUserName: user?.name || "-",
                     ...rest,
                 }
             })
@@ -149,8 +119,8 @@ export async function GET(req: Request, context: { params: { spaceid: string } }
     })
 }
 
-function getTitleMaxLength(title : string){
-    if(title.length > 30){
+function getTitleMaxLength(title: string) {
+    if (title.length > 30) {
         return `${title.substring(0, 27)}...`
     }
     return title;

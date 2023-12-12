@@ -21,6 +21,7 @@ export const SpaceLinkSchema = z.object({
     url : z.string(),
     placement : SpaceLinkPlacementEnum,
     type : SpaceLinkTypeEnum,
+    requiredTag : z.string().optional(),
 
 })
 
