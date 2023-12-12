@@ -4,7 +4,7 @@ import { CheckboxInput } from "@/components/CheckboxInput"
 import { SaveMenuBar } from "@/components/SaveMenuBar"
 import { languages as allLanguages } from "@/lib/constants"
 import { ContentData } from "@/models/contentdata"
-import { Space, SpaceLanguage } from "@/models/space"
+import { SpaceLanguage } from "@/models/space"
 import { apiClient } from "@/networking/ApiClient"
 import { useContentItem } from "@/networking/hooks/content"
 import { useContenttype } from "@/networking/hooks/contenttypes"
@@ -30,29 +30,29 @@ import {
     Stack,
     Tag,
     Tooltip,
-    useDisclosure,
-    useToast,
     VStack,
+    useDisclosure,
+    useToast
 } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
+import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import React, { useEffect, useState } from "react"
-import { Check, Clock, Flag, MessageCircle, PlusCircle, Sliders, Trash, X, Zap } from "react-feather"
+import { useEffect, useState } from "react"
+import { Check, Clock, Flag, MessageCircle, PlusCircle, Sliders, Trash, X } from "react-feather"
 import { v4 as uuidv4 } from "uuid"
 import TextInput from "../TextInput"
 import { ContentEditorManager } from "./ContentEditorManager"
-import dayjs from "dayjs"
 
-import relativeTime from "dayjs/plugin/relativeTime"
-import { useFolders } from "@/networking/hooks/folder"
-import { AI } from "../AI/AI/AI"
-import { AIModule } from "@/models/ai"
-import { AITranslate } from "../AI/AI/AITranslate"
-import { SingleDatepicker } from "chakra-dayzed-datepicker"
-import { padZero } from "@/lib/utils"
-import { z } from "zod"
 import { PostFolderRequest, PostFolderResponse } from "@/app/api/space/[spaceid]/folder/post"
 import { SpaceItem } from "@/app/api/space/get"
+import { usePhrases } from "@/lib/lang"
+import { padZero } from "@/lib/utils"
+import { AIModule } from "@/models/ai"
+import { useFolders } from "@/networking/hooks/folder"
+import { SingleDatepicker } from "chakra-dayzed-datepicker"
+import relativeTime from "dayjs/plugin/relativeTime"
+import { z } from "zod"
+import { AI } from "../AI/AI/AI"
 dayjs.extend(relativeTime)
 
 interface valdationError {
@@ -91,7 +91,7 @@ export default function Editor({
     onSave?: (data: PutContentItemRequest) => boolean
 }) {
     const { showMainMenu, hideMainMenu } = useAppStore((state) => state)
-
+    const { t } = usePhrases();
     const router = useRouter()
     const toast = useToast()
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false)
@@ -213,7 +213,7 @@ export default function Editor({
                 return 0
             })
 
-        setFolderOptions([{ key: "", text: "No folder" }, ...folderOptions])
+        setFolderOptions([{ key: "", text: t("editor_space_nofolder") }, ...folderOptions])
     }, [folders, content])
 
     useEffect(() => {
@@ -282,8 +282,8 @@ export default function Editor({
                         setServersideErrors((ex as any).error as PutContentItemErrorItem[])
                         setIsSaveLoading(false)
                         toast({
-                            title: "Content not valid",
-                            description: "Fix the errors and try again",
+                            title: t("editor_save_validation_error_title"),
+                            description: t("editor_save_validation_error_description"),
                             status: "warning",
                             position: "bottom-right",
                         })
@@ -294,8 +294,8 @@ export default function Editor({
             }
             setIsSaveLoading(false)
             toast({
-                title: "Could not save content",
-                description: "Please try again.",
+                title: t("editor_save_error_title"),
+                description: t("editor_save_error_desscription"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -345,15 +345,15 @@ export default function Editor({
             onCreateFolderClose()
             setFolder(response.folderId)
             toast({
-                title: "Folder created",
+                title: t("editor_folder_create_save_success"),
                 status: "success",
                 position: "bottom-right",
             })
         } catch (ex) {
             setCreateFolderLoading(false)
             toast({
-                title: "Could not create folder",
-                description: "Please try again.",
+                title: t("editor_folder_create_save_error_title"),
+                description: t("editor_folder_create_save_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -385,7 +385,6 @@ export default function Editor({
                                         setHasChanges(true)
                                     }}
                                     onClose={() => {
-                                        console.log("on close called")
                                         setShowAI(false)
                                     }}
                                 ></AI>
@@ -407,14 +406,14 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Copy content
+                                    {t("editor_copycontent_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
-                                        <Box>Do you wish to copy existing content from another language to the language you just added?</Box>
+                                        <Box>{t("editor_copycontent_description")}</Box>
                                         <TextInput
-                                            subject="Copy from"
+                                            subject={t("editor_copycontent_copyfrom")}
                                             value={copyLanguageFrom}
                                             type="select"
                                             options={allLanguages
@@ -470,7 +469,7 @@ export default function Editor({
                                             onCopyLanguageClose()
                                         }}
                                     >
-                                        Copy content
+                                        {t("editor_copycontent_copy")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -478,7 +477,8 @@ export default function Editor({
                                             onCopyLanguageClose()
                                         }}
                                     >
-                                        Do not copy any content
+                                         {t("editor_copycontent_donotcopy")}
+                                        
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -488,18 +488,18 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Create folder
+                                    {t("editor_folder_create_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
                                         <TextInput
-                                            subject="Name"
+                                            subject={t("editor_folder_create_input_subject")}
                                             value={createFolderName}
                                             disabled={createFolderLoading}
                                             focus={true}
                                             onChange={setCreateFolderName}
-                                            placeholder="My folder"
+                                            placeholder={t("editor_folder_create_input_placeholder")}
                                             validate={z.string().min(3)}
                                             onValidation={(valid) => {
                                                 setCreateFolderValid(valid)
@@ -520,7 +520,7 @@ export default function Editor({
                                             createFolder()
                                         }}
                                     >
-                                        Create
+                                        {t("editor_folder_create_button")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -528,7 +528,7 @@ export default function Editor({
                                             onCreateFolderClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -538,14 +538,14 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Unsaved changes
+                                    {t("editor_unsavedchanges_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
                                         <Box>
-                                            You have unsaved changes. If you close your content without saving you will loose your changes. Are you sure you wish to close the
-                                            content?
+                                            {t("editor_unsavedchanges_description")}
+                                           
                                         </Box>
                                     </VStack>
                                 </ModalBody>
@@ -560,7 +560,8 @@ export default function Editor({
                                             onBack && onBack()
                                         }}
                                     >
-                                        Yes, close
+                                         {t("editor_unsavedchanges_button")}
+                                        
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -568,7 +569,7 @@ export default function Editor({
                                             onUnsavedClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -578,12 +579,12 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Delete content
+                                    {t("editor_delete_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
-                                        <Box>Are you sure you wish to remove this content?</Box>
+                                        <Box>{t("editor_delete_description")}</Box>
                                     </VStack>
                                 </ModalBody>
 
@@ -601,7 +602,7 @@ export default function Editor({
                                                     isAuthRequired: true,
                                                 })
                                                 toast({
-                                                    title: `${getTitle()} deleted.`,
+                                                    title: t("editor_delete_success", getTitle()),
                                                     status: "success",
                                                     position: "bottom-right",
                                                 })
@@ -614,15 +615,15 @@ export default function Editor({
                                             } catch (ex) {
                                                 setIsDeleteLoading(false)
                                                 toast({
-                                                    title: "Could not delete content",
-                                                    description: "Please try again.",
+                                                    title: t("editor_delete_error_title"),
+                                                    description: t("editor_delete_error_description"),
                                                     status: "error",
                                                     position: "bottom-right",
                                                 })
                                             }
                                         }}
                                     >
-                                        Yes, delete
+                                        {t("editor_delete_button")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -630,7 +631,7 @@ export default function Editor({
                                             onDeleteClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -638,8 +639,8 @@ export default function Editor({
 
                         {showSaveBar && (
                             <SaveMenuBar
-                                positiveText={`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}
-                                neutralText="CLOSE"
+                                positiveText={t("editor_savebar_save", published ? t("editor_savebar_and_publish") : t("editor_savebar_draft"))}
+                                neutralText={t("editor_savebar_close")}
                                 positiveLoading={isSaveLoading}
                                 onClose={() => {
                                     if (hasChanges) {
@@ -660,8 +661,8 @@ export default function Editor({
                                     if (errors.length > 0) {
                                         setShowValidation(true)
                                         toast({
-                                            title: "Content not valid",
-                                            description: "Fix the errors and try again",
+                                            title: t("editor_savebar_save_error_title"),
+                                            description: t("editor_savebar_save_error_description"),
                                             status: "warning",
                                             position: "bottom-right",
                                         })
@@ -673,7 +674,7 @@ export default function Editor({
                                 }}
                             >
                                 <HStack spacing={2}>
-                                    <Box as="span">Edit content</Box>
+                                    <Box as="span">{t("editor_title")}</Box>
                                     <Box as="span" fontWeight={"bold"}>
                                         {title}
                                     </Box>
@@ -688,7 +689,7 @@ export default function Editor({
                                             {tools.save && (
                                                 <Box>
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">SAVE</Box>
+                                                        <Box fontWeight="bold">{t("editor_tools_save_title")}</Box>
                                                         <Box>
                                                             <Button
                                                                 colorScheme="green"
@@ -697,8 +698,8 @@ export default function Editor({
                                                                     if (errors.length > 0) {
                                                                         setShowValidation(true)
                                                                         toast({
-                                                                            title: "Content not valid",
-                                                                            description: "Fix the errors and try again",
+                                                                            title: t("editor_savebar_save_error_title"),
+                                                                            description: t("editor_savebar_save_error_description"),
                                                                             status: "warning",
                                                                             position: "bottom-right",
                                                                         })
@@ -708,7 +709,7 @@ export default function Editor({
                                                                     await save()
                                                                     setHasChanges(false)
                                                                 }}
-                                                            >{`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}</Button>
+                                                            >{t("editor_savebar_save", published ? t("editor_savebar_and_publish") : t("editor_savebar_draft"))}</Button>
                                                         </Box>
                                                     </VStack>
                                                 </Box>

@@ -15,7 +15,11 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { Book, ChevronDown, Sliders, X } from "react-feather"
+import { languageOptions, usePhrases } from "@/lib/lang"
+import TextInput from "@/components/TextInput"
 export default function DashboardLayout({ children, params }: { children: React.ReactNode; params: { spaceid: string } }) {
+    const { t } = usePhrases()
+    const { uiLanguage, setUiLanguage} = useAppStore(state=>state);
     const { profile, isLoading } = useProfile()
     const { mainMenu, isMainMenuVisible, setSignoutVisible } = useAppStore((state) => state)
     const queryClient = useQueryClient()
@@ -57,7 +61,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                 <Flex
                     height="100vh"
                     width="100%"
-                    onClick={() => setShowOverlay(false)}
+             
                     position={"fixed"}
                     left="0"
                     right="0"
@@ -71,6 +75,10 @@ export default function DashboardLayout({ children, params }: { children: React.
                             <HStack w="100%" p="3" height={"75px"}>
                                 <Image src={theme!.horizontalLogo} w="150px"></Image>
                                 <Flex flex={1}></Flex>
+                                <Box width="200px">
+                                    <TextInput type="select"  options={languageOptions} value={uiLanguage} onChange={setUiLanguage}></TextInput>
+                                </Box>
+
                                 <Button
                                     variant={"ghost"}
                                     onClick={() => {
@@ -85,12 +93,13 @@ export default function DashboardLayout({ children, params }: { children: React.
                                 <VStack alignItems={"flex-start"} justifyContent={"flex-start"}>
                                     <Box px={2}>
                                         <HStack>
-                                            <Box fontWeight={"bold"}>SPACES</Box>
+                                            <Box fontWeight={"bold"}>{t("layout_overlay_spaces")}</Box>
                                             {["admin"].includes(profile.role) && (
-                                                <Tooltip label="Manage spaces" placement="top">
+                                                <Tooltip label={t("layout_overlay_spaces_tooltip")} placement="top">
                                                     <Button
                                                         variant={"ghost"}
                                                         onClick={() => {
+                                                            setShowOverlay(false)
                                                             router.push("/portal/spaces")
                                                         }}
                                                     >
@@ -112,6 +121,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                                                 padding="5px"
                                                                 fontSize="12px"
                                                                 onClick={() => {
+                                                                    
                                                                     const url = getSpaceHome(profile, s)
                                                                     router.push(url)
                                                                     setShowOverlay(false)
@@ -139,6 +149,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                             p={2}
                                             color="blue.500"
                                             onClick={() => {
+                                                setShowOverlay(false)
                                                 window.open(`/docs/content/${params.spaceid}`, "_blank")
                                             }}
                                         >
@@ -151,6 +162,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                             p={2}
                                             color="blue.500"
                                             onClick={() => {
+                                                setShowOverlay(false)
                                                 window.open(`/docs/space/${params.spaceid}`, "_blank")
                                             }}
                                         >
@@ -163,6 +175,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                             p={2}
                                             color="blue.500"
                                             onClick={() => {
+                                                setShowOverlay(false)
                                                 window.open(`/docs/management`, "_blank")
                                             }}
                                         >
@@ -179,7 +192,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                             setShowOverlay(false)
                                         }}
                                     >
-                                        SIGN OUT
+                                        {t("layout_overlay_sign_out")}
                                     </Button>
                                 </VStack>
                             </HStack>
@@ -195,10 +208,13 @@ export default function DashboardLayout({ children, params }: { children: React.
                             <VStack w="60" pt={3}>
                                 <Image src={theme!.verticalLogo} maxW="46px"></Image>
                             </VStack>
+                                      
+                            
+
 
                             {(profile.role === "admin" ||  space?.role === "owner" || space?.userFeatures.includes("content")) && <MenuButton
-                                text="Content"
-                                tooltip="Manage content"
+                                text={t("layout_menu_content_subject")}
+                                tooltip={t("layout_menu_content_tooltip")}
                                 icon={<ContentIcon></ContentIcon>}
                                 selected={mainMenu === "content"}
                                 onClick={() => {
@@ -207,8 +223,8 @@ export default function DashboardLayout({ children, params }: { children: React.
                                 }}
                             ></MenuButton>}
                             {(profile.role === "admin" || space?.role === "owner" || space?.userFeatures.includes("asset")) && <MenuButton
-                                text="Assets"
-                                tooltip="Manage assets"
+                                text={t("layout_menu_asset_subject")}
+                                tooltip={t("layout_menu_asset_tooltip")}
                                 icon={<AssetIcon></AssetIcon>}
                                 selected={mainMenu === "asset"}
                                 onClick={() => {
@@ -234,8 +250,8 @@ export default function DashboardLayout({ children, params }: { children: React.
                                 ))}
                             {["admin"].includes(profile.role) && (
                                 <MenuButton
-                                    text="Types"
-                                    tooltip="Manage content types"
+                                    text={t("layout_menu_contenttypes_subject")}
+                                    tooltip={t("layout_menu_contenttypes_tooltip")}
                                     icon={<TypesIcon></TypesIcon>}
                                     selected={mainMenu === "contentType"}
                                     onClick={() => {
@@ -268,8 +284,8 @@ export default function DashboardLayout({ children, params }: { children: React.
 
                             {["admin"].includes(profile.role) && (
                                 <MenuButton
-                                    text="Settings"
-                                    tooltip="Manage system settings"
+                                    text={t("layout_menu_settings_subject")}
+                                    tooltip={t("layout_menu_settings_tooltip")}
                                     icon={<SettingsIcon></SettingsIcon>}
                                     selected={mainMenu === "settings"}
                                     onClick={() => {
@@ -302,7 +318,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                     <Flex background="#fff" height="46px" position={"fixed"} left="80px" right="0" top="0" zIndex={10} alignItems={"center"} justifyContent={"center"}>
                         <Box>
                             {spaces && (
-                                <Tooltip label="Switch space">
+                                <Tooltip label={t("layout_switch_space_tooltip")}>
                                     <Button
                                         variant="ghost"
                                         w="100%"

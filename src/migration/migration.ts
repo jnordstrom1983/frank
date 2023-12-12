@@ -8,7 +8,6 @@ import { Migration6 } from "./migrations/migration_6";
 
 export async function Migrate(){
     let migrations = await collections.migration.findMany({});
-    
     if(!migrations.find(p=>p.version === 1))  await Migration1();
     if(!migrations.find(p=>p.version === 2))  await Migration2();
     if(!migrations.find(p=>p.version === 3))  await Migration3();

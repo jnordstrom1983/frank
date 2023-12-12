@@ -1,14 +1,14 @@
 "use client"
 import { Poppins } from "next/font/google"
 
+import { useTheme } from "@/networking/hooks/theme"
 import { CacheProvider } from "@chakra-ui/next-js"
 import { ChakraProvider } from "@chakra-ui/react"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ThemeContext, getTheme } from "./theme"
 import { useEffect, useState } from "react"
-import { useTheme } from "@/networking/hooks/theme"
-import { createContext } from "vm"
-import { GetThemeResponse, GetThemeResponseSchema } from "../api/theme/get"
+import { ThemeContext, getTheme } from "./theme"
+import { GetClientLanguage } from "@/lib/lang"
+import { useAppStore } from "@/stores/appStore"
 
 
 
@@ -16,8 +16,14 @@ const popins = Poppins({ subsets: ["latin"], weight: ["100", "200", "300", "400"
 
 export function Providers({ children }: { children: React.ReactNode }) {
 
+    const setUiLanguage = useAppStore(state=>state.setUiLanguage)
 
+    useEffect(()=>{
+        const lang = GetClientLanguage()
+        setUiLanguage(lang);
+    }, [])
 
+    
     const [client] = useState(
         new QueryClient({ defaultOptions: { queries: {  refetchOnWindowFocus : false, staleTime : 1000000 } } })
       );

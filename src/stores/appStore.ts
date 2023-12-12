@@ -10,6 +10,8 @@ interface AppStoreState {
     hideMainMenu: () => void
     isSignoutVisible: boolean;
     setSignoutVisible: (visible: boolean) => void;
+    uiLanguage : string;
+    setUiLanguage : (language : string) => void
 }
 
 export const useAppStore = create<AppStoreState>((set, get) => ({
@@ -17,6 +19,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     settingsMenu: "main",
     isMainMenuVisible: true,
     isSignoutVisible: false,
+    uiLanguage : "sv",
     setMainMenu(menu) {
         set({ mainMenu: menu })
     },
@@ -31,6 +34,8 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     },
     setSignoutVisible(visible) {
         set({ isSignoutVisible: visible })
-
+    },
+    setUiLanguage(language){
+        set({uiLanguage : language})
     }
 }))

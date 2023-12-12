@@ -4,6 +4,7 @@ import { SpaceItem } from "@/app/api/space/get"
 import { Empty } from "@/components/Empty"
 import { FilterItem, SelectionList } from "@/components/SelectionList"
 import TextInput from "@/components/TextInput"
+import { usePhrases } from "@/lib/lang"
 import { Content, ContentInternalViewModel } from "@/models/content"
 import { apiClient } from "@/networking/ApiClient"
 import { useContent } from "@/networking/hooks/content"
@@ -42,6 +43,9 @@ import { useEffect, useState } from "react"
 import { ChevronDown, Eye, EyeOff, Layers, Loader, Search, Trash2, X } from "react-feather"
 
 export default function Home({ params }: { params: { spaceid: string } }) {
+
+    const { t } = usePhrases();
+
     const router = useRouter()
     const [mode, setMode] = useState<"list" | "notready" | "loading" | "create">("loading")
     const { profile } = useProfile()
@@ -204,7 +208,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             if (item.folderId) {
                 const folder = folders.find((f) => f.id === item.folderId)
                 if (!folder) {
-                    folders.push({ id: item.folderId, name: item.folderName || "Unknown folder" })
+                    folders.push({ id: item.folderId, name: item.folderName || t("content_page_unknown_folder") })
                 }
             }
             const contenttype = contenttypes.find((c) => c.id === item.contentTypeId)
@@ -243,12 +247,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         })
 
         dates = []
-        if (foundDates.today) dates.push({ id: "today", name: "Today" })
-        if (foundDates.yesterday) dates.push({ id: "yesterday", name: "Yesterday" })
-        if (foundDates.this_month) dates.push({ id: "this_month", name: "This month" })
-        if (foundDates.last_month) dates.push({ id: "last_month", name: "Last month" })
-        if (foundDates.this_year) dates.push({ id: "this_year", name: "This year" })
-        if (foundDates.last_year) dates.push({ id: "last_year", name: "Last year" })
+        if (foundDates.today) dates.push({ id: "today", name: t("today") })
+        if (foundDates.yesterday) dates.push({ id: "yesterday", name:  t("yesterday") })
+        if (foundDates.this_month) dates.push({ id: "this_month", name: t("this_month") })
+        if (foundDates.last_month) dates.push({ id: "last_month", name: t("last_month") })
+        if (foundDates.this_year) dates.push({ id: "this_year", name: t("this_year")})
+        if (foundDates.last_year) dates.push({ id: "last_year", name:t("last_year") })
 
         setFilterFolders(folders)
         setFilterContentTypes(contenttypes)
@@ -298,15 +302,15 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         } catch (ex) {
             setCreateLoading(false)
             toast({
-                title: "Could not create content",
-                description: "Please try again.",
+                title: t("content_page_create_error_title"),
+                description: t("content_page_create_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
         }
     }
 
-    return (
+     return (
         <>
             {mode == "loading" && (
                 <Center h="100vh" w="100%">
@@ -320,10 +324,10 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <HStack spacing="10" padding={10}>
                                 <Layers size="48px"></Layers>
                                 <VStack flex={1} alignItems="flex-start" spacing={5}>
-                                    <Heading>Setup content types first.</Heading>
+                                    <Heading>{t("content_page_not_ready_owner_heading")}</Heading>
                                     <Box color="grey" fontSize="14px">
                                         <VStack w="100%" alignItems="flex-start">
-                                            <Box>Before you can add and manage content you need to setup your Content Types first.</Box>
+                                            <Box>{t("content_page_not_ready_owner_description")}</Box>
                                         </VStack>
                                     </Box>
 
@@ -333,7 +337,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             router.push(`/portal/spaces/${params.spaceid}/contenttype`)
                                         }}
                                     >
-                                        EXPLORE CONTENT TYPES
+                                        {t("content_page_not_ready_owner_button")}
                                     </Button>
                                 </VStack>
                             </HStack>
@@ -343,11 +347,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <HStack spacing="10" padding={10}>
                                 <Loader size="48px"></Loader>
                                 <VStack flex={1} alignItems="flex-start">
-                                    <Heading>This space is not yet ready.</Heading>
+                                    <Heading>{t("content_page_not_ready_user_heading")}</Heading>
                                     <Box color="grey" fontSize="14px">
                                         <VStack w="100%" alignItems="flex-start">
-                                            <Box>This space is not yet fully configured by your space administrators.</Box>
-                                            <Box>Please check back later, or ask your administrtors.</Box>
+                                            <Box>{t("content_page_not_ready_user_description1")}</Box>
+                                            <Box>{t("content_page_not_ready_user_description2")}</Box>
                                         </VStack>
                                     </Box>
                                 </VStack>
@@ -377,15 +381,13 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                         <HStack w="100%" spacing="10" alignItems="flex-start">
                             <Box w="50%">
                                 <VStack alignItems="flex-start" spacing="5">
-                                    <Heading>Create your first content.</Heading>
+                                    <Heading>{t("content_page_create_heading")}</Heading>
                                     <Box color="grey" fontSize="14px">
                                         <Box>
-                                            Content is your basic items that contain all your information. Imagine that content can be a document, an article, a product or just
-                                            whatever you want.
+                                           {t("content_page_create_description1")}
                                         </Box>
                                         <Box mt="5">
-                                            Content belongs to a content type that defines which fields and which information the content can take. To create a new content, select
-                                            which content type the new content should have.
+                                            {t("content_page_create_description2")}
                                         </Box>
                                     </Box>
                                 </VStack>
@@ -393,14 +395,14 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <Box w="50%">
                                 <VStack alignItems="flex-start" spacing="10">
                                     <TextInput
-                                        subject="Content type"
+                                        subject={t("content_page_create_input_subject")}
                                         type="select"
                                         options={contenttypes!.filter((c) => c.enabled).map((c) => ({ key: c.contentTypeId, text: c.name }))}
                                         value={createContentType}
                                         disabled={createLoading}
                                         focus={true}
                                         onChange={setCreateContentType}
-                                        placeholder="Select content type"
+                                        placeholder={t("content_page_create_input_placeholder")}
                                     ></TextInput>
 
                                     <Flex justifyContent="flex-end" w="100%">
@@ -413,7 +415,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 create(createContentType)
                                             }}
                                         >
-                                            CREATE
+                                            {t("create")}
                                         </Button>
                                     </Flex>
                                 </VStack>
@@ -431,64 +433,68 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 <VStack spacing={10} alignItems={"flex-start"} w="100%">
                                 
                                     <SelectionList
-                                        subject="FOLDER"
+                                        subject={t("content_page_filter_folder_subject")}
                                         items={filterFolders}
                                         selectedItemId={filterFolder}
-                                        anyText="Any folder"
+                                        anyText={t("content_page_filter_folder_anytext")}
                                         onClick={setFilterFolder}
                                         onSettings={() => {
                                             router.push(`/portal/spaces/${params.spaceid}/content/folder`)
                                         }}
-                                        settingsTooltip="Manage folders"
+                                        settingsTooltip={t("content_page_filter_folder_tooltip")}
                                     ></SelectionList>
-                                    
+
                                     <SelectionList
-                                        subject="CONTENT TYPE"
+                                        subject={t("content_page_filter_contenttype_subject")}
                                         items={filterContentTypes}
                                         selectedItemId={filterContentType}
                                         onClick={setFilterContentType}
-                                        anyText="Any content type"
+                                        anyText={t("content_page_filter_contenttype_anytext")}
                                         
                                         settingsIcon={showHidden ? <EyeOff></EyeOff> : <Eye></Eye>}
-                                        settingsTooltip={showHidden ?  "Hide hidden content types": "Show hidden content types"}
+                                        settingsTooltip={showHidden ?   t("content_page_filter_contenttype_tooltip_hide") : t("content_page_filter_contenttype_tooltip_show") }
                                         onSettings={() => {
                                             setShowHidden(!showHidden)
                                         }}
                                     ></SelectionList>
 
+
+
+
                                     <SelectionList
-                                        subject="STATUS"
+                                        subject={t("content_page_filter_status_subject")}
                                         items={[
-                                            { id: "draft", name: "Draft" },
-                                            { id: "published", name: "Published" },
-                                            { id: "scheduled", name: "Scheduled" },
+                                            { id: "draft", name: t("content_page_filter_status_status_draft") },
+                                            { id: "published", name: t("content_page_filter_status_status_published")},
+                                            { id: "scheduled", name: t("content_page_filter_status_status_scheduled") },
                                         ]}
                                         selectedItemId={filterStatus}
                                         onClick={setFilterStatus}
-                                        anyText="Any status"
+                                        anyText={t("content_page_filter_status_anytext")}
                                         settingsIcon={<Trash2></Trash2>}
                                         onSettings={() => {
                                             router.push(`/portal/spaces/${params.spaceid}/content/trash`)
                                         }}
-                                        settingsTooltip="View trash"
+                                        settingsTooltip={t("content_page_filter_status_tooltip")}
                                     ></SelectionList>
+  
 
-                                    <SelectionList subject="MODIFIED BY" items={filterUsers} selectedItemId={filterUser} onClick={setFilterUser} anyText="Any user"></SelectionList>
+                                    <SelectionList subject={t("content_page_filter_modifiedby_subject")} items={filterUsers} selectedItemId={filterUser} onClick={setFilterUser} anyText={t("content_page_filter_modifiedby_anytext")}></SelectionList>
 
-                                    <SelectionList subject="MODIFIED" items={filterDates} selectedItemId={filterDate} onClick={setFilterDate} anyText="Whenever"></SelectionList>
+                                    <SelectionList subject={t("content_page_filter_modified_subject")} items={filterDates} selectedItemId={filterDate} onClick={setFilterDate} anyText={t("content_page_filter_modified_anytext")}></SelectionList>
                                 </VStack>
                             </Flex>
                             <Flex flex={1}>
                                 <Box p={10} w="100%" maxW="1400px">
                                     <HStack w="100%" alignItems={"center"} gap={10}>
-                                        <Heading>All content</Heading>
+                                        <Heading>{t("content_page_list_heading")}</Heading>
                                         <Box flex={1}>
                                             <HStack justifyContent={"flex-start"} gap={3}>
                                                 <Search></Search>
                                                 <Box w="300px">
                                                     <TextInput
                                                         value=""
-                                                        placeholder="Search for content"
+                                                        placeholder={t("content_page_list_search_placeholder")}
                                                         bg="#fff"
                                                         focus={true}
                                                         onChange={setFilterSearch}
@@ -500,7 +506,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                         {contenttypes.filter((item) => creatableContentTypes.includes(item.contentTypeId)).length > 0 && (
                                             <Menu>
                                                 {contenttypes.filter((item) => creatableContentTypes.includes(item.contentTypeId)).length === 1 ? (
-                                                    <Tooltip label={`Create content of type ${contenttypes.find((item) => creatableContentTypes.includes(item.contentTypeId))!.name}`}>
+                                                    <Tooltip label={t("content_page_list_create_tooltip", contenttypes.find((item) => creatableContentTypes.includes(item.contentTypeId))!.name)}>
                                                         <Button
                                                             colorScheme="green"
                                                             width="150px"
@@ -508,7 +514,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                                 create(contenttypes.find((item) => creatableContentTypes.includes(item.contentTypeId))!.contentTypeId)
                                                             }}
                                                         >
-                                                            CREATE
+                                                            {t("create")}
                                                         </Button>
                                                     </Tooltip>
                                                 ) : (
@@ -523,7 +529,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                                 isDisabled={createLoading}
                                                             >
                                                                 <HStack w="100%" justifyContent={"center"}>
-                                                                    <Box>CREATE</Box>
+                                                                    <Box>{t("create")}</Box>
                                                                     <ChevronDown></ChevronDown>
                                                                 </HStack>
                                                             </MenuButton>
@@ -552,12 +558,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             <Table w="100%">
                                                 <Thead>
                                                     <Tr>
-                                                        <Th>TITLE</Th>
+                                                        <Th>{t("content_page_list_table_header_title")}</Th>
 
-                                                        <Th w="20%">MODIFIED</Th>
+                                                        <Th w="20%">{t("content_page_list_table_header_modified")}</Th>
 
-                                                        <Th w="10%" minWidth="150px">STATUS</Th>
-                                                        
+                                                        <Th w="10%" minWidth="150px">{t("content_page_list_table_header_status")}</Th>
+
                                                     </Tr>
                                                 </Thead>
                                                 <Tbody>
@@ -585,16 +591,16 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                                 {item.status == "draft" ? (
                                                                     item.scheduledPublishDate ? (
                                                                         <Tag colorScheme="orange" ml={5}>
-                                                                            SCHEDULED
+                                                                            {t("content_page_list_table_status_scheduled")}
                                                                         </Tag>
                                                                     ) : (
                                                                         <Tag colorScheme="red" ml={5}>
-                                                                            DRAFT
+                                                                            {t("content_page_list_table_status_draft")}
                                                                         </Tag>
                                                                     )
                                                                 ) : (
                                                                     <Tag colorScheme="green" ml={5}>
-                                                                        PUBLISHED
+                                                                        {t("content_page_list_table_status_published")}
                                                                     </Tag>
                                                                 )}
                                                             </Td>
@@ -604,7 +610,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 </Tbody>
                                             </Table>
                                         ) : (
-                                            <Empty message="No items found."></Empty>
+                                            <Empty message={t("content_page_list_empty")}></Empty>
                                         )}
                                     </Box>
                                 </Box>
