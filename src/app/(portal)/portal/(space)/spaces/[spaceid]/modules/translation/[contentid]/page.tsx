@@ -38,7 +38,7 @@ import {
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AlertTriangle, Check, Copy, Edit2, Flag, Sliders, Trash2 } from "react-feather"
-import { languages as allLanguages } from "@/lib/constants"
+
 import { EditorLanguages } from "@/components/ContentEditor/Editor"
 import { Empty } from "@/components/Empty"
 import TextInput from "@/components/TextInput"
@@ -52,6 +52,7 @@ import { PostAIRequest, PostAIResponse } from "@/app/api/space/[spaceid]/ai/post
 import { GetAITaskItemResponse } from "@/app/api/space/[spaceid]/ai/task/[taskid]/get"
 import CopyToClipboard from "react-copy-to-clipboard"
 import { progress } from "framer-motion"
+import { getAllLangauges } from "@/lib/lang"
 
 interface LanguageData {
     [key: string]: Record<string, any>
@@ -86,6 +87,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
     const [translateAllProgress, setTranslateAllProgress] = useState<number>(0)
     const { isOpen: isDeleteTranslationOpen, onOpen: onDeleteTranslationOpen, onClose: onDeleteTranslationClose } = useDisclosure()
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
+    const allLanguages = getAllLangauges();
     useEffect(() => {
         if (!content) return
         if (!contenttype) return
@@ -1178,6 +1180,7 @@ function SingleTranslationButton({
 }
 
 function getLanguageTitle(language: string) {
+    const allLanguages= getAllLangauges()
     const lang = allLanguages.find((al) => al.code === language)
     if (!lang) return "N/A"
 
@@ -1185,6 +1188,7 @@ function getLanguageTitle(language: string) {
 }
 
 function getLanguageName(language: string) {
+    const allLanguages = getAllLangauges();
     const lang = allLanguages.find((al) => al.code === language)
     if (!lang) return "N/A"
 

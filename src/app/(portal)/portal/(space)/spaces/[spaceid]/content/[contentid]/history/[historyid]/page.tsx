@@ -10,13 +10,14 @@ import { Box, Center, Container, Divider, HStack, Heading, Spinner, Table, Tag, 
 
 import { useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
-import { languages as allLanguages } from "@/lib/constants"
+
 import { apiClient } from "@/networking/ApiClient"
 import { PutHistoryItemResponse } from "@/app/api/space/[spaceid]/content/[contentid]/history/[historyid]/put"
 import { useQueryClient } from "@tanstack/react-query"
 import dayjs from "dayjs"
 
 import relativeTime from "dayjs/plugin/relativeTime"
+import { getAllLangauges, usePhrases } from "@/lib/lang"
 dayjs.extend(relativeTime)
 
 
@@ -30,6 +31,9 @@ export default function History({ params }: { params: { spaceid: string; content
     const { item: historyItem, isLoading: isHistoryLoading } = useHistoryItem(params.spaceid, params.contentid, params.historyid, {})
     const [languages, setLanguages] = useState<SpaceLanguage[]>([])
     const [restoreLoading, setRestoreLoading] = useState<boolean>(false)
+    const allLanguages = getAllLangauges()
+    const { t } = usePhrases();
+    
     useEffect(() => {
         hideMainMenu()
         return () => {
@@ -74,7 +78,7 @@ export default function History({ params }: { params: { spaceid: string; content
 
     function renderValue(value: any) {
         if (typeof (value) === "string") {
-            if (value === "") return "[Empty]"
+            if (value === "") return t("history_item_empty")
             return value;
         }
         if (typeof (value) === "number") {
@@ -96,8 +100,8 @@ export default function History({ params }: { params: { spaceid: string; content
                 content && historyItem && (
                     <>
                         <SaveMenuBar
-                            neutralText="BACK"
-                            positiveText={content.content.activeHistoryId !== params.historyid ? "RESTORE VERSION" : undefined}
+                            neutralText={t("history_item_back")}
+                            positiveText={content.content.activeHistoryId !== params.historyid ? t("history_item_restore"): undefined}
                             onClose={() => {
                                 router.back();
 
@@ -125,11 +129,11 @@ export default function History({ params }: { params: { spaceid: string; content
                             }}
                         >
                             <HStack spacing={2}>
-                                <Box as="span">Revision </Box>
+                                <Box as="span">{t("history_item_revision")} </Box>
                                 <Box as="span" fontWeight={"bold"}>
                                     #{historyItem.revision}
                                 </Box>
-                                <Box as="span">of</Box>
+                                <Box as="span">{t("history_item_of")}</Box>
                                 <Box as="span" fontWeight={"bold"}>
                                     {getTitle()}
                                 </Box>
@@ -140,7 +144,7 @@ export default function History({ params }: { params: { spaceid: string; content
                                 <HStack spacing={20} alignItems="flex-start">
 
                                     <Box w="250px">
-                                        <Box fontWeight="bold" mb={5}>REVISIONS</Box>
+                                        <Box fontWeight="bold" mb={5}>{t("history_item_revisions")}</Box>
                                         <VStack w="100%" alignItems={"flex-start"} divider={<Divider></Divider>}>
                                             {content.historyItems.map((history, index) => (
                                                 <Button
@@ -158,7 +162,7 @@ export default function History({ params }: { params: { spaceid: string; content
                                                             {dayjs(history.date).fromNow()}
                                                         </Box>
                                                         <Box fontSize="12px" color="gray.500" flex={1} textAlign="right">
-                                                            ({history.changes} {history.changes > 1 ? "changes" : "change"})
+                                                            ({history.changes} {history.changes > 1 ? t("history_item_changes") : t("history_item_change") })
                                                         </Box>
                                                     </HStack>
                                                 </Button>
@@ -176,7 +180,7 @@ export default function History({ params }: { params: { spaceid: string; content
                                                 >
                                                     <HStack w="100%" spacing="3">
                                                         <Box fontWeight={"bold"}>{content.historyItems.length - 3}</Box>
-                                                        <Box>more {content.historyItems.length > 4 ? "changes" : "change"}</Box>
+                                                        <Box>more {content.historyItems.length > 4 ? t("history_item_changes") : t("history_item_change")}</Box>
                                                     </HStack>
                                                 </Button>
                                             )}
@@ -187,11 +191,11 @@ export default function History({ params }: { params: { spaceid: string; content
                                     <VStack spacing={10} w="100%" alignItems={"flex-start"}>
 
                                         <Flex gap={1} flexWrap="wrap">
-                                            <Box as="span">Showing</Box>
+                                            <Box as="span">{t("history_item_showing")}</Box>
                                             <Box as="span" fontWeight="bold">{historyItem.changes.length}</Box>
-                                            <Box as="span">{historyItem.changes.length > 1 ? "changes" : "change"}  made by</Box>
+                                            <Box as="span">{historyItem.changes.length > 1 ? t("history_item_changes") : t("history_item_change")}  {t("history_item_madeby")}</Box>
                                             <Box as="span" fontWeight="bold"> {historyItem.userName}</Box>
-                                            <Box as="span">on</Box>
+                                            <Box as="span">{t("history_item_on_date")}</Box>
                                             <Box as="span" fontWeight="bold"> {dayjs(historyItem.date).format("YYYY-MM-DD HH:mm")}</Box>
 
 

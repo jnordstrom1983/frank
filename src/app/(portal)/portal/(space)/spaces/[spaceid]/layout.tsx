@@ -76,7 +76,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                 <Image src={theme!.horizontalLogo} w="150px"></Image>
                                 <Flex flex={1}></Flex>
                                 <Box width="200px">
-                                    <TextInput type="select"  options={languageOptions} value={uiLanguage} onChange={setUiLanguage}></TextInput>
+                                    <TextInput type="select"  options={languageOptions} value={uiLanguage} onChange={(lang) => { setUiLanguage(lang);  setShowOverlay(false)}}></TextInput>
                                 </Box>
 
                                 <Button

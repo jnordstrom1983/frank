@@ -17,7 +17,6 @@ export function FieldEditorObject({ value, field, onChange }: { value: any; fiel
     }, [value])
 
     function internalOnChange(value: { [key: string]: string }) {
-        console.log("Internal change", value)
         setInternalValue(value)
         onChange(value)
     }

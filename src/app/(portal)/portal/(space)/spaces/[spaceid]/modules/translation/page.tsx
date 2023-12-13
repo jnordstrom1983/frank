@@ -1,29 +1,24 @@
 "use client"
-import { Box, Button, Center, Container, Flex, Heading, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Table, Tag, Tbody, Td, Th, Thead, Tr, useToast, VStack } from "@chakra-ui/react"
-import React, { useEffect, useState } from "react"
-import Link from "next/link"
 import TextInput from "@/components/TextInput"
-import { Inbox, Loader, Search, Sliders, Trash2, X } from "react-feather"
-import { PostSpaceRequest, PostSpaceResponse } from "@/app/api/space/post"
 import { apiClient } from "@/networking/ApiClient"
-import { useQueryClient } from "@tanstack/react-query"
 import { useSpaces } from "@/networking/hooks/spaces"
+import { Box, Button, Center, Container, Flex, Heading, HStack, Spinner, Table, Tag, Tbody, Td, Th, Thead, Tr, useToast, VStack } from "@chakra-ui/react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import { Search, X } from "react-feather"
 import { z } from "zod"
-import { languages } from "@/lib/constants"
-import { useRouter } from "next/navigation"
-import { useProfile } from "@/networking/hooks/user"
-import { useContentypes } from "@/networking/hooks/contenttypes"
-import { PostContentTypeRequest, PostContenTypeResponse } from "@/app/api/space/[spaceid]/contenttype/post"
-import { SelectionList } from "@/components/SelectionList"
-import { Empty } from "@/components/Empty"
-import { useContent } from "@/networking/hooks/content"
-import { Content, ContentInternalViewModel } from "@/models/content"
-import dayjs from "dayjs"
-import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
-import { PostContentRequest } from "@/app/api/space/[spaceid]/content/post"
+
 import { PutContentItemRequest, PutContentItemResponse } from "@/app/api/space/[spaceid]/content/[contentid]/put"
-import { slugify } from "@/lib/utils"
-import { SpaceLanguage } from "@/models/space"
+import { PostContentRequest } from "@/app/api/space/[spaceid]/content/post"
+import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
+import { PostContentTypeRequest, PostContenTypeResponse } from "@/app/api/space/[spaceid]/contenttype/post"
+import { Empty } from "@/components/Empty"
+import { SelectionList } from "@/components/SelectionList"
+import { Content, ContentInternalViewModel } from "@/models/content"
+import { useContent } from "@/networking/hooks/content"
+import { useProfile } from "@/networking/hooks/user"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
 export default function Home({ params }: { params: { spaceid: string } }) {
     const router = useRouter()
     const [mode, setMode] = useState<"list" | "create" | "loading">("loading")
@@ -43,7 +38,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     useEffect(() => {
         if (!items) return
         const filtered = items.filter((item) => {
-       
+
             if (item.managedByModule !== "translation") return false
             if (filterStatus) {
                 if (item.status !== filterStatus) return false
@@ -89,7 +84,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 path: `/space/${params.spaceid}/contenttype/${contentTypeCreateResponse.contenttype.contentTypeId}`,
                 isAuthRequired: true,
                 body: {
-                    name : `Translation - ${name}`,
+                    name: `Translation - ${name}`,
                     enabled: true,
                     fields: [
                         {
@@ -101,12 +96,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             title: true,
                             validators: { required: { enabled: true }, unique: { enabled: false }, minLength: { enabled: false, min: 0 }, maxLength: { enabled: true, max: 4096 } },
                             settings: [],
-                            output : false
+                            output: false
                         },
                     ],
                     generateSlug: true,
                     hidden: true,
-                    
+
                 },
             })
 
@@ -130,12 +125,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             const contentUpdateResponse = await apiClient.put<PutContentItemResponse, PutContentItemRequest>({
                 path: `/space/${params.spaceid}/content/${contentCreateResponse.contentId}`,
                 isAuthRequired: true,
-                body : {
+                body: {
                     status: "draft",
                     data: [{
-                        languageId : space.defaultLanguage,
-                        data : {
-                            __name : name 
+                        languageId: space.defaultLanguage,
+                        data: {
+                            __name: name
                         }
                     }]
                 }

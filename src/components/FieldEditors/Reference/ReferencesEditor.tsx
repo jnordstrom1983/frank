@@ -3,6 +3,7 @@ import { PostContentRequest } from "@/app/api/space/[spaceid]/content/post"
 import Editor from "@/components/ContentEditor/Editor"
 import { Empty } from "@/components/Empty"
 import TextInput from "@/components/TextInput"
+import { usePhrases } from "@/lib/lang"
 import { Content, ContentInternalViewModel } from "@/models/content"
 import { apiClient } from "@/networking/ApiClient"
 import { useContent } from "@/networking/hooks/content"
@@ -78,6 +79,7 @@ export function ReferencesEditor({
     const [createLoading, setCreateLoading] = useState<boolean>(false)
     const queryClient = useQueryClient()
     const toast = useToast()
+    const { t }  = usePhrases();
 
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event
@@ -178,8 +180,8 @@ export function ReferencesEditor({
         } catch (ex) {
             setCreateLoading(false)
             toast({
-                title: "Could not create content",
-                description: "Please try again.",
+                title: t("asseteditor_could_not_create_title"),
+                description: t("asseteditor_could_not_create_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -219,8 +221,8 @@ export function ReferencesEditor({
 
                             editable ? <HStack>
                                 {enableSelect && (multiple || internalValue.length < 1) && (
-                                    <Button w="150px" onClick={() => setShowPickContent(true)}>
-                                        {multiple ? "ADD" : "SELECT"} EXISTING
+                                    <Button minW="150px" onClick={() => setShowPickContent(true)}>
+                                        {multiple ? t("asseteditor_add_existing"): t("asseteditor_select_existing")} 
                                     </Button>
                                 )}
                                 {enableCreate && (multiple || internalValue.length < 1) && (
@@ -234,14 +236,14 @@ export function ReferencesEditor({
                                                         create(allContenttypes!.filter((item) => contentTypes.includes("__all__") || contentTypes.includes(item.contentTypeId))[0].contentTypeId)
                                                 }}
                                             >
-                                                CREATE
+                                                {t("asseteditor_create")}
                                             </Button>
                                         ) : (
                                             ({ isOpen }) => (
                                                 <>
                                                     <MenuButton isActive={isOpen} as={Button} width="150px" isLoading={createLoading} isDisabled={createLoading}>
                                                         <HStack w="100%" justifyContent={"center"}>
-                                                            <Box>CREATE</Box>
+                                                            <Box>{t("asseteditor_create")}</Box>
                                                             <ChevronDown></ChevronDown>
                                                         </HStack>
                                                     </MenuButton>
@@ -265,7 +267,7 @@ export function ReferencesEditor({
                                     </Menu>
                                 )}
                             </HStack>
-                                : <Box>No related content selected.
+                                : <Box>{t("asseteditor_no_related_selected")}
                                 </Box>
                         )}
 
@@ -446,6 +448,8 @@ function PickContent({ spaceId, contentTypes, onCancel, onSelect }: { spaceId: s
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [filteredItems, setFilteredItems] = useState<ContentInternalViewModel[]>([])
     const [filterText, setFilterText] = useState<string>("")
+    const { t } = usePhrases();
+
     useEffect(() => {
         if (!contenttypes) return
         if (!allItems) return
@@ -472,7 +476,7 @@ function PickContent({ spaceId, contentTypes, onCancel, onSelect }: { spaceId: s
             <ModalOverlay />
             <ModalContent maxW="600px" maxH="90%">
                 <ModalHeader pt={10} px={10} pb={0}>
-                    Select content
+                    {t("asseteditor_pick_heading")}
                 </ModalHeader>
                 <ModalCloseButton right={10} top={10} />
                 <ModalBody overflow="auto" p={10}>
@@ -482,9 +486,9 @@ function PickContent({ spaceId, contentTypes, onCancel, onSelect }: { spaceId: s
                         </Flex>
                     ) : (
                         <VStack w="100%" spacing={10}>
-                            <TextInput value={filterText} onChange={setFilterText} placeholder="Enter text to search for content"></TextInput>
+                            <TextInput value={filterText} onChange={setFilterText} placeholder={t("asseteditor_pick_search_placeholder")}></TextInput>
                             {filteredItems.length === 0 ? (
-                                <Empty message="No content found"></Empty>
+                                <Empty message={t("asseteditor_pick_no_content_found")}></Empty>
                             ) : (
                                 <VStack w="100%" alignItems={"flex-start"} spacing={3}>
                                     {filteredItems.map((item) => {
@@ -524,7 +528,7 @@ function PickContent({ spaceId, contentTypes, onCancel, onSelect }: { spaceId: s
                             onSelect(selectedContent)
                         }}
                     >
-                        Select
+                        {t("asseteditor_pick_button")}
                     </Button>
                     <Button
                         variant="ghost"
@@ -532,7 +536,7 @@ function PickContent({ spaceId, contentTypes, onCancel, onSelect }: { spaceId: s
                             onCancel()
                         }}
                     >
-                        Cancel
+                        {t("cancel")}
                     </Button>
                 </ModalFooter>
             </ModalContent>
@@ -542,12 +546,13 @@ function PickContent({ spaceId, contentTypes, onCancel, onSelect }: { spaceId: s
 
 function ContentEditorPopup({ spaceId, contentId, onCancel, onSaved }: { spaceId: string; contentId: string; onCancel: () => void; onSaved: () => void }) {
     const [title, setTitle] = useState<string>("")
+    const { t } = usePhrases();
     return (
         <Modal isOpen={true} onClose={onCancel} isCentered={true}>
             <ModalOverlay />
             <ModalContent maxW="1100px" w="90%" maxH="90%" minH="80%">
                 <ModalHeader pt={10} px={10} pb={0} fontWeight={"normal"}>
-                    Edit{" "}
+                    {t("asseteditor_editor_heading")}{" "}
                     <Box as="span" fontWeight={"bold"}>
                         {title}
                     </Box>

@@ -1,24 +1,16 @@
 "use client"
 import { AssetInternalViewModel } from "@/app/api/space/[spaceid]/asset/get"
-import { PostContentRequest } from "@/app/api/space/[spaceid]/content/post"
-import Editor from "@/components/ContentEditor/Editor"
 import { Empty } from "@/components/Empty"
 import TextInput from "@/components/TextInput"
 import { UploadButton } from "@/components/UploadButton"
-import { Content, ContentInternalViewModel } from "@/models/content"
-import { apiClient } from "@/networking/ApiClient"
+import { usePhrases } from "@/lib/lang"
 import { useAssets } from "@/networking/hooks/asset"
-import { useContent } from "@/networking/hooks/content"
-import { useContentypes } from "@/networking/hooks/contenttypes"
 import {
     Box,
     Button,
     Flex,
     HStack,
-    Menu,
-    MenuButton,
-    MenuItem,
-    MenuList,
+    Image,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -28,8 +20,7 @@ import {
     ModalOverlay,
     Spinner,
     VStack,
-    useToast,
-    Image,
+    useToast
 } from "@chakra-ui/react"
 import { DndContext, DragEndEvent, DraggableAttributes, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core"
 import { SyntheticListenerMap } from "@dnd-kit/core/dist/hooks/utilities"
@@ -38,7 +29,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { useQueryClient } from "@tanstack/react-query"
 
 import { useEffect, useState } from "react"
-import { AlignJustify, ChevronDown, X } from "react-feather"
+import { AlignJustify, X } from "react-feather"
 import { ZodArray, ZodOptional, ZodString } from "zod"
 
 export function AssetEditor({
@@ -81,6 +72,7 @@ export function AssetEditor({
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const queryClient = useQueryClient()
     const toast = useToast()
+    const { t } = usePhrases();
 
     function handleDragEnd(event: DragEndEvent) {
         const { active, over } = event
@@ -186,12 +178,13 @@ export function AssetEditor({
                             editable ? <HStack>
                                 {enableSelect && (multiple || internalValue.length < 1) && (
                                     <Button w="150px" onClick={() => setShowPickAsset(true)}>
-                                        {multiple ? "ADD" : "SELECT"} EXISTING
+                                        xx
+                                        {multiple ? t("field_editor_asset_add_existing") : t("field_editor_asset_select_existing")}
                                     </Button>
                                 )}
                                 {enableCreate && (multiple || internalValue.length < 1) && (
                                     //type={asset.type === "image" ? "image" : "file"}
-                                    <UploadButton positiveImageButtonText="Upload" type={type} width={imageWidth} height={imageHeight} colorScheme="gray" text={`UPLOAD`} spaceId={spaceId} onUploaded={(asset) => {
+                                    <UploadButton positiveImageButtonText={t("field_editor_asset_uploadbutton_text1")} type={type} width={imageWidth} height={imageHeight} colorScheme="gray" text={t("field_editor_asset_uploadbutton_text2")} spaceId={spaceId} onUploaded={(asset) => {
                                         queryClient.invalidateQueries([["asset", spaceId]]);
                                         let newValue = [...internalValue]
                                         if (!multiple) {
@@ -210,7 +203,7 @@ export function AssetEditor({
 
                                 )}
                             </HStack>
-                                : <Box>No asset selected.
+                                : <Box>{t("field_editor_asset_noasset")}
                                 </Box>
                         )}
 
@@ -363,7 +356,7 @@ function RenderItem({
     )
 }
 function PickAsset({ spaceId, onCancel, onSelect, type }: { spaceId: string; onCancel: () => void; onSelect: (contentId: string) => void, type: "file" | "image" }) {
-
+    const { t } = usePhrases();
     const { items: allItems, isLoading: isContentLoading } = useAssets(spaceId, {})
     const [isLoading, setIsLoading] = useState<boolean>(true)
     const [filteredItems, setFilteredItems] = useState<AssetInternalViewModel[]>([])
@@ -393,7 +386,7 @@ function PickAsset({ spaceId, onCancel, onSelect, type }: { spaceId: string; onC
             <ModalOverlay />
             <ModalContent maxW="600px" maxH="90%">
                 <ModalHeader pt={10} px={10} pb={0}>
-                    Select asset
+                    {t("field_editor_asset_pick_heading")}
                 </ModalHeader>
                 <ModalCloseButton right={10} top={10} />
                 <ModalBody overflow="auto" p={10}>
@@ -403,9 +396,9 @@ function PickAsset({ spaceId, onCancel, onSelect, type }: { spaceId: string; onC
                         </Flex>
                     ) : (
                         <VStack w="100%" spacing={10}>
-                            <TextInput value={filterText} focus={true} onChange={setFilterText} placeholder="Enter text to search for assets"></TextInput>
+                            <TextInput value={filterText} focus={true} onChange={setFilterText} placeholder={t("field_editor_asset_pick_search_placeholder")}></TextInput>
                             {filteredItems.length === 0 ? (
-                                <Empty message="No asset found"></Empty>
+                                <Empty message={t("field_editor_asset_pick_no_assets_found")}></Empty>
                             ) : (
                                 <VStack w="100%" alignItems={"flex-start"} spacing={3}>
                                     {filteredItems.map((item) => {
@@ -449,7 +442,7 @@ function PickAsset({ spaceId, onCancel, onSelect, type }: { spaceId: string; onC
                             onSelect(selectedAsset)
                         }}
                     >
-                        Select
+                        {t("field_editor_asset_pick_button")}
                     </Button>
                     <Button
                         variant="ghost"
@@ -457,7 +450,7 @@ function PickAsset({ spaceId, onCancel, onSelect, type }: { spaceId: string; onC
                             onCancel()
                         }}
                     >
-                        Cancel
+                        {t("cancel")}
                     </Button>
                 </ModalFooter>
             </ModalContent>

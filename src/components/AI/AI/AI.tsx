@@ -17,6 +17,7 @@ import { GetAITaskItemResponse } from "@/app/api/space/[spaceid]/ai/task/[taskid
 import { AICheck } from "./AICheck"
 import { AITranslate } from "./AITranslate"
 import { AIReprahse } from "./AIRephrase"
+import { usePhrases } from "@/lib/lang"
 
 export type AIState = "loading" | "prepare" | "processing" | "done"
 
@@ -40,6 +41,7 @@ export function AI({
     const [state, setState] = useState<AIState>("loading")
     const [taskDescription, setTaskDescription] = useState<ReactElement>()
     const toast = useToast()
+    const { t } = usePhrases();
 
     const [taskTitle, setTaskTitle] = useState<string>("")
     const [taskId, setTaskId] = useState<string>("")
@@ -62,7 +64,7 @@ export function AI({
                 }
                 if(response.state === "error"){
                     toast({
-                        title: "AI could not generate a response ",
+                        title: t("ai_error"),
                         status: "error",
                         position: "bottom-right"
                     })
@@ -167,7 +169,7 @@ export function AI({
                                 <Box backgroundColor="#F8F8F8" borderRadius="15px" padding={10} w="100%">
                                     <HStack spacing={10} width="100%">
                                         <VStack flex={1} alignItems={"flex-start"}>
-                                            <Box>Preparing, please wait...</Box>
+                                            <Box>{t("ai_loading")}</Box>
                                         </VStack>
                                         <Box>
                                             <Spinner colorScheme="blue" size="lg"></Spinner>
@@ -180,7 +182,7 @@ export function AI({
                                 <Box backgroundColor="#F8F8F8" borderRadius="15px" padding={10} w="100%">
                                     <HStack spacing={10} width="100%">
                                         <VStack flex={1} alignItems={"flex-start"}>
-                                            <Box fontSize="20px">AI Task</Box>
+                                            <Box fontSize="20px">{t("ai_task")}</Box>
                                             <Box>{taskDescription}</Box>
                                         </VStack>
                                         <Button
@@ -190,7 +192,7 @@ export function AI({
                                                 setState("processing")
                                             }}
                                         >
-                                            START
+                                            {t("ai_start")}
                                         </Button>
                                     </HStack>
                                 </Box>
@@ -200,7 +202,7 @@ export function AI({
                                 <Box backgroundColor="#F8F8F8" borderRadius="15px" padding={10} w="100%">
                                     <HStack spacing={10} width="100%">
                                         <VStack flex={1} alignItems={"flex-start"}>
-                                            <Box>Processing, please wait...</Box>
+                                            <Box>{t("ai_processing")}</Box>
                                         </VStack>
                                         <Box>
                                             <Spinner colorScheme="blue" size="lg"></Spinner>

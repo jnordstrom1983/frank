@@ -19,7 +19,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     settingsMenu: "main",
     isMainMenuVisible: true,
     isSignoutVisible: false,
-    uiLanguage : "sv",
+    uiLanguage :  "en",
     setMainMenu(menu) {
         set({ mainMenu: menu })
     },
@@ -36,6 +36,7 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
         set({ isSignoutVisible: visible })
     },
     setUiLanguage(language){
+        localStorage.setItem("FRANK_LANGUAGE", language)
         set({uiLanguage : language})
     }
 }))

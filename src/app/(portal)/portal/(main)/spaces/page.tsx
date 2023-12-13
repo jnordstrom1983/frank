@@ -9,9 +9,10 @@ import { apiClient } from "@/networking/ApiClient"
 import { useQueryClient } from "@tanstack/react-query"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { z } from "zod"
-import { languages } from "@/lib/constants"
+
 import { useRouter } from "next/navigation"
 import { useProfile } from "@/networking/hooks/user"
+import { getAllLangauges } from "@/lib/lang"
 export default function Home() {
     const router = useRouter()
     const [mode, setMode] = useState<"list" | "create" | "loading">("loading")
@@ -23,6 +24,7 @@ export default function Home() {
     const queryClient = useQueryClient()
     const { profile } = useProfile()
     const { spaces, isLoading: isSpacesLoading } = useSpaces({ enabled: true })
+    const languages = getAllLangauges();
     const languageOptions = languages.map((l) => ({ key: l.code, text: l.name }))
     useEffect(() => {
         if (!profile) return
