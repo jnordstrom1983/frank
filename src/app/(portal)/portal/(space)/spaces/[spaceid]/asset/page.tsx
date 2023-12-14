@@ -4,6 +4,7 @@ import { Empty } from "@/components/Empty"
 import { FilterItem, SelectionList } from "@/components/SelectionList"
 import TextInput from "@/components/TextInput"
 import { UploadButton } from "@/components/UploadButton"
+import { usePhrases } from "@/lib/lang"
 import { AssetInternalViewModel } from "@/models/asset"
 import { useAssets, useAssetFolders } from "@/networking/hooks/asset"
 import { useFolders } from "@/networking/hooks/folder"
@@ -30,6 +31,7 @@ import { Search } from "react-feather"
 
 export default function Home({ params }: { params: { spaceid: string } }) {
     const router = useRouter()
+    const { t } = usePhrases();
     const [mode, setMode] = useState<"list" | "loading">("loading")
     const { profile } = useProfile()
     const { spaces, isLoading: isSpacesLoading } = useSpaces({ enabled: true })
@@ -91,7 +93,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             if (item.assetFolderId) {
                 const folder = folders.find((f) => f.id === item.assetFolderId)
                 if (!folder) {
-                    folders.push({ id: item.assetFolderId, name: item.folderName || "Unknown folder" })
+                    folders.push({ id: item.assetFolderId, name: item.folderName || t("asset_home_unknown_folder") })
                 }
             }
 
@@ -139,12 +141,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 <VStack spacing={10} alignItems={"flex-start"} w="100%">
                                     {space!.role === "owner" || profile?.role === "admin" ? (
                                         <SelectionList
-                                            subject="FOLDER"
+                                            subject={t("asset_home_list_filter_folder_subject")}
                                             items={filterFolders}
                                             selectedItemId={filterFolder}
-                                            anyText="Any folder"
+                                            anyText={t("asset_home_list_filter_folder_anytext")}
                                             onClick={setFilterFolder}
-                                            settingsTooltip="Manage folders"
+                                            settingsTooltip={t("asset_home_list_filter_folder_tooltip")}
                                             onSettings={() => {
                                                 router.push(`/portal/spaces/${params.spaceid}/asset/folder`)
                                             }}
@@ -152,31 +154,31 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                     ) : (
                                         <SelectionList
                                             minElements={1}
-                                            subject="FOLDER"
+                                            subject={t("asset_home_list_filter_folder_subject")}
                                             items={filterFolders}
                                             selectedItemId={filterFolder}
-                                            anyText="Any folder"
+                                            anyText={t("asset_home_list_filter_folder_anytext")}
                                             onClick={setFilterFolder}
                                         ></SelectionList>
                                     )}
 
                                     <SelectionList
-                                        subject="TYPE"
+                                        subject={t("asset_home_list_filter_type_subject")}
                                         items={filterTypes}
                                         selectedItemId={filterType}
                                         onClick={setFilterType}
-                                        anyText="Any type"
+                                        anyText={t("asset_home_list_filter_type_anytext")}
                                     ></SelectionList>
 
                                     <SelectionList
-                                        subject="STATUS"
+                                        subject={t("asset_home_list_filter_status_subject")}
                                         items={[
-                                            { id: "enabled", name: "Enabled" },
-                                            { id: "disabled", name: "Disabled" },
+                                            { id: "enabled", name: t("asset_home_list_filter_status_enabled") },
+                                            { id: "disabled", name: t("asset_home_list_filter_status_disabled") },
                                         ]}
                                         selectedItemId={filterStatus}
                                         onClick={setFilterStatus}
-                                        anyText="Any status"
+                                        anyText={t("asset_home_list_filter_status_anytext")}
                                     ></SelectionList>
 
                                 </VStack>
@@ -184,14 +186,14 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <Flex flex={1}>
                                 <Box p={10} w="100%" maxW="1400px">
                                     <HStack w="100%" alignItems={"center"} gap={10}>
-                                        <Heading>All assets</Heading>
+                                        <Heading>{t("asset_home_list_heading")}</Heading>
                                         <Box flex={1}>
                                             <HStack justifyContent={"flex-start"} gap={3}>
                                                 <Search></Search>
                                                 <Box w="300px">
                                                     <TextInput
                                                         value=""
-                                                        placeholder="Search for assets"
+                                                        placeholder={t("asset_home_list_serach_placeholder")}
                                                         bg="#fff"
                                                         focus={true}
                                                         onChange={setFilterSearch}
@@ -201,7 +203,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             </HStack>
                                         </Box>
                                         
-                                            <UploadButton text="Create" spaceId={params.spaceid} onUploaded={(asset) => {
+                                            <UploadButton text={t("asset_home_list_create_button")} spaceId={params.spaceid} onUploaded={(asset) => {
                                                 queryClient.invalidateQueries([["asset"]]);
                                                 router.push(`/portal/spaces/${params.spaceid}/asset/${asset.assetId}`)
                                             }}></UploadButton>
@@ -212,11 +214,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             <Table w="100%">
                                                 <Thead>
                                                     <Tr>
-                                                        <Th>NAME</Th>
+                                                        <Th>{t("asset_home_list_table_heading_name")}</Th>
                                                         
-                                                        <Th width="200px">MODIFIED</Th>
+                                                        <Th width="200px">{t("asset_home_list_table_heading_modified")}</Th>
                                                         
-                                                        <Th width="150px">STATUS</Th>
+                                                        <Th width="150px">{t("asset_home_list_table_heading_status")}</Th>
                                                         
                                                     </Tr>
                                                 </Thead>
@@ -246,11 +248,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                             <Td>
                                                                 {item.status == "disabled" ? (
                                                                     <Tag colorScheme="red" ml={5}>
-                                                                        DISABLED
+                                                                        {t("asset_home_list_table_status_disabled")}
                                                                     </Tag>
                                                                 ) : (
                                                                     <Tag colorScheme="green" ml={5}>
-                                                                        ENABLED
+                                                                        {t("asset_home_list_table_status_enabled")}
                                                                     </Tag>
                                                                 )}
                                                             </Td>
@@ -260,7 +262,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 </Tbody>
                                             </Table>
                                         ) : (
-                                            <Empty message="No items found."></Empty>
+                                            <Empty message={t("asset_home_list_table_noitems")}></Empty>
                                         )}
                                     </Box>
                                 </Box>

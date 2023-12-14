@@ -7,6 +7,7 @@ import { Empty } from "@/components/Empty"
 import { SaveMenuBar } from "@/components/SaveMenuBar"
 import { SimpleCheckboxInput } from "@/components/SimpleCheckbox"
 import TextInput from "@/components/TextInput"
+import { usePhrases } from "@/lib/lang"
 import { Field } from "@/models/field"
 import { apiClient } from "@/networking/ApiClient"
 import { useAssetFolders } from "@/networking/hooks/asset"
@@ -33,6 +34,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false)
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
     const queryClient = useQueryClient()
+    const { t }  = usePhrases();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
     useEffect(() => {
         hideMainMenu()
@@ -64,7 +66,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                 isAuthRequired: true,
             })
             toast({
-                title: `${name} saved.`,
+                title: t("asset_folder_configure_save_success", name), 
                 status: "success",
                 position: "bottom-right",
             })
@@ -74,8 +76,8 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
         } catch (ex) {
             setIsSaveLoading(false)
             toast({
-                title: "Could not save folder",
-                description: "Please try again.",
+                title: t("asset_folder_configure_save_error_title"),
+                description: t("asset_folder_configure_save_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -96,13 +98,13 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                         <ModalOverlay />
                         <ModalContent maxW="600px">
                             <ModalHeader pt={10} px={10} pb={0}>
-                                Delete folder
+                                {t("asset_folder_configure_delete_heading")}
                             </ModalHeader>
                             <ModalCloseButton right={10} top={10} />
                             <ModalBody overflow="auto" p={10}>
                                 <VStack alignItems={"flex-start"} spacing={5}>
-                                    <Box>Are you sure you wish to remove this folder?</Box>
-                                    <Box>Assets stored in this folder will not be removed.</Box>
+                                    <Box>{t("asset_folder_configure_delete_description1")}</Box>
+                                    <Box>{t("asset_folder_configure_delete_description2")}</Box>
                                 </VStack>
                             </ModalBody>
 
@@ -121,7 +123,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                                 isAuthRequired: true,
                                             })
                                             toast({
-                                                title: `${name} deleted.`,
+                                                title: t("asset_folder_configure_delete_success", name),
                                                 status: "success",
                                                 position: "bottom-right",
                                             })
@@ -132,8 +134,8 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                         } catch (ex) {
                                             setIsDeleteLoading(false)
                                             toast({
-                                                title: "Could not delete folder",
-                                                description: "Please try again.",
+                                                title: t("asset_folder_configure_delete_error_title"),
+                                                description: t("asset_folder_configure_delete_error_description"),
                                                 status: "error",
                                                 position: "bottom-right",
                                             })
@@ -143,7 +145,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                     }}
 
                                 >
-                                    Delete folder
+                                    {t("asset_folder_configure_delete_button")}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -152,7 +154,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                         onDeleteClose()
                                     }}
                                 >
-                                    Cancel
+                                    {t("cancel")}
                                 </Button>
                             </ModalFooter>
                         </ModalContent>
@@ -163,8 +165,8 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
 
 
                     <SaveMenuBar
-                        positiveText="SAVE"
-                        neutralText="CLOSE"
+                        positiveText={t("asset_folder_configure_savebar_save")}
+                        neutralText={t("asset_folder_configure_savebar_close")}
                         positiveLoading={isSaveLoading}
                         onClose={() => {
                             router.push(`/portal/spaces/${params.spaceid}/asset/folder`)
@@ -177,7 +179,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                         }}
                     >
                         <HStack spacing={2}>
-                            <Box as="span">Configure Folder</Box>
+                            <Box as="span">{t("asset_folder_configure_savebar_title")}</Box>
                             <Box as="span" fontWeight={"bold"}>
                                 {name}
                             </Box>
@@ -190,17 +192,17 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
 
                                 <Grid templateColumns="3fr 2fr" rowGap="60px" columnGap={20} w="100%">
                                     <GridItem>
-                                        <TextInput subject="Name" placeholder="My Content Type" value={name} onChange={setName} focus={true}></TextInput>
+                                        <TextInput subject={t("asset_folder_configure_inputs_name_subject")} placeholder={t("asset_folder_configure_inputs_name_placeholder")} value={name} onChange={setName} focus={true}></TextInput>
                                     </GridItem>
                                     <GridItem>
-                                        <TextInput subject="folderId" value={params.folderid} disabled={true} enableCopy={true}></TextInput>
+                                        <TextInput subject={t("asset_folder_configure_inputs_folderid_subject")} value={params.folderid} disabled={true} enableCopy={true}></TextInput>
                                     </GridItem>
                                 </Grid>
 
 
                                 <Box w="100%">
-                                    <Box mb={5}>Danger zone</Box>
-                                    <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>Delete folder</Button>
+                                    <Box mb={5}>{t("asset_folder_configure_dangerzone")}</Box>
+                                    <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>{t("asset_folder_configure_dangerzone_button")}</Button>
                                 </Box>
 
                             </VStack>

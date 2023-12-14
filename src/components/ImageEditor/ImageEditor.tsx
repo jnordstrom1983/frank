@@ -10,6 +10,7 @@ import { MirrorYIcon } from "./Icons/MirrorYIcon"
 import { RotateIcon } from "./Icons/RotateIcon"
 import "./ImageEditor.css"
 import { RotateWheel } from "./RotateWheel"
+import { usePhrases } from "@/lib/lang"
 
 export function ImageEditor({ url, onDataChanged }: {
     url: string, onDataChanged: (data: {
@@ -48,7 +49,7 @@ export function ImageEditor({ url, onDataChanged }: {
     const [cropY, setCropY] = useState<number>(0);
     const [cropWidth, setCropWidth] = useState<number>(0);
     const [cropHeight, setCropHeight] = useState<number>(0);
-
+    const { t } = usePhrases();
 
     useEffect(() => {
         onDataChanged({ rotation, mirrorX, mirrorY, cropX, cropY, cropWidth, cropHeight })
@@ -117,8 +118,8 @@ export function ImageEditor({ url, onDataChanged }: {
 
                         <Box bgColor="#F0F0F0" borderRadius="30px" paddingX={10} paddingY={3}>
                             <HStack>
-                                <Box>Aspect ratio</Box>
-                                {[{ key: "free", text: "FREE" }, { key: "square", text: "SQUARE" }, { key: "16_9", text: "16:9" }, { key: "4_3", text: "4:3" }].map(item => {
+                                <Box>{t("image_editor_aspect_ratio")}</Box>
+                                {[{ key: "free", text: t("image_editor_aspect_ratio_free") }, { key: "square", text: t("image_editor_aspect_ratio_square") }, { key: "16_9", text: "16:9" }, { key: "4_3", text: "4:3" }].map(item => {
                                     return (
                                         proportion === item.key ? <Button key={item.key} variant={"ghost"} fontSize="13px" height={"auto"} backgroundColor={"blue.500"} color="#fff" borderRadius={10} padding={2} _hover={{ backgroundColor: "blue.300" }}>{item.text}</Button> : <Button key={item.key} variant={"ghost"} fontSize="13px" height={"auto"} borderRadius={10} padding={2} _hover={{ backgroundColor: "blue.300", color: "#fff" }} onClick={() => {
                                             setPropportion(item.key)

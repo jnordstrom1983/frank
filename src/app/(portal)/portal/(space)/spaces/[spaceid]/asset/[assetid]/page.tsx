@@ -1,31 +1,27 @@
 "use client"
-import { PutAssetFolderItemResponse, PutAssetFolderItemRequest } from "@/app/api/space/[spaceid]/asset/folder/[folderid]/put"
 import { PutAssetItemRequest, PutAssetItemResponse } from "@/app/api/space/[spaceid]/asset/[assetid]/put"
-import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
-import { PutFolderItemRequest, PutFolderItemResponse } from "@/app/api/space/[spaceid]/folder/[folderid]/put"
-import { CheckboxInput } from "@/components/CheckboxInput"
-import { Empty } from "@/components/Empty"
+import { PostFolderRequest, PostFolderResponse } from "@/app/api/space/[spaceid]/folder/post"
+import { SpaceItem } from "@/app/api/space/get"
+import { ImageEditor } from "@/components/ImageEditor/ImageEditor"
 import { SaveMenuBar } from "@/components/SaveMenuBar"
 import { SimpleCheckboxInput } from "@/components/SimpleCheckbox"
 import TextInput from "@/components/TextInput"
 import { UploadButton } from "@/components/UploadButton"
-import { Field } from "@/models/field"
+import { usePhrases } from "@/lib/lang"
 import { apiClient } from "@/networking/ApiClient"
 import { useAsset, useAssetFolders } from "@/networking/hooks/asset"
 import { useContent } from "@/networking/hooks/content"
-import { useContenttype, useContentypes } from "@/networking/hooks/contenttypes"
-import { useFolders } from "@/networking/hooks/folder"
+import { useSpaces } from "@/networking/hooks/spaces"
 import { useAppStore } from "@/stores/appStore"
 import {
     Box,
     Button,
     Center,
     Container,
-    Flex,
-    Image,
     Grid,
     GridItem,
     HStack,
+    Image,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -35,7 +31,6 @@ import {
     ModalOverlay,
     Spinner,
     Table,
-    Tag,
     Tbody,
     Td,
     Th,
@@ -43,23 +38,16 @@ import {
     Tr,
     VStack,
     useDisclosure,
-    useToast,
-    Divider,
+    useToast
 } from "@chakra-ui/react"
-import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core"
-import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
-import { AlignJustify, PlusCircle, Sliders, Trash } from "react-feather"
-import { ImageEditor } from "@/components/ImageEditor/ImageEditor"
-import { Asset } from "@/models/asset"
-import { SpaceItem } from "@/app/api/space/get"
-import { useSpaces } from "@/networking/hooks/spaces"
-import { PostFolderRequest, PostFolderResponse } from "@/app/api/space/[spaceid]/folder/post"
+import { useEffect, useState } from "react"
+import { PlusCircle, Trash } from "react-feather"
 import { z } from "zod"
 
 export default function Home({ params }: { params: { spaceid: string; assetid: string } }) {
+    const { t } = usePhrases();
     const { showMainMenu, hideMainMenu } = useAppStore((state) => state)
     const { asset } = useAsset(params.spaceid, params.assetid, {})
     const { items } = useContent(params.spaceid, {})
@@ -100,15 +88,15 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
             onCreateFolderClose()
             setFolder(response.folderId)
             toast({
-                title: "Folder created",
+                title: t("asset_configure_createfolder_success"),
                 status: "success",
                 position: "bottom-right",
             })
         } catch (ex) {
             setCreateFolderLoading(false)
             toast({
-                title: "Could not create folder",
-                description: "Please try again.",
+                title: t("asset_configure_createfolder_error_title"),
+                description: t("asset_configure_createfolder_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -157,7 +145,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                 isAuthRequired: true,
             })
             toast({
-                title: `${name} saved.`,
+                title: t("asset_configure_save_success", name),
                 status: "success",
                 position: "bottom-right",
             })
@@ -168,8 +156,8 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
         } catch (ex) {
             setIsSaveLoading(false)
             toast({
-                title: "Could not save asset",
-                description: "Please try again.",
+                title: t("asset_configure_save_error_title"),
+                description: t("asset_configure_save_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -188,18 +176,18 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                         <ModalOverlay />
                         <ModalContent maxW="600px">
                             <ModalHeader pt={10} px={10} pb={0}>
-                                Create folder
+                                {t("asset_configure_createfolder_heading")}
                             </ModalHeader>
                             <ModalCloseButton right={10} top={10} />
                             <ModalBody overflow="auto" p={10}>
                                 <VStack alignItems={"flex-start"} spacing={5}>
                                     <TextInput
-                                        subject="Name"
+                                        subject={t("asset_configure_createfolder_input_subject")}
                                         value={createFolderName}
                                         disabled={createFolderLoading}
                                         focus={true}
                                         onChange={setCreateFolderName}
-                                        placeholder="My folder"
+                                        placeholder={t("asset_configure_createfolder_input_placeholder")}
                                         validate={z.string().min(3)}
                                         onValidation={(valid) => {
                                             setCreateFolderValid(valid)
@@ -220,7 +208,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                         createFolder()
                                     }}
                                 >
-                                    Create
+                                    {t("asset_configure_createfolder_button")}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -228,7 +216,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                         onCreateFolderClose()
                                     }}
                                 >
-                                    Cancel
+                                    {t("cancel")}
                                 </Button>
                             </ModalFooter>
                         </ModalContent>
@@ -238,13 +226,13 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                         <ModalOverlay />
                         <ModalContent maxW="600px">
                             <ModalHeader pt={10} px={10} pb={0}>
-                                Delete asset
+                                {(t("asset_configure_deletet_heading"))}
                             </ModalHeader>
                             <ModalCloseButton right={10} top={10} />
                             <ModalBody overflow="auto" p={10}>
                                 <VStack alignItems={"flex-start"} spacing={5}>
-                                    <Box>Are you sure you wish to remove this asset?</Box>
-                                    <Box>If this asset is used by content the asset will not be available anymore. Consider disabling the asset instead of deleting it.</Box>
+                                    <Box>{t("asset_configure_deletet_description1")}</Box>
+                                    <Box>{t("asset_configure_deletet_description2")}</Box>
                                 </VStack>
                             </ModalBody>
 
@@ -262,7 +250,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                 isAuthRequired: true,
                                             })
                                             toast({
-                                                title: `${name} deleted.`,
+                                                title: t("asset_configure_deletet_success", name),
                                                 status: "success",
                                                 position: "bottom-right",
                                             })
@@ -273,15 +261,15 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                         } catch (ex) {
                                             setIsDeleteLoading(false)
                                             toast({
-                                                title: "Could not delete asset",
-                                                description: "Please try again.",
+                                                title: t("asset_configure_deletet_error_title"),
+                                                description: t("asset_configure_deletet_error_description"),
                                                 status: "error",
                                                 position: "bottom-right",
                                             })
                                         }
                                     }}
                                 >
-                                    Delete asset
+                                    {t("asset_configure_deletet_button")}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -289,15 +277,15 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                         onDeleteClose()
                                     }}
                                 >
-                                    Cancel
+                                    {t("cancel")}
                                 </Button>
                             </ModalFooter>
                         </ModalContent>
                     </Modal>
 
                     <SaveMenuBar
-                        positiveText="SAVE"
-                        neutralText="CLOSE"
+                        positiveText={t("asset_configure_savebar_save")}
+                        neutralText={t("asset_configure_savebar_close")}
                         positiveLoading={isSaveLoading}
                         onClose={() => {
                             router.push(`/portal/spaces/${params.spaceid}/asset`)
@@ -310,7 +298,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                         }}
                     >
                         <HStack spacing={2}>
-                            <Box as="span">Configure asset</Box>
+                            <Box as="span">{t("asset_configure_savebar_title")}</Box>
                             <Box as="span" fontWeight={"bold"}>
                                 {name}
                             </Box>
@@ -321,26 +309,26 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                             <VStack w="100%" spacing="60px">
                                 <Grid templateColumns="3fr 2fr" rowGap="60px" columnGap={20} w="100%">
                                     <GridItem>
-                                        <TextInput subject="Name" placeholder="My asset Type" value={name} onChange={setName} focus={true}></TextInput>
+                                        <TextInput subject={t("asset_configure_input_name_subject")} placeholder={t("asset_configure_input_name_placeholder")} value={name} onChange={setName} focus={true}></TextInput>
                                     </GridItem>
                                     <GridItem>
-                                        <TextInput subject="assetId" value={params.assetid} disabled={true} enableCopy={true}></TextInput>
+                                        <TextInput subject={t("asset_configure_input_assetId_subject")} value={params.assetid} disabled={true} enableCopy={true}></TextInput>
                                     </GridItem>
                                 </Grid>
                                 <Grid templateColumns="3fr 2fr" rowGap="60px" columnGap={20} w="100%">
                                     <GridItem>
                                         <VStack w="100%" alignItems="flex-start" spacing={"60px"}>
                                             <TextInput
-                                                subject="Description"
+                                                subject={t("asset_configure_input_description_subject")}
                                                 type="textarea"
-                                                placeholder="My asset description "
+                                                placeholder={t("asset_configure_input_description_placeholder")}
                                                 value={description}
                                                 onChange={setDescription}
                                             ></TextInput>
                                             <TextInput
                                                 subject={
                                                     <HStack>
-                                                        <Box fontWeight="bold">Folder</Box>
+                                                        <Box fontWeight="bold">{t("asset_configure_input_folder_subject")}</Box>
                                                         {space!.role === "owner" && (
                                                             <Button
                                                                 variant={"ghost"}
@@ -358,13 +346,13 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                 type="select"
                                                 value={folder}
                                                 onChange={setFolder}
-                                                options={[{ key: "", text: "No folder" }, ...(folders || []).map((f) => ({ key: f.folderId, text: f.name }))]}
+                                                options={[{ key: "", text: t("asset_configure_input_folder_nofolder") }, ...(folders || []).map((f) => ({ key: f.folderId, text: f.name }))]}
                                             ></TextInput>
                                             <SimpleCheckboxInput
                                                 checked={enabled}
                                                 onChange={setEnabled}
-                                                subject="Enabled"
-                                                description="Asset can be assigned to new content"
+                                                subject={t("asset_configure_input_enabled_subject")}
+                                                description={t("asset_configure_input_enabled_description")}
                                             ></SimpleCheckboxInput>
                                         </VStack>
                                     </GridItem>
@@ -375,7 +363,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                 <VStack w="100%" alignItems="flex-start">
                                                     {asset.type === "file" && (
                                                         <Box>
-                                                            <Box>File</Box>
+                                                            <Box>{t("asset_configure_input_file_subject")}</Box>
                                                             <Box>
                                                                 <a href={url} target="_blank">
                                                                     {filename}{" "}
@@ -385,7 +373,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                     )}
                                                     {asset.type === "image" && (
                                                         <Box>
-                                                            <Box>Image</Box>
+                                                            <Box>{t("asset_configure_input_image_subject")}</Box>
                                                             <Box borderRadius={"3px"} overflow="hidden">
                                                                 <Image src={url} w="100%"></Image>
                                                             </Box>
@@ -394,11 +382,11 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                                  
                                                         <HStack>
                                                             <UploadButton
-                                                                positiveImageButtonText={`Replace ${asset.type === "image" ? "image" : "file"}`}
+                                                                positiveImageButtonText={`${asset.type === "image" ? t("asset_configure_upload_image_small") : t("asset_configure_upload_file_small") }`}
                                                                 type={asset.type === "image" ? "image" : "file"}
                                                                 assetId={asset.assetId}
                                                                 colorScheme="blue"
-                                                                text={`REPLACE ${asset.type === "image" ? "IMAGE" : "FILE"}`}
+                                                                text={`${asset.type === "image" ? t("asset_configure_upload_image") : t("asset_configure_upload_file")}`}
                                                                 spaceId={params.spaceid}
                                                                 onUploaded={(asset) => {
                                                                     setFilename(asset.filename)
@@ -413,12 +401,12 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                             </Box>
                                             {asset.usedBy.length > 0 && (
                                                 <VStack w="100%" alignItems="flex-start">
-                                                    <Box>Asset is used by...</Box>
+                                                    <Box>{t("asset_configure_usage")}</Box>
 
                                                     <Table>
                                                         <Thead>
                                                             <Tr>
-                                                                <Th px="0">Page</Th>
+                                                                <Th px="0">{t("asset_configure_usage_content")}</Th>
                                                             </Tr>
                                                         </Thead>
                                                         <Tbody>
@@ -442,9 +430,9 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                 </Grid>
 
                                 <Box w="100%">
-                                    <Box mb={5}>Danger zone</Box>
+                                    <Box mb={5}>{t("asset_configure_dangerzone")}</Box>
                                     <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>
-                                        Delete asset
+                                        {t("asset_configure_dangerzone_button")}
                                     </Button>
                                 </Box>
                             </VStack>
@@ -456,6 +444,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
     )
 
     function EditButton({ }) {
+        const { t } = usePhrases();
         const [imageEditorOpen, setImageEditorOpen] = useState<boolean>(false)
         const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("")
         const [addingLoading, setAddingLoading] = useState<boolean>(false)
@@ -530,7 +519,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                     setUrl(asset.url)
                                 }}
                             >
-                                Save
+                                {t("asset_configure_edit_save")}
                             </Button>
                             <Button
                                 variant="ghost"
@@ -538,7 +527,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                                     setImageEditorOpen(false)
                                 }}
                             >
-                                Cancel
+                                {t("cancel")}
                             </Button>
                         </ModalFooter>
                     </ModalContent>
@@ -554,7 +543,7 @@ export default function Home({ params }: { params: { spaceid: string; assetid: s
                         setImageEditorOpen(true)
                     }}
                 >
-                    EDIT
+                    {t("asset_configure_edit_button")}
                 </Button>
             </>
         )

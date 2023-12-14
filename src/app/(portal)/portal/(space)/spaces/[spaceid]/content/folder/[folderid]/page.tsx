@@ -1,24 +1,19 @@
 "use client"
-import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
 import { PutFolderItemRequest, PutFolderItemResponse } from "@/app/api/space/[spaceid]/folder/[folderid]/put"
 import { CheckboxInput } from "@/components/CheckboxInput"
-import { Empty } from "@/components/Empty"
 import { SaveMenuBar } from "@/components/SaveMenuBar"
 import { SimpleCheckboxInput } from "@/components/SimpleCheckbox"
 import TextInput from "@/components/TextInput"
-import { Field } from "@/models/field"
+import { usePhrases } from "@/lib/lang"
 import { apiClient } from "@/networking/ApiClient"
-import { useContent } from "@/networking/hooks/content"
-import { useContenttype, useContentypes } from "@/networking/hooks/contenttypes"
+import { useContentypes } from "@/networking/hooks/contenttypes"
 import { useFolders } from "@/networking/hooks/folder"
 import { useAppStore } from "@/stores/appStore"
-import { Box, Button, Center, Container, Flex, Grid, GridItem, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Table, Tag, Tbody, Td, Th, Thead, Tr, VStack, useDisclosure, useToast } from "@chakra-ui/react"
-import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core"
-import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { Box, Button, Center, Container, Grid, GridItem, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Table, Tbody, Td, Th, Thead, Tr, VStack, useDisclosure, useToast } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
-import { AlignJustify, Sliders, Trash } from "react-feather"
+import { useEffect, useState } from "react"
+import { Trash } from "react-feather"
 
 
 export default function Home({ params }: { params: { spaceid: string; folderid: string } }) {
@@ -34,6 +29,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false)
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
     const queryClient = useQueryClient()
+    const { t } = usePhrases();
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
     useEffect(() => {
         hideMainMenu()
@@ -69,7 +65,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                 isAuthRequired: true,
             })
             toast({
-                title: `${name} saved.`,
+                title: t("content_folder_folder_save_success", name),
                 status: "success",
                 position: "bottom-right",
             })
@@ -79,8 +75,8 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
         } catch (ex) {
             setIsSaveLoading(false)
             toast({
-                title: "Could not save folder",
-                description: "Please try again.",
+                title: t("content_folder_folder_save_error_title"),
+                description: t("content_folder_folder_save_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -101,13 +97,13 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                         <ModalOverlay />
                         <ModalContent maxW="600px">
                             <ModalHeader pt={10} px={10} pb={0}>
-                                Delete folder
+                                {t("content_folder_folder_delete_heading")}
                             </ModalHeader>
                             <ModalCloseButton right={10} top={10} />
                             <ModalBody overflow="auto" p={10}>
                                 <VStack alignItems={"flex-start"} spacing={5}>
-                                    <Box>Are you sure you wish to remove this folder?</Box>
-                                    <Box>Content stored in this folder will not be removed.</Box>
+                                    <Box>{t("content_folder_folder_delete_description1")}</Box>
+                                    <Box>{t("content_folder_folder_delete_description2")}</Box>
                                 </VStack>
                             </ModalBody>
 
@@ -137,8 +133,8 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                         } catch (ex) {
                                             setIsDeleteLoading(false)
                                             toast({
-                                                title: "Could not delete folder",
-                                                description: "Please try again.",
+                                                title: t("content_folder_folder_delete_error_title"),
+                                                description: t("content_folder_folder_delete_error_description"),
                                                 status: "error",
                                                 position: "bottom-right",
                                             })
@@ -148,7 +144,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                     }}
 
                                 >
-                                    Delete folder
+                                    {t("content_folder_folder_delete_button")}
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -157,7 +153,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                         onDeleteClose()
                                     }}
                                 >
-                                    Cancel
+                                    {t("cancel")}
                                 </Button>
                             </ModalFooter>
                         </ModalContent>
@@ -168,8 +164,8 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
 
 
                     <SaveMenuBar
-                        positiveText="SAVE"
-                        neutralText="CLOSE"
+                        positiveText={t("content_folder_folder_savebar_save")}
+                        neutralText={t("content_folder_folder_savebar_close")}
                         positiveLoading={isSaveLoading}
                         onClose={() => {
                             router.push(`/portal/spaces/${params.spaceid}/content/folder`)
@@ -182,7 +178,7 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                         }}
                     >
                         <HStack spacing={2}>
-                            <Box as="span">Configure Folder</Box>
+                            <Box as="span">{t("content_folder_folder_savebar_heading")}</Box>
                             <Box as="span" fontWeight={"bold"}>
                                 {name}
                             </Box>
@@ -195,19 +191,19 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
 
                                 <Grid templateColumns="3fr 2fr" rowGap="60px" columnGap={20} w="100%">
                                     <GridItem>
-                                        <TextInput subject="Name" placeholder="My Content Type" value={name} onChange={setName} focus={true}></TextInput>
+                                        <TextInput subject={t("content_folder_folder_input_name_subject")} placeholder={t("content_folder_folder_input_name_placeholder")} value={name} onChange={setName} focus={true}></TextInput>
                                     </GridItem>
                                     <GridItem>
-                                        <TextInput subject="contentTypeId" value={params.folderid} disabled={true} enableCopy={true}></TextInput>
+                                        <TextInput subject={t("content_folder_folder_input_contenttype_subject")} value={params.folderid} disabled={true} enableCopy={true}></TextInput>
                                     </GridItem>
                                 </Grid>
-                                <CheckboxInput checked={limited} align="top" onChange={setLimited} uncheckedBody={<Box>Limit content that can be created in this folder</Box>} checkedBody={
+                                <CheckboxInput checked={limited} align="top" onChange={setLimited} uncheckedBody={<Box>{t("content_folder_folder__limit_unchecked_title")}</Box>} checkedBody={
                                     <VStack w="100%" alignItems={"flex-start"}>
-                                        <Box w="100%">Only allow the documents of the following content types to be stored in this folder.</Box>
+                                        <Box w="100%">{t("content_folder_folder__limit_checked_title")}</Box>
                                         <Table>
                                             <Thead>
                                                 <Tr>
-                                                    <Th>Content type</Th>
+                                                    <Th>{t("content_folder_folder__limit_checked_contenttype")}</Th>
                                                 </Tr>
 
                                             </Thead>
@@ -233,11 +229,11 @@ export default function Home({ params }: { params: { spaceid: string; folderid: 
                                     </VStack>
 
 
-                                } subject="Limited"></CheckboxInput>
+                                } subject={t("content_folder_folder__limit_titel")}></CheckboxInput>
 
                                 <Box w="100%">
-                                    <Box mb={5}>Danger zone</Box>
-                                    <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>Delete folder</Button>
+                                    <Box mb={5}>{t("content_folder_folder_dangerzone")}</Box>
+                                    <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>{t("content_folder_folder_delete")}</Button>
                                 </Box>
 
                             </VStack>

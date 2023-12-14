@@ -4,6 +4,7 @@ import { PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttyp
 import { GetTrashResponseItem } from "@/app/api/space/[spaceid]/trash/get"
 import { SpaceItem } from "@/app/api/space/get"
 import { Empty } from "@/components/Empty"
+import { usePhrases } from "@/lib/lang"
 import { apiClient } from "@/networking/ApiClient"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { useTrash } from "@/networking/hooks/trash"
@@ -44,6 +45,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const { spaces, isLoading: isSpacesLoading } = useSpaces({ enabled: true })
     const toast = useToast()
     const queryClient = useQueryClient()
+    const { t } = usePhrases();
 
     const { items, isLoading: isTrashLoading } = useTrash(params.spaceid, {})
     const [isRestoreLoading, setIsRestoreLoading] = useState<boolean>(false)
@@ -78,12 +80,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 <ModalOverlay />
                 <ModalContent maxW="600px">
                     <ModalHeader pt={10} px={10} pb={0}>
-                        Empty trash
+                        {t("content_trash_empty_heading")}
                     </ModalHeader>
                     <ModalCloseButton right={10} top={10} />
                     <ModalBody overflow="auto" p={10}>
                         <VStack alignItems={"flex-start"} spacing={5}>
-                            <Box>Are you sure you with to empty the trash? Items in the trash will not be recoverable.</Box>
+                            <Box>{t("content_trash_empty_description")}</Box>
                         </VStack>
                     </ModalBody>
 
@@ -103,7 +105,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
                                     queryClient.invalidateQueries([["trash", params.spaceid]])
                                     toast({
-                                        title: "Trash emptied",
+                                        title: t("content_trash_empty_success"),
                                         status: "success",
                                         position: "bottom-right",
                                     })
@@ -113,7 +115,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 } catch (ex) {
                                     setIsEmptyLoading(false)
                                     toast({
-                                        title: "Trash could not be emptied.",
+                                        title: t("content_trash_empty_error_title"),
                                         status: "error",
                                         position: "bottom-right",
                                     })
@@ -121,7 +123,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 }
                             }}
                         >
-                            Yes, Empty
+                            {t("content_trash_empty_button")}
                         </Button>
                         <Button
                             variant="ghost"
@@ -129,7 +131,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 onEmptyClose()
                             }}
                         >
-                            Cancel
+                            {t("cancel")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -139,12 +141,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 <ModalOverlay />
                 <ModalContent maxW="600px">
                     <ModalHeader pt={10} px={10} pb={0}>
-                        Restore content "{restoreItem?.title}"
+                        {t("content_trash_restore_title", restoreItem?.title)}
                     </ModalHeader>
                     <ModalCloseButton right={10} top={10} />
                     <ModalBody overflow="auto" p={10}>
                         <VStack alignItems={"flex-start"} spacing={5}>
-                            <Box>Are you sure you with to restore the content?</Box>
+                            <Box>{t("content_trash_restore_description")}</Box>
                         </VStack>
                     </ModalBody>
 
@@ -165,7 +167,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                     queryClient.invalidateQueries([["trash", params.spaceid]])
                                     queryClient.invalidateQueries([["content", params.spaceid]])
                                     toast({
-                                        title: "Content restored",
+                                        title: t("content_trash_restore_success"),
                                         status: "success",
                                         position: "bottom-right",
                                     })
@@ -175,14 +177,14 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                     setIsRestoreLoading(false)
                                     onRestoreClose()
                                     toast({
-                                        title: "Content could not be restored",
+                                        title: t("content_trash_restore_error"),
                                         status: "error",
                                         position: "bottom-right",
                                     })
                                 }
                             }}
                         >
-                            Restore
+                            {t("content_trash_restore_button")}
                         </Button>
                         <Button
                             variant="ghost"
@@ -190,7 +192,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 onRestoreClose()
                             }}
                         >
-                            Cancel
+                            {t("cancel")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -200,13 +202,13 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 <Container maxW="1000px">
                     <VStack w="100%" spacing="10">
                         <HStack w="100%" mt="20px">
-                            <Heading flex={1}>Trash</Heading>
+                            <Heading flex={1}>{t("cotnent_trash_heading")}</Heading>
                             <Button colorScheme={"blue"} w="150px" onClick={() => router.push(`/portal/spaces/${params.spaceid}/content`)}>
-                                BACK
+                                {t("content_trash_back")}
                             </Button>
                             {space?.role === "owner" && items!.length > 0 && (
-                                <Button colorScheme={"red"} w="150px" onClick={onEmptyOpen}>
-                                    EMPTY TRASH
+                                <Button colorScheme={"red"} minW="150px" onClick={onEmptyOpen}>
+                                    {t("content_trash_empty")}
                                 </Button>
                             )}
                         </HStack>
@@ -215,10 +217,10 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                 <Table>
                                     <Thead>
                                         <Tr>
-                                            <Th>TITLE</Th>
-                                            <Th>CONTENT TYPE</Th>
-                                            <Th>DELETED BY</Th>
-                                            <Th>DELETED</Th>
+                                            <Th>{t("content_trash_table_heading_title")}</Th>
+                                            <Th>{t("content_trash_table_heading_contenttype")}</Th>
+                                            <Th>{t("content_trash_table_heading_deletedby")}</Th>
+                                            <Th>{t("content_trash_table_heading_deleted")}</Th>
                                             <Th></Th>
                                         </Tr>
                                     </Thead>
@@ -239,7 +241,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                     >
                                                         <HStack>
                                                             <Box as="span" color="blue.500">
-                                                                RESTORE
+                                                                {t("content_trash_table_restore")}
                                                             </Box>
                                                             <RotateCcw></RotateCcw>
                                                         </HStack>

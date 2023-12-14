@@ -183,11 +183,15 @@ export async function GetContent(params: Record<string, string>, restrictedToCon
     }
 
 
+    console.log(aggregationPipeline)
 
-
+    console.log("Start query",  new Date())
     const dbItems = await collections.contentData.aggregate<AggregatedContentDataItemSchema>(aggregationPipeline)
-
+    console.log("End query",  new Date())
+    
+    console.log("Process items",  new Date())
     let items = dbItems.map(item => processDBItem(item, contentTypes))
+    console.log("Processed items",  new Date())
 
     const expandMaxLevels = params["expandLevels"] ? parseInt(params["expandLevels"]) : 1;
 
