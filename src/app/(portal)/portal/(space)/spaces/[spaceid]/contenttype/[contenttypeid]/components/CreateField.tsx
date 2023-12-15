@@ -1,6 +1,7 @@
 "use client"
 import TextInput from "@/components/TextInput"
 import { dataTypes } from "@/lib/constants"
+import { usePhrases } from "@/lib/lang"
 import { camelize } from "@/lib/utils"
 import { Field, FieldValidators } from "@/models/field"
 import { Box, Button, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Radio, RadioGroup, Tag, VStack } from "@chakra-ui/react"
@@ -8,6 +9,7 @@ import { useEffect, useState } from "react"
 import { z } from "zod"
 
 export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen: boolean; onClose: () => void; fields: Field[]; onFieldAdded: (field: Field) => void }) {
+    const { t }  = usePhrases();
     const [name, setName] = useState<string>("")
     const [dataTypeValue, setDataType] = useState<string>("string")
     const [variant, setVariant] = useState<string>("")
@@ -89,15 +91,15 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
             <ModalOverlay />
             <ModalContent maxW="800px">
                 <ModalHeader pt={10} px={10} pb={0}>
-                    Add new field
+                    {t("content_type_add_heading")}
                 </ModalHeader>
                 <ModalCloseButton right={10} top={10} />
                 <ModalBody minH="400px" maxH="90vh" overflow="auto" p={10}>
                     <HStack alignItems={"flex-start"} spacing={10}>
                         <VStack w="50%" alignItems={"flex-start"} spacing={8}>
                             <TextInput
-                                subject="Name"
-                                placeholder="My new field"
+                                subject={t("content_type_add_input_subject")}
+                                placeholder={t("content_type_add_input_placeholder")}
                                 value={name}
                                 focus={true}
                                 onChange={nameChanged}
@@ -109,7 +111,7 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
                             <TextInput subject="fieldId" disabled={true} value={fieldId}></TextInput>
                         </VStack>
                         <Box overflowY={"auto"} maxH="60vh" w="50%">
-                            <Box mb={2}>Data type</Box>
+                            <Box mb={2}>{t("content_type_add_data_type")}</Box>
                             <RadioGroup defaultValue={dataTypeValue} onChange={setDataType}>
                                 <VStack w="100%" alignItems={"flex-start"}>
                                     {dataTypes.map(type => {
@@ -148,7 +150,7 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
                         }}
                         isDisabled={!nameValid}
                     >
-                        Add and configure
+                        {t("content_type_add_button")}
                     </Button>
                     <Button
                         variant="ghost"
@@ -160,7 +162,7 @@ export function CreateField({ isOpen, onClose, fields, onFieldAdded }: { isOpen:
                             onClose()
                         }}
                     >
-                        Cancel
+                        {t("cancel")}
                     </Button>
                 </ModalFooter>
             </ModalContent>

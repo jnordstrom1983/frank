@@ -16,7 +16,7 @@ import { useContentypes } from "@/networking/hooks/contenttypes"
 import { PostContentTypeRequest, PostContenTypeResponse } from "@/app/api/space/[spaceid]/contenttype/post"
 import { SelectionList } from "@/components/SelectionList"
 import { Empty } from "@/components/Empty"
-import { getAllLangauges } from "@/lib/lang"
+import { getAllLangauges, usePhrases } from "@/lib/lang"
 export default function Home({ params }: { params: { spaceid: string } }) {
     const router = useRouter()
     const [mode, setMode] = useState<"list" | "create" | "loading">("loading")
@@ -28,6 +28,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const { profile } = useProfile()
     const { spaces, isLoading: isSpacesLoading } = useSpaces({ enabled: true })
     const { contenttypes, isLoading: isContenttypesLoading } = useContentypes(params.spaceid, {})
+    const { t } = usePhrases();
 
     const [filterStatus, setFilterStatus] = useState<string>("")
     const [filterSearch, setFilterSearch] = useState<string>("")
@@ -91,8 +92,8 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         } catch (ex) {
             setCreateLoading(false)
             toast({
-                title: "Could not create content type",
-                description: "Please try again.",
+                title: t("content_type_home_create_error_title"),
+                description: t("content_type_home_create_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -126,12 +127,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                         <HStack w="100%" spacing="10" alignItems="flex-start">
                             <Box w="50%">
                                 <VStack alignItems="flex-start" spacing="5">
-                                    <Heading>Create a content type.</Heading>
+                                    <Heading>{t("content_type_home_create_heading")}</Heading>
                                     <Box color="grey" fontSize="14px">
-                                        <Box>Content types is defining the format of your content.</Box>
+                                        <Box>{t("content_type_home_create_description1")}</Box>
                                         <Box mt="5">
-                                            A content type is defining what fields of information your content should have. You can have multiple content types for different use
-                                            cases, for example one content type for news articles and one for a product information.
+                                            {t("content_type_home_create_description2")}
                                         </Box>
                                     </Box>
                                 </VStack>
@@ -139,12 +139,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <Box w="50%">
                                 <VStack alignItems="flex-start" spacing="10">
                                     <TextInput
-                                        subject="Name"
+                                        subject={t("content_type_home_create_name_subject")}
                                         value={name}
                                         disabled={createLoading}
                                         focus={true}
                                         onChange={setName}
-                                        placeholder="My Content Type"
+                                        placeholder={t("content_type_home_create_name_placeholder")}
                                         validate={z.string().min(1)}
                                         onValidation={(valid) => {
                                             setNameValid(valid)
@@ -164,7 +164,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 create(name)
                                             }}
                                         >
-                                            CREATE
+                                            {t("content_type_home_create_buttom")}
                                         </Button>
                                     </Flex>
                                 </VStack>
@@ -181,24 +181,24 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <Flex bg="#fff" width="250px" p={5}>
                                 <VStack spacing={10} alignItems={"flex-start"} w="100%">
                                     <SelectionList
-                                        subject="STATUS"
+                                        subject={t("content_type_home_filter_status")}
                                         items={[
-                                            { id: "enabled", name: "Enabled" },
-                                            { id: "disabled", name: "Disabled" },
+                                            { id: "enabled", name: t("content_type_home_filter_status_enabled") },
+                                            { id: "disabled", name: t("content_type_home_filter_status_disabled") },
                                         ]}
                                         selectedItemId={filterStatus}
                                         onClick={setFilterStatus}
-                                        anyText="Any status"
+                                        anyText={t("content_type_home_filter_status_anytext")}
                                     ></SelectionList>
                                     <SelectionList
-                                        subject="VISIBILITY"
+                                        subject={t("content_type_home_filter_visibility")}
                                         items={[
-                                            { id: "visible", name: "Visible" },
-                                            { id: "hidden", name: "Hidden" },
+                                            { id: "visible", name: t("content_type_home_filter_visibility_visible") },
+                                            { id: "hidden", name: t("content_type_home_filter_visibility_hidden") },
                                         ]}
                                         selectedItemId={filterVisibility}
                                         onClick={setFilterVisibility}
-                                        anyText="All"
+                                        anyText={t("content_type_home_filter_visibility_anytext")}
                                     ></SelectionList>
 
                                 </VStack>
@@ -206,14 +206,14 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <Flex flex={1}>
                                 <Box p={10} w="100%" maxW="1400px">
                                     <HStack w="100%" alignItems={"center"} gap={10}>
-                                        <Heading>Content types</Heading>
+                                        <Heading>{t("content_type_home_list_heading")}</Heading>
                                         <Box flex={1}>
                                             <HStack justifyContent={"flex-start"} gap={3}>
                                                 <Search></Search>
                                                 <Box w="300px">
                                                     <TextInput
                                                         value=""
-                                                        placeholder="Search for content types"
+                                                        placeholder={t("content_type_home_list_search")}
                                                         bg="#fff"
                                                         focus={true}
                                                         onChange={setFilterSearch}
@@ -223,7 +223,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             </HStack>
                                         </Box>
                                         <Button colorScheme={"green"} w="150px" onClick={() => setMode("create")}>
-                                            CREATE
+                                            {t("content_type_home_list_create")}
                                         </Button>
                                     </HStack>
                                     <Box pt={5}>
@@ -231,8 +231,8 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             <Table>
                                                 <Thead>
                                                     <Tr>
-                                                        <Th>NAME</Th>
-                                                        <Th>Id</Th>
+                                                        <Th>{t("content_type_home_list_table_heading_name")}</Th>
+                                                        <Th>{t("content_type_home_list_table_heading_id")}</Th>
                                                         <Th></Th>
                                                     </Tr>
                                                 </Thead>
@@ -252,7 +252,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                             <Td textAlign={"right"}>
                                                                 <Button variant={"ghost"}>
                                                                     <HStack spacing={3}>
-                                                                        <Box color="blue.500">Configure</Box>
+                                                                        <Box color="blue.500">{t("content_type_home_list_table_configure")}</Box>
 
                                                                         <Sliders size={24} />
                                                                     </HStack>
@@ -263,7 +263,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 </Tbody>
                                             </Table>
                                         ) : (
-                                            <Empty message="No items found."></Empty>
+                                            <Empty message={t("content_type_home_list_noitems")}></Empty>
                                         )}
                                     </Box>
                                 </Box>

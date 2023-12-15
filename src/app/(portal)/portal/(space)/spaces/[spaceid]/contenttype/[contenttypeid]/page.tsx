@@ -39,24 +39,25 @@ import {
 } from "@chakra-ui/react"
 import { DndContext, DragEndEvent, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core"
 import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
+import { CodeBlock, monokai } from "react-code-blocks"
 import { AlignJustify, Copy, Sliders, Trash } from "react-feather"
 import { ConfigureField } from "./components/ConfigureField"
 import { CreateField } from "./components/CreateField"
-import { CodeBlock, nord, github, a11yLight,monokai } from "react-code-blocks"
-import { CSS } from "@dnd-kit/utilities"
 
-import { dataTypes } from "@/lib/constants"
-import CopyToClipboard from "react-copy-to-clipboard"
 import { CheckboxInput } from "@/components/CheckboxInput"
-import { contentType } from "mime-types"
+import { dataTypes } from "@/lib/constants"
+import { usePhrases } from "@/lib/lang"
+import CopyToClipboard from "react-copy-to-clipboard"
 
 interface SortableFields extends Field {
     id: string
 }
 export default function Home({ params }: { params: { spaceid: string; contenttypeid: string } }) {
+    const { t } = usePhrases();
     const { showMainMenu, hideMainMenu } = useAppStore((state) => state)
     const { contenttype, isLoading } = useContenttype(params.spaceid, params.contenttypeid, {})
     const router = useRouter()
@@ -86,7 +87,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
         setFields(contenttype.fields)
         setGenerateSlug(contenttype.generateSlug)
         setHidden(contenttype.hidden)
-        setExternalPreview(contenttype.externalPreview || "")
+        setExternalPreview(contenttype.externalPreview || "")
         setShowExternalPreview(!!contenttype.externalPreview)
     }, [contenttype])
 
@@ -100,15 +101,15 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
     const save = useCallback(async () => {
         setIsSaveLoading(true)
         try {
-            let body : PutContentTypeItemRequest =  {
+            let body: PutContentTypeItemRequest = {
                 name,
                 enabled,
                 fields,
                 generateSlug,
                 hidden,
             }
-            if(showExternalPreview){
-                body = {...body, externalPreview}
+            if (showExternalPreview) {
+                body = { ...body, externalPreview }
             }
             await apiClient.put<PutContentTypeItemResponse, PutContentTypeItemRequest>({
                 path: `/space/${params.spaceid}/contenttype/${params.contenttypeid}`,
@@ -116,7 +117,7 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
                 isAuthRequired: true,
             })
             toast({
-                title: `${name} saved.`,
+                title: t("content_type_configure_save_success", name),
                 status: "success",
                 position: "bottom-right",
             })
@@ -128,8 +129,8 @@ export default function Home({ params }: { params: { spaceid: string; contenttyp
         } catch (ex) {
             setIsSaveLoading(false)
             toast({
-                title: "Could not save Content Type",
-                description: "Please try again.",
+                title: t("content_type_configure_save_error_title"),
+                description: t("content_type_configure_save_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -190,7 +191,7 @@ interface ${contenttype.contentTypeId}{
     }
 
 
-const dataSchema = getContentTypeSchema()
+    const dataSchema = getContentTypeSchema()
 
     return (
         <>
@@ -240,8 +241,8 @@ const dataSchema = getContentTypeSchema()
                         )}
 
                         <SaveMenuBar
-                            positiveText="SAVE"
-                            neutralText="CLOSE"
+                            positiveText={t("content_type_configure_savebar_save")}
+                            neutralText={t("content_type_configure_savebar_close")}
                             positiveLoading={isSaveLoading}
                             onClose={() => {
                                 router.push(`/portal/spaces/${params.spaceid}/contenttype`)
@@ -254,7 +255,7 @@ const dataSchema = getContentTypeSchema()
                             }}
                         >
                             <HStack spacing={2}>
-                                <Box as="span">Configure Content Type</Box>
+                                <Box as="span">{t("content_type_configure_savebar_heading")}</Box>
                                 <Box as="span" fontWeight={"bold"}>
                                     {contenttype.name}
                                 </Box>
@@ -265,7 +266,7 @@ const dataSchema = getContentTypeSchema()
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    TypeScript interface
+                                    {t("content_type_configure_typescript_interface")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
@@ -273,25 +274,25 @@ const dataSchema = getContentTypeSchema()
                                 </ModalBody>
 
                                 <ModalFooter pb={10} px={10} gap={10}>
-                                <CopyToClipboard
-                                                text={dataSchema}
-                            
-                            onCopy={() =>
-                                toast({
-                                    title: `Interface copied`,
-                                    status: "info",
-                                    position: "bottom-right",
-                                })
-                            }
-                        >
-                            
-                            <Button variant={"ghost"}>
-                                <Tooltip label={"Copy interface"}>
-                                    Copy to clipboard
-                                </Tooltip>
-                            </Button>
-                            
-                        </CopyToClipboard> 
+                                    <CopyToClipboard
+                                        text={dataSchema}
+
+                                        onCopy={() =>
+                                            toast({
+                                                title: t("content_type_configure_typescript_interface_copied"),
+                                                status: "info",
+                                                position: "bottom-right",
+                                            })
+                                        }
+                                    >
+
+                                        <Button variant={"ghost"}>
+                                            <Tooltip label={t("content_type_configure_typescript_interface_copy")}>
+                                                {t("content_type_configure_typescript_interface_copy")}
+                                            </Tooltip>
+                                        </Button>
+
+                                    </CopyToClipboard>
 
                                     <Button
                                         colorScheme="blue"
@@ -299,7 +300,7 @@ const dataSchema = getContentTypeSchema()
                                             onInterfaceClose()
                                         }}
                                     >
-                                        Close
+                                        {t("content_type_configure_typescript_close")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -309,12 +310,12 @@ const dataSchema = getContentTypeSchema()
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Delete content type
+                                    {t("content_type_configure_typescript_delete_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
-                                        <Box>Are you sure you wish to remove this content type?</Box>
+                                        <Box>{t("content_type_configure_typescript_delete_description")}</Box>
                                     </VStack>
                                 </ModalBody>
 
@@ -332,7 +333,7 @@ const dataSchema = getContentTypeSchema()
                                                     isAuthRequired: true,
                                                 })
                                                 toast({
-                                                    title: `${name} deleted.`,
+                                                    title: t("content_type_configure_typescript_delete_success", name),
                                                     status: "success",
                                                     position: "bottom-right",
                                                 })
@@ -342,15 +343,15 @@ const dataSchema = getContentTypeSchema()
                                             } catch (ex) {
                                                 setIsDeleteLoading(false)
                                                 toast({
-                                                    title: "Could not delete content type",
-                                                    description: "Please try again.",
+                                                    title: t("content_type_configure_typescript_delete_error_title"),
+                                                    description: t("content_type_configure_typescript_delete_error_description"),
                                                     status: "error",
                                                     position: "bottom-right",
                                                 })
                                             }
                                         }}
                                     >
-                                        Delete content type
+                                        {t("content_type_configure_typescript_delete_error_button")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -358,7 +359,7 @@ const dataSchema = getContentTypeSchema()
                                             onDeleteClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -369,65 +370,65 @@ const dataSchema = getContentTypeSchema()
                                 <VStack w="100%" spacing="60px">
                                     <Grid templateColumns="3fr 2fr" rowGap="60px" columnGap={20} w="100%">
                                         <GridItem>
-                                            <TextInput subject="Name" placeholder="My Content Type" value={name} onChange={setName} focus={true}></TextInput>
+                                            <TextInput subject={t("content_type_configure_fields_name_subject")} placeholder={t("content_type_configure_fields_name_placeholder")} value={name} onChange={setName} focus={true}></TextInput>
                                         </GridItem>
                                         <GridItem>
                                             <TextInput subject="contentTypeId" value={contenttype.contentTypeId} disabled={true} enableCopy={true}></TextInput>
                                         </GridItem>
                                         <GridItem>
                                             <SimpleCheckboxInput
-                                                subject="Enabled"
+                                                subject={t("content_type_configure_fields_enabled_subject")}
                                                 checked={enabled}
                                                 onChange={setEnabled}
-                                                description="New content of this Content Type can be created."
+                                                description={t("content_type_configure_fields_enabled_description")}
                                             ></SimpleCheckboxInput>
                                         </GridItem>
                                         <GridItem></GridItem>
                                         <GridItem>
                                             <SimpleCheckboxInput
-                                                subject="Generate slug"
+                                                subject={t("content_type_configure_fields_slug_subject")}
                                                 checked={generateSlug}
                                                 onChange={setGenerateSlug}
-                                                description="A slug will be generated for content of this type."
+                                                description={t("content_type_configure_fields_slug_description")}
                                             ></SimpleCheckboxInput>
                                         </GridItem>
                                         <GridItem></GridItem>
                                         <GridItem>
                                             <SimpleCheckboxInput
-                                                subject="Hidden"
+                                                subject={t("content_type_configure_fields_hidden_subject")}
                                                 checked={hidden}
                                                 onChange={setHidden}
-                                                description="This content type will be hidden from the Content listing."
+                                                description={t("content_type_configure_fields_hidden_description")}
                                             ></SimpleCheckboxInput>
                                         </GridItem>
                                         <GridItem></GridItem>
                                         <GridItem>
                                             <CheckboxInput
-                                                subject="External preview"
+                                                subject={t("content_type_configure_fields_preview_subject")}
                                                 checked={showExternalPreview}
                                                 onChange={setShowExternalPreview}
                                                 align="top"
                                                 checkedBody={<Box>
-                                                    <TextInput subject="" description="A HTTP POST with all data from the editors will be made to the preview URL."  value={externalPreview} onChange={setExternalPreview} ></TextInput>
+                                                    <TextInput subject="" description={t("content_type_configure_fields_preview_checked_description")} value={externalPreview} onChange={setExternalPreview} ></TextInput>
                                                 </Box>
-                                               }
-                                               uncheckedBody={  <Box fontSize="14px" color={"gray.500"} onClick={() => {
-                                                setShowExternalPreview(true)
-                                            }}>
-                                                Check to enable preview of your content in an external system
-                                            </Box>}
-                                                
+                                                }
+                                                uncheckedBody={<Box fontSize="14px" color={"gray.500"} onClick={() => {
+                                                    setShowExternalPreview(true)
+                                                }}>
+                                                    {t("content_type_configure_fields_preview_unchecked_description")}
+                                                </Box>}
+
                                             ></CheckboxInput>
                                         </GridItem>
-                                        <GridItem></GridItem>                                        
+                                        <GridItem></GridItem>
                                     </Grid>
 
                                     <Box w="100%">
                                         <VStack w="100%" spacing={3} alignItems="flex-start">
                                             <HStack w="100%">
-                                                <Box flex={1}>Fields</Box>
-                                                <Button colorScheme="blue" w="120px" onClick={onCreateOpen}>
-                                                    ADD FIELD
+                                                <Box flex={1}>{t("content_type_configure_fields_list_heading")}</Box>
+                                                <Button colorScheme="blue" minW="120px" onClick={onCreateOpen}>
+                                                    {t("content_type_configure_fields_list_add")}
                                                 </Button>
                                             </HStack>
                                             {fields.length > 0 ? (
@@ -436,8 +437,8 @@ const dataSchema = getContentTypeSchema()
                                                         <Thead>
                                                             <Tr>
                                                                 <Th width="20px" padding={0}></Th>
-                                                                <Th>NAME</Th>
-                                                                <Th>ID</Th>
+                                                                <Th>{t("content_type_configure_fields_list_table_heading_name")}</Th>
+                                                                <Th>{t("content_type_configure_fields_list_table_heading_id")}</Th>
 
                                                                 <Th></Th>
                                                             </Tr>
@@ -462,7 +463,7 @@ const dataSchema = getContentTypeSchema()
                                                     </Table>
                                                 </DndContext>
                                             ) : (
-                                                <Empty message="No field added yet, go ahead and add a field now."></Empty>
+                                                <Empty message={t("content_type_configure_fields_list_table_empty")}></Empty>
                                             )}
                                         </VStack>
                                     </Box>
@@ -470,50 +471,50 @@ const dataSchema = getContentTypeSchema()
                                     <Grid templateColumns="3fr 2fr" rowGap="60px" columnGap={20} w="100%">
                                         <GridItem>
                                             <Box w="100%">
-                                                <Box mb={3}>Danger zone</Box>
+                                                <Box mb={3}>{t("content_type_configure_dangerzone_title")}</Box>
 
                                                 {contenttype.used ? (
                                                     <Box fontSize={"14px"} color="red.300">
-                                                        <Box>This content type is used by content and cannot be deleted. </Box>
-                                                        <Box>If this content type is no longer to be used, consider disabling it.</Box>
+                                                        <Box>{t("content_type_configure_dangerzone_description1")}</Box>
+                                                        <Box>{t("content_type_configure_dangerzone_description2")}</Box>
                                                     </Box>
                                                 ) : (
                                                     <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>
-                                                        Delete content type
+                                                        {t("content_type_configure_dangerzone_button")}
                                                     </Button>
                                                 )}
                                             </Box>
                                         </GridItem>
 
                                         <GridItem>
-                                        <Box mb={3}>Typescript</Box>
+                                            <Box mb={3}>{t("content_type_configure_typescript_heading")}</Box>
                                             <HStack>
                                                 <Button
                                                     onClick={() => {
                                                         onInterfaceOpen();
                                                     }}
                                                 >
-                                                    View Interface
+                                                    {t("content_type_configure_typescript_button")}
                                                 </Button>
                                                 <CopyToClipboard
-                                                text={dataSchema}
-                            
-                            onCopy={() =>
-                                toast({
-                                    title: `Interface copied`,
-                                    status: "info",
-                                    position: "bottom-right",
-                                })
-                            }
-                        >
-                            
-                            <Button variant={"ghost"} w="60px">
-                                <Tooltip label={"Copy interface"}>
-                                    <Copy></Copy>
-                                </Tooltip>
-                            </Button>
-                            
-                        </CopyToClipboard>                           
+                                                    text={dataSchema}
+
+                                                    onCopy={() =>
+                                                        toast({
+                                                            title: t("content_type_configure_typescript_interface_copied"),
+                                                            status: "info",
+                                                            position: "bottom-right",
+                                                        })
+                                                    }
+                                                >
+
+                                                    <Button variant={"ghost"} w="60px">
+                                                        <Tooltip label={t("content_type_configure_typescript_interface_copy")}>
+                                                            <Copy></Copy>
+                                                        </Tooltip>
+                                                    </Button>
+
+                                                </CopyToClipboard>
                                             </HStack>
                                         </GridItem>
                                         <GridItem></GridItem>
@@ -529,6 +530,7 @@ const dataSchema = getContentTypeSchema()
 }
 
 function SortableItem({ f, id, onConfigure }: { f: Field; id: string; onConfigure: () => void }) {
+    const { t } = usePhrases();
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: id })
 
     const style = {
@@ -537,7 +539,7 @@ function SortableItem({ f, id, onConfigure }: { f: Field; id: string; onConfigur
     }
 
     return (
-        <Tr _hover={{ backgroundColor: "#fff", cursor: "pointer" }} key={f.fieldId} id={f.fieldId} onClick={() => {}} ref={setNodeRef} style={style}>
+        <Tr _hover={{ backgroundColor: "#fff", cursor: "pointer" }} key={f.fieldId} id={f.fieldId} onClick={() => { }} ref={setNodeRef} style={style}>
             <Td color="gray.400" padding={0} cursor="grab" {...attributes} {...listeners}>
                 <AlignJustify></AlignJustify>
             </Td>
@@ -552,7 +554,7 @@ function SortableItem({ f, id, onConfigure }: { f: Field; id: string; onConfigur
                     {f.name}
                     {f.title && (
                         <Tag colorScheme="blue" ml={5}>
-                            Title
+                            {t("content_type_configure_fields_list_table_title")}
                         </Tag>
                     )}
                 </Flex>
@@ -573,7 +575,7 @@ function SortableItem({ f, id, onConfigure }: { f: Field; id: string; onConfigur
             >
                 <Button variant={"ghost"}>
                     <HStack spacing={3}>
-                        <Box color="blue.500">Settings</Box>
+                        <Box color="blue.500">{t("content_type_configure_fields_list_table_settings")}</Box>
 
                         <Sliders size={24} />
                     </HStack>

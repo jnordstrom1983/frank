@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react"
 import { TypeOf, z } from "zod"
 import { SimpleCheckboxInput } from "../SimpleCheckbox"
 import { UniqueValidatorProperties } from "./UniqueSchemas"
+import { usePhrases } from "@/lib/lang"
 
 export function UniqueEditor({ settings, onUpdate }: { settings: UniqueValidatorProperties, onUpdate: (settings: UniqueValidatorProperties) => void }) {
     const [enabled, setEnabled] = useState<boolean>(settings.enabled)
-
+    const { t } = usePhrases();
     useEffect(() => {
         setEnabled(settings.enabled)
     }, [settings])
@@ -17,10 +18,10 @@ export function UniqueEditor({ settings, onUpdate }: { settings: UniqueValidator
     }
 
     return <SimpleCheckboxInput
-        subject="Unique"
+        subject={t("field_validators_unique_subject")}
         checked={enabled}
         onChange={onFieldUpdated}
-        description="No other content might have the same value"
+        description={t("field_validators_unique_description")}
 
     ></SimpleCheckboxInput>
 }
