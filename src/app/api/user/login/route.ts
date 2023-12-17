@@ -12,6 +12,7 @@ import { sendEmailSignin } from "@/lib/mail"
 
 const requestSchema = z.object({
     email: z.string().email().toLowerCase(),
+    langauge : z.string().optional(),
 })
 const responseSchema = z.object({
     token: z.string(),
@@ -20,6 +21,7 @@ const responseSchema = z.object({
 
 
 export type UserLoginPostResponse = z.infer<typeof responseSchema>
+export type UserLoginPostRequest = z.infer<typeof requestSchema>
 
 
 export async function POST(req: Request) {
@@ -38,7 +40,7 @@ export async function POST(req: Request) {
             return returnJSON({ token }, responseSchema)
         }
         try {
-            await sendEmailSignin(code, token, user.email);
+            await sendEmailSignin(code, token, user.email, data.langauge || process.env.EMAIL_DEFAULT_LANGUAGE || "en");
         } catch (ex) {
             console.log(ex)
         }
