@@ -580,7 +580,9 @@ export const sv = {
     "email_login_heading" : "Logga in i {frank}",
     "email_login_text1" : "Här kommer din inloggningskod för {frank}.",
     "email_login_text2" : "För att logga in, skriv in koden eller klicka på knappen nedan.",
+    "email_login_login" : "LOGGA IN",
     "email_login_login_subject" : "Logga in i {frank}",
+
     
 
     
