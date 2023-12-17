@@ -574,12 +574,14 @@ export const sv = {
     "email_addedtospace_text2" : "på ditt {frank} konto.",
     "email_addedtospace_text3" : "För att logga in, klicka på knappen nedan.",
     "email_addedtospace_login" : "LOGGA IN",
+    "email_addedtospace_subject" : "Nytt projekt tillagt",
 
     "email_login_preview" : "Din inloggniskod till {frank}",
     "email_login_heading" : "Logga in i {frank}",
     "email_login_text1" : "Här kommer din inloggningskod för {frank}.",
     "email_login_text2" : "För att logga in, skriv in koden eller klicka på knappen nedan.",
-    "email_login_login" : "LOGGA IN",
+    "email_login_login_subject" : "Logga in i {frank}",
+    
 
     
     "email_welcomenewuser_newspace_preview" : "Välkommen till {frank}",
@@ -587,12 +589,14 @@ export const sv = {
     "email_welcomenewuser_newspace_text1" : "Du har blivit inbjuden till {frank} och projektet  ",
     "email_welcomenewuser_newspace_text2" : "För att logga in klicka på knappen nedan..",
     "email_welcomenewuser_newspace_login" : "LOGGA IN",
+    "email_welcomenewuser_newspace_subject" : "Välkommen till {frank}",
 
     "email_welcomenewuser_preview" : "Välkommen till {frank}",
     "email_welcomenewuser_haeding" : "Välkommen till {frank}!",
     "email_welcomenewuser_text1" : "Du har blivit inbjuden till {frank}.",
     "email_welcomenewuser_text2" : "För att logga in, klicka på knappen nedan..",
     "email_welcomenewuser_login" : "LOGGA IN",
+    "email_welcomenewuser_subject" : "Välkommen till {frank}",
 
 
     "language_aa": "Afar",
