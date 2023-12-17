@@ -37,7 +37,6 @@ export async function sendEmailSignin(code: number, token: string, to: string, l
     }
 
     const html = render(<LoginEmail code={code} url={`${process.env.PUBLIC_URL}/login/verify?token=${token}&code=${code}` || ""} language={language}></LoginEmail>)
-    console.log(html)
     await sendEmail(getPhrase("email_login_login_subject"), html, to)
 }
 
