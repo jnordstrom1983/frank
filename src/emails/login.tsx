@@ -1,35 +1,50 @@
 import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from "@react-email/components"
 import { button, container, footer, main, paragraph, spacing } from "./styles"
+import { languages } from "@/languages/languages";
 
-export const LoginEmail = ({ url, code }: { url: string; code: number }) => (
-    <Html>
-        <Head />
-        <Preview>Your Frank login code</Preview>
-        <Body style={main}>
-            <Container style={container}>
-                <Section style={{ textAlign: "center" }}>
-                    <Heading>Login to Frank</Heading>
-                    <Text style={spacing}></Text>
-                    <Text style={paragraph}>Here is your login code for Frank.</Text>
-                    <Text style={paragraph}>To log in, enter the code or press the button below.</Text>
-                    <Text style={spacing}></Text>
+export const LoginEmail = ({ url, code, language }: { url: string; code: number, language: string }) => {
+    //@ts-ignore
+    let lang = languages[language]
+    if(!lang) lang= languages.en;
+    
+    function getPhrase(phraseId : string){
+        const frank = process.env.BRANDING_FRANK ||  "Frank"
+        let value = lang?.phrases[phraseId] || ""
+        return value.replace("{frank}", frank)
+    }
 
-                    <Text style={codeStyle}>{code.toString().replace(/\B(?=(\d{2})+(?!\d))/g, " ")}</Text>
 
-                    <Text style={spacing}></Text>
+    return (
+        <Html>
+            <Head />
+            <Preview>{getPhrase("email_login_preview")}</Preview>
+            <Body style={main}>
+                <Container style={container}>
+                    <Section style={{ textAlign: "center" }}>
+                        <Heading>{getPhrase("email_login_heading")}</Heading>
+                        <Text style={spacing}></Text>
+                        <Text style={paragraph}>{getPhrase("email_login_text1")}</Text>
+                        <Text style={paragraph}>{getPhrase("email_login_text2")}</Text>
+                        <Text style={spacing}></Text>
 
-                    <Button pX={0} pY={20} style={button} href={url}>
-                        SIGN IN
-                    </Button>
+                        <Text style={codeStyle}>{code.toString().replace(/\B(?=(\d{2})+(?!\d))/g, " ")}</Text>
 
-                    <Text style={spacing}></Text>
+                        <Text style={spacing}></Text>
 
-                    <Text style={footer}>Frank</Text>
-                </Section>
-            </Container>
-        </Body>
-    </Html>
-)
+                        <Button pX={0} pY={20} style={button} href={url}>
+                            {getPhrase("email_login_login")}
+                        </Button>
+
+                        <Text style={spacing}></Text>
+
+                        <Text style={footer}>{ (process.env.BRANDING_FRANK || "FRANK").toUpperCase() }</Text>
+                    </Section>
+                </Container>
+            </Body>
+        </Html>
+    )
+}
+
 
 export default LoginEmail
 

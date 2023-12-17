@@ -1,5 +1,5 @@
 import { PostAIRequest, PostAIResponse } from "@/app/api/space/[spaceid]/ai/post"
-import { dataTypes, languages } from "@/lib/constants"
+import { dataTypes } from "@/lib/constants"
 import { ContentData } from "@/models/contentdata"
 import { ContentType } from "@/models/contentype"
 import { SpaceLanguage } from "@/models/space"
@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from "uuid"
 import { CheckboxInput } from "../../CheckboxInput"
 import { SimpleCheckboxInput } from "../../SimpleCheckbox"
 import { AIState } from "./AI"
+import { getAllLangauges, usePhrases } from "@/lib/lang"
 
 export function AITranslate({
     datas,
@@ -43,8 +44,9 @@ export function AITranslate({
 }) {
     const { spaces, isLoading: isSpacesLoading } = useSpaces({})
     const toast = useToast()
+    const { t } = usePhrases();
     useEffect(() => {
-        setTaskTitle("Translate")
+        setTaskTitle(t("ai_translate_title_translate"))
     }, [])
 
     const [allFields, setAllFields] = useState<boolean>(true)
@@ -88,6 +90,7 @@ export function AITranslate({
     }, [result])
 
     const fromLanguage = spaces?.find((p) => p.spaceId === spaceId)?.defaultLanguage || "en"
+    const languages = getAllLangauges();
 
     function getLanguageName(language: string) {
         return languages.find((p) => p.code === language)?.name || "-"
@@ -97,15 +100,15 @@ export function AITranslate({
         if (allFields) {
             setTaskDescription(
                 <Flex gap={1} flexWrap={"wrap"}>
-                    <Box as="span">Translate </Box>
+                    <Box as="span">{t("ai_translate_title_translate")} </Box>
                     <Box as="span" fontWeight={"bold"}>
-                        all
+                        {t("ai_translate_title_all")}
                     </Box>
-                    <Box as="span">translatable texts from</Box>
+                    <Box as="span">{t("ai_translate_title_translatable")}</Box>
                     <Box as="span" fontWeight={"bold"}>
                         {getLanguageName(fromLanguage)}
                     </Box>
-                    <Box as="span">to</Box>
+                    <Box as="span">{t("ai_translate_title_to")}</Box>
                     <Box as="span" fontWeight={"bold"}>
                         {getLanguageName(language)}
                     </Box>
@@ -114,12 +117,12 @@ export function AITranslate({
             setReady(true)
         } else {
             if (fields.length === 0) {
-                setTaskDescription(<Box>Select fields to translate.</Box>)
+                setTaskDescription(<Box>{t("ai_translate_title_select")}</Box>)
                 setReady(false)
             } else {
                 setTaskDescription(
                     <Flex gap={1} flexWrap={"wrap"}>
-                        <Box as="span">Translate </Box>
+                        <Box as="span">{t("ai_translate_title_translate")} </Box>
                         <Box fontWeight={"bold"}>
                             {fields
                                 .map((f) => {
@@ -127,11 +130,11 @@ export function AITranslate({
                                 })
                                 .join(", ")}
                         </Box>
-                        <Box as="span"> from </Box>
+                        <Box as="span">{t("ai_translate_title_from")} </Box>
                         <Box as="span" fontWeight={"bold"}>
                             {getLanguageName(fromLanguage)}
                         </Box>
-                        <Box as="span">to</Box>
+                        <Box as="span">{t("ai_translate_title_to")}</Box>
                         <Box as="span" fontWeight={"bold"}>
                             {getLanguageName(language)}
                         </Box>
@@ -188,7 +191,7 @@ export function AITranslate({
                     setTaskId(response.taskId)
                 } catch (ex) {
                     toast({
-                        title: "Could not start AI task",
+                        title: t("ai_translate_start_error"),
                         status: "error",
                         position: "bottom-right",
                     })
@@ -202,17 +205,17 @@ export function AITranslate({
         return (
             <Box my={10} w="100%">
                 <CheckboxInput
-                    subject="Scope"
+                    subject={t("ai_translate_scope")}
                     align="top"
                     checked={allFields}
                     onChange={setAllFields}
                     uncheckedBody={
                         <VStack w="100%" alignItems={"flex-start"}>
-                            <Box w="100%">Check the following fields.</Box>
+                            <Box w="100%">{t("ai_translate_prepare_title")}</Box>
                             <Table>
                                 <Thead>
                                     <Tr>
-                                        <Th>Field</Th>
+                                        <Th>{t("ai_translate_prepare_field")}</Th>
                                     </Tr>
                                 </Thead>
                                 <Tbody>
@@ -254,7 +257,7 @@ export function AITranslate({
                             </Table>
                         </VStack>
                     }
-                    checkedBody={<>All translatable content</>}
+                    checkedBody={<>{t("ai_translate_prepare_all")}</>}
                 ></CheckboxInput>
             </Box>
         )

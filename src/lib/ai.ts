@@ -2,8 +2,8 @@
 
 import { Configuration, OpenAIApi } from "openai";
 import { collections } from "./db";
-import { languages } from "./constants";
-
+import { getAllLangauges } from "./lang";
+import { SpaceLanguageEnum } from "@/models/space";
 
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_APIKEY,
@@ -12,6 +12,14 @@ const openai = new OpenAIApi(configuration);
 
 
 export async function processAITask(taskId: string) {
+    const languages =  SpaceLanguageEnum.options.map(l => 
+        (
+            //@ts-ignore
+            { code: l, name: en[`language_${l}`]  }
+        )
+
+    )
+    
     const task = await collections.aiTask.findOne({ taskId });
     if (!task) return;
 

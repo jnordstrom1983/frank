@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react"
 import { FieldEditorNotImplementedYet } from "../FieldEditorNotImplementedYet"
 import { MinusCircle, PlusCircle, Trash } from "react-feather"
 import shortUUID from "short-uuid"
+import { usePhrases } from "@/lib/lang"
 
 export function FieldEditorObjectArray({ value, field, onChange }: { value: any; field: Field; onChange: (value: { [key: string]: string }[] | undefined) => void; }) {
     const [internalValue, setInternalValue] = useState<{ [key: string]: string }[] | undefined>([])
@@ -52,6 +53,7 @@ export function FieldEditorObjectArray({ value, field, onChange }: { value: any;
 export function ObjectArrayEditor({ value, onChange, properties }: { value: { [key: string]: string }[], onChange: (value: { [key: string]: string }[]) => void, properties: ObjectProperty[] }) {
 
     const [internalValue, setInternalValue] = useState<{ [key: string]: string }[]>(value || []);
+    const { t } = usePhrases();
 
     useEffect(() => {
         setInternalValue(value || [])
@@ -121,7 +123,7 @@ export function ObjectArrayEditor({ value, onChange, properties }: { value: { [k
 
                                                         }}
                                                     >
-                                                        Delete object
+                                                        {t("field_editor_objectarray_delete")}
                                                     </MenuItem>
                                                 </MenuList>
                                             </>
@@ -139,7 +141,7 @@ export function ObjectArrayEditor({ value, onChange, properties }: { value: { [k
                                 return <Td id="footer_${p.key}" borderLeftWidth={cellIndex === 0 ? "1px" : undefined} borderLeftColor={cellIndex === 0 ? "grey.100" : undefined} borderLeftStyle={cellIndex === 0 ? "solid" : undefined} borderRightWidth="1px" borderRightColor="grey.100" borderRightStyle="solid"></Td>
                             })}
                             <Td id="footer_add" borderRightWidth="1px" borderRightColor="grey.100" width="50px" borderRightStyle="solid">
-                                <Button variant="ghost" title="Add object" onClick={() => {
+                                <Button variant="ghost" title={t("field_editor_objectarray_add")} onClick={() => {
                                     const updatedValue = [...internalValue, { id: shortUUID.generate() }];
                                     setInternalValue(updatedValue);
                                     onChange(updatedValue);

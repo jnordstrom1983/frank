@@ -57,6 +57,8 @@ npx ts-node frank.ts user-create john.doe@frank.app "John Doe" "admin"
 |S3_REGION  | AWS region to use |
 |S3_PREFIX  | URL prefix to add to uploade files (eg. frank-files/) |
 |S3_ACL  | ACL to add to uploade files |  
+|EMAIL_DEFAULT_LANGUAGE   | Default language to use for emails, defaults to en |
+|BRANDING_FRANK   | Brand name to use for Frank, defaults to Frank |
 
 
 ## Theme Environment variables

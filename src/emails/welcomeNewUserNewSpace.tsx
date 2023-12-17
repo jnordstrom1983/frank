@@ -1,31 +1,46 @@
 import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from "@react-email/components"
 import { button, container, footer, main, paragraph, spacing } from "./styles"
+import { languages } from "@/languages/languages";
 
-export const WelcomeNewUserNewSpaceEmail = ({ url, space }: { url: string; space: string }) => (
-    <Html>
-        <Head />
-        <Preview>Welcome to Frank</Preview>
-        <Body style={main}>
-            <Container style={container}>
-                <Section style={{ textAlign: "center" }}>
-                    <Heading>Welcome to Frank!</Heading>
-                    <Text style={spacing}></Text>
-                    <Text style={paragraph}>You have been invited to Frank and the space {space}.</Text>
-                    <Text style={paragraph}>To login, simply click the button below.</Text>
-                    <Text style={spacing}></Text>
+export const WelcomeNewUserNewSpaceEmail = ({ url, space, language }: { url: string; space: string, language: string }) => {
+    
+    //@ts-ignore
+    let lang = languages[language]
+    if(!lang) lang= languages.en;
+    
 
-                    <Button pX={0} pY={20} style={button} href={url}>
-                        SIGN IN
-                    </Button>
+    function getPhrase(phraseId : string){
+        const frank = process.env.BRANDING_FRANK ||  "Frank"
+        let value = lang?.phrases[phraseId]  || ""
+        return value.replace("{frank}", frank)
+    }
 
-                    <Text style={spacing}></Text>
+    return (
+        <Html>
+            <Head />
+            <Preview>{getPhrase("email_welcomenewuser_newspace_preview")}</Preview>
+            <Body style={main}>
+                <Container style={container}>
+                    <Section style={{ textAlign: "center" }}>
+                        <Heading>{getPhrase("email_welcomenewuser_newspace_preview")}</Heading>
+                        <Text style={spacing}></Text>
+                        <Text style={paragraph}>{getPhrase("email_welcomenewuser_newspace_preview")} {space}.</Text>
+                        <Text style={paragraph}>{getPhrase("email_welcomenewuser_newspace_preview")}</Text>
+                        <Text style={spacing}></Text>
 
-                    <Text style={footer}>Frank</Text>
-                </Section>
-            </Container>
-        </Body>
-    </Html>
-)
+                        <Button pX={0} pY={20} style={button} href={url}>
+                            {getPhrase("email_welcomenewuser_newspace_login")}
+                        </Button>
+
+                        <Text style={spacing}></Text>
+
+                        <Text style={footer}>{ (process.env.BRANDING_FRANK || "FRANK").toUpperCase() }</Text>
+                    </Section>
+                </Container>
+            </Body>
+        </Html>
+    )
+}
 
 export default WelcomeNewUserNewSpaceEmail
 

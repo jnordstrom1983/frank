@@ -6,6 +6,7 @@ import { FieldEditorNotImplementedYet } from "../FieldEditorNotImplementedYet"
 import { GetStringArrayValidationSchema } from "./FieldEditorStringArrayHelper"
 import { Box, VStack } from "@chakra-ui/react"
 import { CheckboxList } from "@/components/CheckboxList"
+import { usePhrases } from "@/lib/lang"
 
 export function FieldEditorStringArray({
     value,
@@ -26,7 +27,7 @@ export function FieldEditorStringArray({
     const validationSchema = GetStringArrayValidationSchema(field)
 
     const [internalErrors, setInternalErrors] = useState<string[]>([])
-
+    const { t } = usePhrases();
 
     useEffect(() => {
         setInternalValue(value || [])
@@ -66,7 +67,7 @@ export function FieldEditorStringArray({
                     {field.options ? (
                         <CheckboxList options={ (field.options as string[]).map(v=>({text : v, key : v}))} value={internalValue || []} onChange={internalOnChange}></CheckboxList>
                     ) : (
-                        <OptionsEditor options={initialValue} type={"string"} onChange={(v) => internalOnChange(v as string[])} placeHolder="Enter a value and press enter" countUnsubmittedValue={true}></OptionsEditor>
+                        <OptionsEditor options={initialValue} type={"string"} onChange={(v) => internalOnChange(v as string[])} placeHolder={t("field_editor_string_array_placeholder")} countUnsubmittedValue={true}></OptionsEditor>
                     )}
                 </Box>
             </VStack>

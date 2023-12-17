@@ -13,50 +13,49 @@ import {
     Center,
     Container,
     HStack,
+    Modal,
+    ModalBody,
+    ModalContent,
+    ModalFooter,
+    ModalHeader,
+    ModalOverlay,
+    Progress,
     Spinner,
+    Table,
+    Tag,
+    Tbody,
+    Td,
+    Text,
     Th,
     Thead,
     Tooltip,
     Tr,
-    Table,
     VStack,
-    Tbody,
-    Td,
-    Modal,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    ModalCloseButton,
-    ModalBody,
-    ModalFooter,
     useDisclosure,
-    Text,
-    useToast,
-    Tag,
-    Progress,
+    useToast
 } from "@chakra-ui/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AlertTriangle, Check, Copy, Edit2, Flag, Sliders, Trash2 } from "react-feather"
-import { languages as allLanguages } from "@/lib/constants"
+
+import { PostAIRequest, PostAIResponse } from "@/app/api/space/[spaceid]/ai/post"
+import { GetAITaskItemResponse } from "@/app/api/space/[spaceid]/ai/task/[taskid]/get"
+import { PutContentItemRequest, PutContentItemResponse } from "@/app/api/space/[spaceid]/content/[contentid]/put"
+import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
 import { EditorLanguages } from "@/components/ContentEditor/Editor"
 import { Empty } from "@/components/Empty"
 import TextInput from "@/components/TextInput"
-import { z } from "zod"
-import { camelize } from "@/lib/utils"
-import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
+import { getAllLangauges, usePhrases } from "@/lib/lang"
 import { apiClient } from "@/networking/ApiClient"
-import { PutContentItemRequest, PutContentItemResponse } from "@/app/api/space/[spaceid]/content/[contentid]/put"
 import { useQueryClient } from "@tanstack/react-query"
-import { PostAIRequest, PostAIResponse } from "@/app/api/space/[spaceid]/ai/post"
-import { GetAITaskItemResponse } from "@/app/api/space/[spaceid]/ai/task/[taskid]/get"
 import CopyToClipboard from "react-copy-to-clipboard"
-import { progress } from "framer-motion"
+import { z } from "zod"
 
 interface LanguageData {
     [key: string]: Record<string, any>
 }
 export default function Home({ params }: { params: { spaceid: string; contentid: string } }) {
+    const allLanguages = getAllLangauges()
     const { showMainMenu, hideMainMenu } = useAppStore((state) => state)
     const queryClient = useQueryClient()
     const router = useRouter()
@@ -86,6 +85,8 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
     const [translateAllProgress, setTranslateAllProgress] = useState<number>(0)
     const { isOpen: isDeleteTranslationOpen, onOpen: onDeleteTranslationOpen, onClose: onDeleteTranslationClose } = useDisclosure()
     const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false)
+
+    const { t } = usePhrases();
     useEffect(() => {
         if (!content) return
         if (!contenttype) return
@@ -214,7 +215,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                     <VStack spacing={10}>
                         <HStack>
                             <img src="/static/ai.svg" width="64px"></img>
-                            <Box fontSize={"32px"} fontWeight={"bold"}>Translating...</Box>
+                            <Box fontSize={"32px"} fontWeight={"bold"}>{t("module_translation_edit_translating")}</Box>
                         </HStack>
 
                         <Progress colorScheme='green' size='sm' value={translateAllProgress} w="500px" />
@@ -327,11 +328,11 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                             <ModalOverlay />
                             <ModalContent maxW="500px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Delete translation file
+                                    {t("module_translation_edit_delete_heading")}
                                 </ModalHeader>
                                 <ModalBody overflow="auto" p={10}>
                                     <Box>
-                                        Are you sure you wish to remove the translation file?
+                                        {t("module_translation_edit_delete_description")}
                                     </Box>
                                 </ModalBody>
 
@@ -359,7 +360,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                 queryClient.removeQueries([["trash", params.spaceid]])
                                                 router.back();
                                                 toast({
-                                                    title: `Translation deleted.`,
+                                                    title: t("module_translation_edit_delete_success"),
                                                     status: "success",
                                                     position: "bottom-right",
                                                 })
@@ -370,7 +371,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
 
                                         }}
                                     >
-                                        Yes, delete translation
+                                        {t("module_translation_edit_delete_button")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -378,14 +379,14 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                             onDeleteTranslationClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
                         </Modal>
                         <SaveMenuBar
-                            positiveText="SAVE"
-                            neutralText="CLOSE"
+                            positiveText={t("module_translation_edit_savebar_save")}
+                            neutralText={t("module_translation_edit_savebar_close")}
                             positiveLoading={isSaveLoading}
                             onClose={() => {
                                 router.push(`/portal/spaces/${params.spaceid}/modules/translation`)
@@ -457,7 +458,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                     })
                                 } catch (ex) {
                                     toast({
-                                        title: "Translations could not be saved",
+                                        title: t("module_translation_edit_save_error_title"),
                                         status: "error",
                                         position: "bottom-right",
                                     })
@@ -487,7 +488,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                     })
                                 } catch (ex) {
                                     toast({
-                                        title: "Translations could not be saved",
+                                        title: t("module_translation_edit_save_error_title"),
                                         status: "error",
                                         position: "bottom-right",
                                     })
@@ -503,7 +504,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                 setCurrentLanguageInitialValues(JSON.parse(JSON.stringify(languageData[language] || {})))
 
                                 toast({
-                                    title: `${getTitle()} saved.`,
+                                    title: t("module_translation_edit_save_success", getTitle()),
                                     status: "success",
                                     position: "bottom-right",
                                 })
@@ -514,7 +515,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                             }}
                         >
                             <HStack spacing={2}>
-                                <Box as="span">Translations</Box>
+                                <Box as="span">{t("module_translation_edit_heading")}</Box>
                                 <Box as="span" fontWeight={"bold"}>
                                     {getTitle()}
                                 </Box>
@@ -528,15 +529,15 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                         <Box>
                                             <VStack w="100%" alignItems={"flex-start"}>
                                                 <HStack>
-                                                    <Box fontWeight="bold">PUBLISHED</Box>
+                                                    <Box fontWeight="bold">{t("module_translation_edit_published")}</Box>
                                                 </HStack>
                                                 <VStack spacing={5} w="100%" alignItems={"flex-start"}>
                                                     <Box>
                                                         <CheckboxInput
                                                             checked={published}
                                                             onChange={setPublished}
-                                                            uncheckedBody={<Box>No, it's a draft</Box>}
-                                                            checkedBody={<Box>Yes, it's published</Box>}
+                                                            uncheckedBody={<Box>{t("module_translation_edit_published_isdraft")}</Box>}
+                                                            checkedBody={<Box>{t("module_translation_edit_published_ispublished")}</Box>}
                                                         ></CheckboxInput>
                                                     </Box>
                                                 </VStack>
@@ -544,17 +545,17 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                         </Box>
 
                                         <SelectionList
-                                            subject="LANGUAGES"
+                                            subject={t("module_translation_edit_languages")}
                                             items={languages.map((l) => {
                                                 return {
                                                     id: l,
-                                                    name: getLanguageTitle(l),
+                                                    name: getLanguageTitle(l, allLanguages),
                                                 }
                                             })}
                                             onSettings={() => setShowLanguages(true)}
                                             settingsIcon={<Sliders></Sliders>}
                                             selectedItemId={language}
-                                            settingsTooltip="Manage languages"
+                                            settingsTooltip={t("module_translation_edit_languages_tooltip")}
                                             onClick={(lang) => {
                                                 setCurrentLanguageInitialValues(JSON.parse(JSON.stringify(languageData[lang] || {})))
                                                 setLanguage(lang as SpaceLanguage)
@@ -571,7 +572,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                         text={params.contentid}
                                                         onCopy={() =>
                                                             toast({
-                                                                title: "contentId copied",
+                                                                title: t("module_translation_edit_copied", "contentId"),
                                                                 status: "info",
                                                                 position: "bottom-right",
                                                             })
@@ -614,8 +615,8 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
 
                                         <Box>
                                             <VStack w="100%" alignItems={"flex-start"}>
-                                                <Box fontWeight="bold">Delete</Box>
-                                                <Button onClick={onDeleteTranslationOpen}>Delete translation</Button>
+                                                <Box fontWeight="bold">{t("module_translation_edit_details_delete_subject")}</Box>
+                                                <Button onClick={onDeleteTranslationOpen}>{t("module_translation_edit_details_delete_button")}</Button>
                                             </VStack>
                                         </Box>
 
@@ -633,7 +634,7 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                     setShowPhraseEditor(true)
                                                 }}
                                             >
-                                                Add phrase
+                                                {t("module_translation_edit_addphrase")}
                                             </Button>
                                             {language !== "" && language !== defaultLanguage && <Button
                                                 isLoading={translateAllLoading}
@@ -642,19 +643,19 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                     startTranslatingPhrases(true)
                                                 }}
                                             >
-                                                Translate all
+                                                {t("module_translation_edit_translateall")}
                                             </Button>
                                             }
                                         </HStack>
 
                                         {language === "" &&
                                             (phrases.length === 0 ? (
-                                                <Empty message="No phrases added yet. Add your first phrase now"></Empty>
+                                                <Empty message={t("module_translation_edit_nophrases")}></Empty>
                                             ) : (
                                                 <Table w="100%">
                                                     <Thead>
                                                         <Tr>
-                                                            <Th>Phrase</Th>
+                                                            <Th>{t("module_translation_edit_list_heading_phrase")}</Th>
                                                             {languages.map((lang) => (
                                                                 <Th key={lang} w="40px">
                                                                     {lang}
@@ -683,12 +684,12 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
                                                                                     <Check color="#689783"></Check>
                                                                                 </Tooltip>
                                                                             ) : (
-                                                                                <Tooltip label={"Translation missing"}>
+                                                                                <Tooltip label={t("module_translation_edit_list_translatingmissing")}>
                                                                                     <AlertTriangle color="#946B6D"></AlertTriangle>
                                                                                 </Tooltip>
                                                                             )
                                                                         ) : (
-                                                                            <Tooltip label={"Translation missing"}>
+                                                                            <Tooltip label={t("module_translation_edit_list_translatingmissing")}>
                                                                                 <AlertTriangle color="#946B6D"></AlertTriangle>
                                                                             </Tooltip>
                                                                         )}
@@ -724,14 +725,14 @@ export default function Home({ params }: { params: { spaceid: string; contentid:
 
                                         {language !== "" &&
                                             (phrases.length === 0 ? (
-                                                <Empty message="No phrases added yet. Add your first phrase now"></Empty>
+                                                <Empty message={t("module_translation_edit_nophrases")}></Empty>
                                             ) : (
                                                 <Table w="100%">
                                                     <Thead>
                                                         <Tr>
                                                             <Th>Phrase</Th>
 
-                                                            {defaultLanguage !== language && <Th>{getLanguageTitle(language)}</Th>}
+                                                            {defaultLanguage !== language && <Th>{getLanguageTitle(language, allLanguages)}</Th>}
 
                                                             <Th></Th>
                                                         </Tr>
@@ -863,6 +864,7 @@ function PhraseEditor({
     phrases: { id: string; description: string; size: "small" | "large" }[]
     spaceId: string
 }) {
+
     const [phraseId, setPhraseId] = useState<string>(initialPhraseId)
     const [phraseIdValid, setPhraseIdValid] = useState<boolean>(phraseId !== "")
     const [size, setSize] = useState<string>(initialSize)
@@ -874,13 +876,15 @@ function PhraseEditor({
     const { isOpen: isWarningOpen, onOpen: onWarningOpen, onClose: onWarningClose } = useDisclosure()
     const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure()
 
-
+    const { t } = usePhrases();
     function updateValue(language: string, value: string) {
         setValues((values) => {
             values[language] = value
             return { ...values }
         })
     }
+    const allLanguages = getAllLangauges();
+
 
     useEffect(() => {
         setPhraseId(initialPhraseId)
@@ -901,18 +905,18 @@ function PhraseEditor({
                 <ModalOverlay />
                 <ModalContent maxW="500px">
                     <ModalHeader pt={10} px={10} pb={0}>
-                        Duplicate phraseId
+                        {t("module_translation_edit_warning")}
                     </ModalHeader>
                     <ModalBody overflow="auto" p={10}>
                         <VStack w="100%" alignItems={"flex-start"}>
                             <Box>
-                                The phraseId{" "}
+                                {t("module_translation_edit_warning_description_part1")}{" "}
                                 <Text as="span" fontWeight={"bold"}>
                                     {generateNewPhraseId(phraseId)}
                                 </Text>{" "}
-                                is already in use.
+                                {t("module_translation_edit_warning_description_part2")}
                             </Box>
-                            <Box>Please change the phraseId to a unique value.</Box>
+                            <Box>{t("module_translation_edit_warning_description2")}</Box>
                         </VStack>
                     </ModalBody>
 
@@ -925,7 +929,7 @@ function PhraseEditor({
                                 onWarningClose()
                             }}
                         >
-                            Ok
+                            {t("module_translation_edit_warning_button")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -935,11 +939,11 @@ function PhraseEditor({
                 <ModalOverlay />
                 <ModalContent maxW="500px">
                     <ModalHeader pt={10} px={10} pb={0}>
-                        Remove phrase
+                        {t("module_translation_edit_deletephrase_heading")}
                     </ModalHeader>
                     <ModalBody overflow="auto" p={10}>
                         <Box>
-                            Are you sure you wish to remove the phrase <Text as="span" fontWeight={"bold"}>{phraseId}</Text>?
+                            {t("module_translation_edit_deletephrase_question")} <Text as="span" fontWeight={"bold"}>{phraseId}</Text>?
                         </Box>
                     </ModalBody>
 
@@ -952,7 +956,7 @@ function PhraseEditor({
                                 onDelete(phraseId)
                             }}
                         >
-                            Delete phrase
+                            {t("module_translation_edit_deletephrase_button")}
                         </Button>
                         <Button
                             variant="ghost"
@@ -960,7 +964,7 @@ function PhraseEditor({
                                 onDeleteClose()
                             }}
                         >
-                            Cancel
+                            {t("cancel")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -984,7 +988,7 @@ function PhraseEditor({
                 <ModalContent maxW="800px" maxH="80%">
                     <ModalHeader pt={10} px={10} pb={0}>
                         <HStack>
-                            <Box flex={1}>{isNew ? "Add phrase" : `Edit ${phraseId}`}</Box>
+                            <Box flex={1}>{isNew ? t("module_translation_edit_phrase_addphrase") : t("module_translation_edit_phrase_editphrase", phraseId)}</Box>
                             {!isNew && (
                                 <Button variant={"ghost"} color="red.600" onClick={onDeleteOpen}>
                                     <Trash2></Trash2>
@@ -1011,7 +1015,7 @@ function PhraseEditor({
                                     <TextInput
                                         value={size}
                                         onChange={setSize}
-                                        subject="Size"
+                                        subject={t("module_translation_edit_phrase_size")}
                                         type="select"
                                         options={[
                                             { key: "small", text: "small" },
@@ -1022,7 +1026,7 @@ function PhraseEditor({
                             </HStack>
 
                             <Box w="100%">
-                                <TextInput value={description} onChange={setDescription} subject="Description"></TextInput>
+                                <TextInput value={description} onChange={setDescription} subject={t("module_translation_edit_phrase_description")}></TextInput>
                             </Box>
                             <TextInput
                                 type={size === "small" ? "text" : "textarea"}
@@ -1030,7 +1034,7 @@ function PhraseEditor({
                                 onChange={(value) => {
                                     updateValue(defaultLanguage, value)
                                 }}
-                                subject={getLanguageTitle(defaultLanguage)}
+                                subject={getLanguageTitle(defaultLanguage, allLanguages)}
                             ></TextInput>
                             {languages.length > 0 && (
                                 <Box>
@@ -1048,7 +1052,7 @@ function PhraseEditor({
 
 
                                     }}>
-                                        Translate to all languages
+                                        {t("module_translation_edit_phrase_translatetoall")}
                                     </Button>
                                 </Box>
                             )}
@@ -1063,7 +1067,7 @@ function PhraseEditor({
                                                 onChange={(value) => {
                                                     updateValue(lang, value)
                                                 }}
-                                                subject={getLanguageTitle(lang)}
+                                                subject={getLanguageTitle(lang, allLanguages)}
                                             ></TextInput>
                                         </Box>
                                         <Box mt={7}>
@@ -1110,7 +1114,7 @@ function PhraseEditor({
                                 }
                             }}
                         >
-                            {isNew ? "Add" : "Update"}
+                            {isNew ? t("module_translation_edit_phrase_button_add") : t("module_translation_edit_phrase_button_update")}
                         </Button>
                         <Button
                             variant="ghost"
@@ -1118,7 +1122,7 @@ function PhraseEditor({
                                 onClose()
                             }}
                         >
-                            Cancel
+                            {t("cancel")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -1145,7 +1149,7 @@ function SingleTranslationButton({
     triggerDate?: Date
 }) {
     const [isLoading, setIsLoading] = useState<boolean>(false)
-
+    const { t } = usePhrases();
     useEffect(() => {
         if (!triggerDate) return;
         let task = new AITranslateTask(spaceId, (result) => {
@@ -1157,7 +1161,7 @@ function SingleTranslationButton({
 
     }, [triggerDate])
     return (
-        <Tooltip label={`Translate from ${getLanguageName(fromLanguage)} to ${getLanguageName(toLanguage)}`}>
+        <Tooltip label={t("module_translation_edit_singletranslation_tooltip", getLanguageName(fromLanguage), getLanguageName(toLanguage))}>
             <Button
                 isLoading={isLoading}
                 variant={"ghost"}
@@ -1177,14 +1181,17 @@ function SingleTranslationButton({
     )
 }
 
-function getLanguageTitle(language: string) {
+function getLanguageTitle(language: string, allLanguages: any[]) {
+    //@ts-ignore
     const lang = allLanguages.find((al) => al.code === language)
     if (!lang) return "N/A"
 
     return `${lang.name} (${lang.code})`
+    return "aa"
 }
 
 function getLanguageName(language: string) {
+    const allLanguages = getAllLangauges();
     const lang = allLanguages.find((al) => al.code === language)
     if (!lang) return "N/A"
 

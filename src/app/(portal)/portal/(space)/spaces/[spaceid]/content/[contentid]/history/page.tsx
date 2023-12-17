@@ -1,5 +1,6 @@
 "use client"
 import { SaveMenuBar } from "@/components/SaveMenuBar"
+import { usePhrases } from "@/lib/lang"
 import { useContentItem } from "@/networking/hooks/content"
 import { useContenttype } from "@/networking/hooks/contenttypes"
 import { useSpaces } from "@/networking/hooks/spaces"
@@ -12,6 +13,7 @@ import { useEffect } from "react"
 export default function History({ params }: { params: { spaceid: string; contentid: string } }) {
     const { showMainMenu, hideMainMenu } = useAppStore((state) => state)
     const router = useRouter()
+    const { t } = usePhrases()
     const { item: content, isLoading: isContentLoading } = useContentItem(params.spaceid, params.contentid, {})
     const { contenttype, isLoading: isContentTypeLoading } = useContenttype(params.spaceid, content?.content.contentTypeId || "", { disabled: !content })
     const { spaces, isLoading: isSpacesLoading } = useSpaces({})
@@ -56,7 +58,7 @@ export default function History({ params }: { params: { spaceid: string; content
                 content && (
                     <>
                         <SaveMenuBar
-                            neutralText="BACK"
+                            neutralText={t("history_back")}
                             onClose={() => {
                                 router.back()
                             }}
@@ -65,7 +67,7 @@ export default function History({ params }: { params: { spaceid: string; content
                             }}
                         >
                             <HStack spacing={2}>
-                                <Box as="span">History of</Box>
+                                <Box as="span">{t("history_of")}</Box>
                                 <Box as="span" fontWeight={"bold"}>
                                     {getTitle()}
                                 </Box>
@@ -76,10 +78,10 @@ export default function History({ params }: { params: { spaceid: string; content
                                 <Table w="100%">
                                     <Thead>
                                         <Tr>
-                                            <Th>REVISION</Th>
-                                            <Th>CHANGES</Th>
-                                            <Th>MODIFIED BY</Th>
-                                            <Th>MODIFIED</Th>
+                                            <Th>{t("history_revision")}</Th>
+                                            <Th>{t("history_changes")}</Th>
+                                            <Th>{t("history_modifiedby")}</Th>
+                                            <Th>{t("history_modified")}</Th>
                                             
                                         </Tr>
                                     </Thead>
@@ -96,12 +98,12 @@ export default function History({ params }: { params: { spaceid: string; content
                                                     #{item.revision}
                                                     {item.historyId === content.content.activeHistoryId && (
                                                         <Tag colorScheme="green" ml={5}>
-                                                            CURRENT
+                                                            {t("history_current")}
                                                         </Tag>
                                                     )}
                                                 </Td>
                                                 <Td>
-                                                    {item.changes} {item.changes > 1 ? "changes" : "change"}
+                                                    {item.changes} {item.changes > 1 ? t("history_small_changes") : t("history_small_change")}
                                                 </Td>
                                                 <Td>{item.userName} </Td>
                                                 <Td>{dayjs(item.date).format("YYYY-MM-DD HH:mm")} </Td>

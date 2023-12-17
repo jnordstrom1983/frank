@@ -9,6 +9,7 @@ import { ReactElement, useEffect, useState } from "react"
 import { CheckboxInput } from "../../CheckboxInput"
 import { SimpleCheckboxInput } from "../../SimpleCheckbox"
 import { AIState } from "./AI"
+import { usePhrases } from "@/lib/lang"
 
 export function AICheck({
     datas,
@@ -40,8 +41,10 @@ export function AICheck({
     result?: Record<string, any>
 }) {
     const toast = useToast()
+    const { t } = usePhrases();
+
     useEffect(() => {
-        setTaskTitle("Spell and grammar check")
+        setTaskTitle(t("ai_check_title"))
     }, [])
 
     const [allFields, setAllFields] = useState<boolean>(true)
@@ -69,22 +72,22 @@ export function AICheck({
         if (allFields) {
             setTaskDescription(
                 <Flex gap={1} flexWrap={"wrap"}>
-                    <Box as="span">Check </Box>
+                    <Box as="span">{t("ai_check_allfields_description_check")} </Box>
                     <Box as="span" fontWeight={"bold"}>
-                        all
+                        {t("ai_check_allfields_ddescription_all")}
                     </Box>
-                    <Box as="span">text for misspellings and incorrect grammar</Box>
+                    <Box as="span">{t("ai_check_dallfields_description_text")}</Box>
                 </Flex>
             )
             setReady(true)
         } else {
             if (fields.length === 0) {
-                setTaskDescription(<Box>Select fields to check.</Box>)
+                setTaskDescription(<Box>{t("ai_check_select_description")}</Box>)
                 setReady(false)
             } else {
                 setTaskDescription(
                     <Flex gap={1} flexWrap={"wrap"}>
-                        <Box as="span">Check </Box>
+                        <Box as="span">{t("ai_check_allfields_description_check")} </Box>
                         <Box fontWeight={"bold"}>
                             {fields
                                 .map((f) => {
@@ -92,7 +95,7 @@ export function AICheck({
                                 })
                                 .join(", ")}
                         </Box>
-                        <Box as="span">for misspellings and incorrect grammar</Box>
+                        <Box as="span">{t("ai_check_select_description_text")}</Box>
                     </Flex>
                 )
                 setReady(true)
@@ -145,7 +148,7 @@ export function AICheck({
                     setTaskId(response.taskId)
                 } catch (ex) {
                     toast({
-                        title: "Could not start AI task",
+                        title: t("ai_check_start_error"),
                         status: "error",
                         position: "bottom-right",
                     })
@@ -165,11 +168,11 @@ export function AICheck({
                     onChange={setAllFields}
                     uncheckedBody={
                         <VStack w="100%" alignItems={"flex-start"}>
-                            <Box w="100%">Check the following fields.</Box>
+                            <Box w="100%">{t("ai_check_prepare_title")}</Box>
                             <Table>
                                 <Thead>
                                     <Tr>
-                                        <Th>Field</Th>
+                                        <Th>{t("ai_check_prepare_field")}</Th>
                                     </Tr>
                                 </Thead>
                                 <Tbody>
@@ -211,7 +214,7 @@ export function AICheck({
                             </Table>
                         </VStack>
                     }
-                    checkedBody={<>All checkable content</>}
+                    checkedBody={<>{t("ai_check_prepare_all")}</>}
                 ></CheckboxInput>
             </Box>
         )

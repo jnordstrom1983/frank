@@ -1,30 +1,27 @@
 "use client"
-import { Box, Button, Center, Container, Flex, Heading, HStack, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, Table, Tag, Tbody, Td, Th, Thead, Tr, useToast, VStack } from "@chakra-ui/react"
-import React, { useEffect, useState } from "react"
-import Link from "next/link"
 import TextInput from "@/components/TextInput"
-import { Inbox, Loader, Search, Sliders, Trash2, X } from "react-feather"
-import { PostSpaceRequest, PostSpaceResponse } from "@/app/api/space/post"
 import { apiClient } from "@/networking/ApiClient"
-import { useQueryClient } from "@tanstack/react-query"
 import { useSpaces } from "@/networking/hooks/spaces"
+import { Box, Button, Center, Container, Flex, Heading, HStack, Spinner, Table, Tag, Tbody, Td, Th, Thead, Tr, useToast, VStack } from "@chakra-ui/react"
+import { useQueryClient } from "@tanstack/react-query"
+import { useEffect, useState } from "react"
+import { Search, X } from "react-feather"
 import { z } from "zod"
-import { languages } from "@/lib/constants"
-import { useRouter } from "next/navigation"
-import { useProfile } from "@/networking/hooks/user"
-import { useContentypes } from "@/networking/hooks/contenttypes"
-import { PostContentTypeRequest, PostContenTypeResponse } from "@/app/api/space/[spaceid]/contenttype/post"
-import { SelectionList } from "@/components/SelectionList"
-import { Empty } from "@/components/Empty"
-import { useContent } from "@/networking/hooks/content"
-import { Content, ContentInternalViewModel } from "@/models/content"
-import dayjs from "dayjs"
-import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
-import { PostContentRequest } from "@/app/api/space/[spaceid]/content/post"
+
 import { PutContentItemRequest, PutContentItemResponse } from "@/app/api/space/[spaceid]/content/[contentid]/put"
-import { slugify } from "@/lib/utils"
-import { SpaceLanguage } from "@/models/space"
+import { PostContentRequest } from "@/app/api/space/[spaceid]/content/post"
+import { PutContentTypeItemRequest, PutContentTypeItemResponse } from "@/app/api/space/[spaceid]/contenttype/[contenttypeid]/put"
+import { PostContentTypeRequest, PostContenTypeResponse } from "@/app/api/space/[spaceid]/contenttype/post"
+import { Empty } from "@/components/Empty"
+import { SelectionList } from "@/components/SelectionList"
+import { Content, ContentInternalViewModel } from "@/models/content"
+import { useContent } from "@/networking/hooks/content"
+import { useProfile } from "@/networking/hooks/user"
+import dayjs from "dayjs"
+import { useRouter } from "next/navigation"
+import { usePhrases } from "@/lib/lang"
 export default function Home({ params }: { params: { spaceid: string } }) {
+    const { t } = usePhrases();
     const router = useRouter()
     const [mode, setMode] = useState<"list" | "create" | "loading">("loading")
     const [name, setName] = useState<string>("")
@@ -43,7 +40,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     useEffect(() => {
         if (!items) return
         const filtered = items.filter((item) => {
-       
+
             if (item.managedByModule !== "translation") return false
             if (filterStatus) {
                 if (item.status !== filterStatus) return false
@@ -89,7 +86,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                 path: `/space/${params.spaceid}/contenttype/${contentTypeCreateResponse.contenttype.contentTypeId}`,
                 isAuthRequired: true,
                 body: {
-                    name : `Translation - ${name}`,
+                    name: `Translation - ${name}`,
                     enabled: true,
                     fields: [
                         {
@@ -101,12 +98,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             title: true,
                             validators: { required: { enabled: true }, unique: { enabled: false }, minLength: { enabled: false, min: 0 }, maxLength: { enabled: true, max: 4096 } },
                             settings: [],
-                            output : false
+                            output: false
                         },
                     ],
                     generateSlug: true,
                     hidden: true,
-                    
+
                 },
             })
 
@@ -130,12 +127,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
             const contentUpdateResponse = await apiClient.put<PutContentItemResponse, PutContentItemRequest>({
                 path: `/space/${params.spaceid}/content/${contentCreateResponse.contentId}`,
                 isAuthRequired: true,
-                body : {
+                body: {
                     status: "draft",
                     data: [{
-                        languageId : space.defaultLanguage,
-                        data : {
-                            __name : name 
+                        languageId: space.defaultLanguage,
+                        data: {
+                            __name: name
                         }
                     }]
                 }
@@ -152,8 +149,8 @@ export default function Home({ params }: { params: { spaceid: string } }) {
         } catch (ex) {
             setCreateLoading(false)
             toast({
-                title: "Could not create translation file",
-                description: "Please try again.",
+                title: t("module_translation_create_error_title"),
+                description: t("module_translation_create_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -187,15 +184,13 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                         <HStack w="100%" spacing="10" alignItems="flex-start">
                             <Box w="50%">
                                 <VStack alignItems="flex-start" spacing="5">
-                                    <Heading>Create a translation file.</Heading>
+                                    <Heading>{t("module_translation_create_heading")}.</Heading>
                                     <Box color="grey" fontSize="14px">
                                         <Box>
-                                            Translation files is a set of phrases that you can translate to various languages. On translation file can contain many phrases and
-                                            multiple languages.
+                                            {t("module_translation_create_description1")}
                                         </Box>
                                         <Box mt="5">
-                                            Translation files can be used to handle translations in apps with eg. i18n files. By managing your translations in Frank you can easily
-                                            keep all phrases and translations in sync between all languages.
+                                            {t("module_translation_create_description2")}
                                         </Box>
                                     </Box>
                                 </VStack>
@@ -203,12 +198,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <Box w="50%">
                                 <VStack alignItems="flex-start" spacing="10">
                                     <TextInput
-                                        subject="Name"
+                                        subject={t("module_translation_create_input_subject")}
                                         value={name}
                                         disabled={createLoading}
                                         focus={true}
                                         onChange={setName}
-                                        placeholder="My Translation"
+                                        placeholder={t("module_translation_create_input_placeholder")}
                                         validate={z.string().min(3)}
                                         onValidation={(valid) => {
                                             setNameValid(valid)
@@ -228,7 +223,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 create(name)
                                             }}
                                         >
-                                            CREATE
+                                            {t("module_translation_create_button")}
                                         </Button>
                                     </Flex>
                                 </VStack>
@@ -245,28 +240,28 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                             <Flex bg="#fff" width="250px" p={5}>
                                 <VStack spacing={10} alignItems={"flex-start"} w="100%">
                                     <SelectionList
-                                        subject="STATUS"
+                                        subject={t("module_translation_filter_status_subject")}
                                         items={[
-                                            { id: "draft", name: "Draft" },
-                                            { id: "published", name: "Published" },
+                                            { id: "draft", name: t("module_translation_filter_status_draft") },
+                                            { id: "published", name: t("module_translation_filter_status_published") },
                                         ]}
                                         selectedItemId={filterStatus}
                                         onClick={setFilterStatus}
-                                        anyText="Any status"
+                                        anyText={t("module_translation_filter_status_any")}
                                     ></SelectionList>
                                 </VStack>
                             </Flex>
                             <Flex flex={1}>
                                 <Box p={10} w="100%" maxW="1400px">
                                     <HStack w="100%" alignItems={"center"} gap={10}>
-                                        <Heading>Translation files</Heading>
+                                        <Heading>{t("module_translation_heading")}</Heading>
                                         <Box flex={1}>
                                             <HStack justifyContent={"flex-start"} gap={3}>
                                                 <Search></Search>
                                                 <Box w="300px">
                                                     <TextInput
                                                         value=""
-                                                        placeholder="Search for translation files"
+                                                        placeholder={t("module_translation_search_placeholder")}
                                                         bg="#fff"
                                                         focus={true}
                                                         onChange={setFilterSearch}
@@ -276,7 +271,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             </HStack>
                                         </Box>
                                         <Button colorScheme={"green"} w="150px" onClick={() => setMode("create")}>
-                                            CREATE
+                                            {t("module_translation_create")}
                                         </Button>
                                     </HStack>
                                     <Box pt={5}>
@@ -284,9 +279,9 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                             <Table>
                                                 <Thead>
                                                     <Tr>
-                                                        <Th>Name</Th>
-                                                        <Th>Modified</Th>
-                                                        <Th>Status</Th>
+                                                        <Th>{t("module_translation_list_table_heading_name")}</Th>
+                                                        <Th>{t("module_translation_list_table_heading_modified")}</Th>
+                                                        <Th>{t("module_translation_list_table_heading_status")}</Th>
                                                     </Tr>
                                                 </Thead>
                                                 <Tbody>
@@ -306,11 +301,11 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                             <Td>
                                                                 {item.status == "draft" ? (
                                                                     <Tag colorScheme="red" ml={5}>
-                                                                        DRAFT
+                                                                        {t("module_translation_list_table_draft")}
                                                                     </Tag>
                                                                 ) : (
                                                                     <Tag colorScheme="green" ml={5}>
-                                                                        PUBLISHED
+                                                                        {t("module_translation_list_table_published")}
                                                                     </Tag>
                                                                 )}
                                                             </Td>
@@ -319,7 +314,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
                                                 </Tbody>
                                             </Table>
                                         ) : (
-                                            <Empty message="No items found."></Empty>
+                                            <Empty message={t("module_translation_list_no_items_found")}></Empty>
                                         )}
                                     </Box>
                                 </Box>

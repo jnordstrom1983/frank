@@ -3,7 +3,8 @@ import { PutSpaceRequest, PutSpaceResponse } from "@/app/api/space/[spaceid]/put
 import { CheckboxInput } from "@/components/CheckboxInput"
 import { CheckboxList } from "@/components/CheckboxList"
 import TextInput from "@/components/TextInput"
-import { languages } from "@/lib/constants"
+import { getAllLangauges } from "@/lib/lang"
+
 import { SpaceModules } from "@/lib/spaceModules"
 import { SpaceFeature, SpaceFeatureEnum, SpaceLanguage, SpaceModule, SpaceModuleEnum } from "@/models/space"
 import { apiClient } from "@/networking/ApiClient"
@@ -21,7 +22,7 @@ export default function Home({ params }: { params: { spaceid: string } }) {
     const [saveLoading, setSaveLoading] = useState<boolean>(false)
     const [spaceName, setSpaceName] = useState<string>("")
     const [spaceId, setSpaceId] = useState<string>("")
-    const languageOptions = languages.map((l) => ({ key: l.code, text: l.name }))
+    const languageOptions = getAllLangauges().map((l) => ({ key: l.code, text: l.name }))
     const [language, setLanguage] = useState<SpaceLanguage>("en")
     const [openAccess, setOpenAccess] = useState<boolean>(true)
     const [mode, setMode] = useState<"loading" | "list" | "create">("loading")

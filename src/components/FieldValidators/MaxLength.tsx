@@ -3,10 +3,12 @@ import { useEffect, useState } from "react"
 import { TypeOf, z } from "zod"
 import { NumericCheckboxInput } from "../NumericCheckboxInput"
 import { MaxLengthValidatorProperties } from "./MaxLengthUtils"
+import { usePhrases } from "@/lib/lang"
 
 export function MaxLengthEditor({ settings, onUpdate, onValidation }: { settings: MaxLengthValidatorProperties, onUpdate: (settings: MaxLengthValidatorProperties) => void , onValidation : (valid : boolean) => void }) {
     const [enabled, setEnabled] = useState<boolean>(settings.enabled)
     const [value, setValue] = useState<number>(settings.max)
+    const { t } = usePhrases();
 
     useEffect(() => {
         setEnabled(settings.enabled)
@@ -19,7 +21,7 @@ export function MaxLengthEditor({ settings, onUpdate, onValidation }: { settings
     }
 
     return <NumericCheckboxInput
-        subject="Max length"
+        subject={t("field_validators_maxlength_subject")}
         checked={enabled}
         value={value}
         onChange={(checked, value) => {
@@ -27,7 +29,7 @@ export function MaxLengthEditor({ settings, onUpdate, onValidation }: { settings
             setValue(value)
             onFieldUpdated(checked, value)
         } }
-        description="Value can not be longer than this"
+        description={t("field_validators_maxlength_description")}
         onValidation={onValidation}
     ></NumericCheckboxInput>
 }

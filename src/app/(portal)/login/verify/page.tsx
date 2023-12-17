@@ -8,6 +8,8 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { X } from "react-feather"
+import { useAppStore } from "@/stores/appStore"
+import { languageOptions, usePhrases } from "@/lib/lang"
 export default function Verify() {
     const router = useRouter()
     const queryClient = useQueryClient()
@@ -15,6 +17,12 @@ export default function Verify() {
     const token = urlParams.get("token")
     const toast = useToast()
     const theme = useContext(ThemeContext);
+
+    const { uiLanguage, setUiLanguage} = useAppStore(state=>state);
+    const { t } = usePhrases(); 
+
+
+
     
     const [code, setCode] = useState<string>(urlParams.get("code") || "")
     const [loading, setLoading] = useState<boolean>()
@@ -40,8 +48,8 @@ export default function Verify() {
 
         } catch (ex) {
             toast({
-                title: "Could not login",
-                description: "Please check that the code is valid or try again.",
+                title: t("login_verify_verify_error_title"),
+                description: t("login_verify_verify_error_description"),
                 status: "error",
                 position: "bottom-right"
             })
@@ -60,6 +68,9 @@ export default function Verify() {
     return (
         <>
             <Image src={theme!.horizontalLogo} w="150px" position={"fixed"} right="20px" top="20px"></Image>
+            <Box position={"fixed"} left="20px" top="20px" width="200px">
+                <TextInput type="select"  options={languageOptions} value={uiLanguage} onChange={setUiLanguage}></TextInput>
+            </Box>
 
             <Center w="100%" h="100vh">
                 <Box bg={"white"} padding={20} width="600px">
@@ -76,9 +87,9 @@ export default function Verify() {
                     </Flex>
 
                     <VStack spacing={10} alignItems={"flex-start"} w="100%">
-                        <Heading>Check your email</Heading>
+                        <Heading>{t("login_verify_title")}</Heading>
                         <Text color="gray">
-                            A temporary verification code has been sent to your email address. To log in, enter the code below or click on the link in the email.
+                            {t("login_verify_description")}
                         </Text>
 
                         <TextInput
@@ -91,7 +102,7 @@ export default function Verify() {
                             }}
                             type="password"
                             placeholder="11 22 33 44"
-                            subject="Verification code"
+                            subject={t("login_verify_input_subject")}
                         />
 
                         <Button
@@ -102,7 +113,7 @@ export default function Verify() {
                                 login(code)
                             }}
                         >
-                            Sign in
+                            {t("login_verify_button")}
                         </Button>
                     </VStack>
                 </Box>

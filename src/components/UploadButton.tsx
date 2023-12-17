@@ -1,6 +1,7 @@
 "use client"
 import { PostAssetResponse } from "@/app/api/space/[spaceid]/asset/post"
 import { ImageEditor } from "@/components/ImageEditor/ImageEditor"
+import { usePhrases } from "@/lib/lang"
 import { Asset } from "@/models/asset"
 import { apiClient } from "@/networking/ApiClient"
 import { Box, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay, Tooltip } from "@chakra-ui/react"
@@ -10,13 +11,13 @@ import React, { ChangeEvent, useRef, useState } from "react"
 export function UploadButton({
     spaceId,
     onUploaded,
-    text = "Upload",
+    text = "",
     colorScheme = "green",
     assetId,
     width,
     height,
     type,
-    positiveImageButtonText = "ADD IMAGE ASSET",
+    positiveImageButtonText = "",
     tooltip,
 }: {
     text?: string
@@ -30,6 +31,11 @@ export function UploadButton({
     positiveImageButtonText?: string
     tooltip?: string
 }) {
+
+    const { t } = usePhrases();
+    if(positiveImageButtonText === "") positiveImageButtonText = t("uploadbutton_default_buttontext")
+    if(text === "") text = t("uploadbutton_default_text");
+
     const inputRef = useRef<HTMLInputElement>(null)
     const [imageEditorOpen, setImageEditorOpen] = useState<boolean>(false)
     const [imagePreviewUrl, setImagePreviewUrl] = useState<string>("")
@@ -148,7 +154,7 @@ export function UploadButton({
                                 if (inputRef.current) inputRef.current.value = ""
                             }}
                         >
-                            Cancel
+                            {t("cancel")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>

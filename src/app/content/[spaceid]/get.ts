@@ -183,7 +183,7 @@ export async function GetContent(params: Record<string, string>, restrictedToCon
     }
 
 
-
+    
 
     const dbItems = await collections.contentData.aggregate<AggregatedContentDataItemSchema>(aggregationPipeline)
 

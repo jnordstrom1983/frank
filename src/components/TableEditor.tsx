@@ -1,5 +1,6 @@
 "use client"
 import TextInput from "@/components/TextInput"
+import { usePhrases } from "@/lib/lang"
 import { Box, Button, HStack, Menu, MenuButton, MenuItem, MenuList, Table, Tbody, Td, Tr } from "@chakra-ui/react"
 import React, { useEffect, useRef, useState } from "react"
 import { MinusCircle, PlusCircle } from "react-feather"
@@ -21,6 +22,7 @@ export function TableEditor({
 }) {
     const [internalData, setInternalData] = useState<string[][]>()
     const [updatedData, setUpdatedData] = useState<string[][]>()
+    const { t } = usePhrases();
 
     useEffect(() => {
         if (Array.isArray(data)) {
@@ -106,7 +108,7 @@ export function TableEditor({
                                                                     deleteColumn(cellIndex)
                                                                 }}
                                                             >
-                                                                Delete column
+                                                                {t("tableeditor_delete_column")}
                                                             </MenuItem>
                                                         </MenuList>
                                                     </>
@@ -117,7 +119,7 @@ export function TableEditor({
                                         </Td>
                                     })}
                                     <Td key={`cell_${0}_last`} p={1} textAlign="center" borderTopWidth="1px" borderTopColor="grey.100" borderTopStyle="solid" borderRightWidth="1px" borderRightColor="grey.100" borderRightStyle="solid">
-                                        <Button variant="ghost" p={1} height="40px" onClick={addColum} title="Add column"><PlusCircle size={"16px"}></PlusCircle></Button>
+                                        <Button variant="ghost" p={1} height="40px" onClick={addColum} title={t("tableeditor_add_column")}><PlusCircle size={"16px"}></PlusCircle></Button>
                                     </Td>
                                 </Tr>
                             }
@@ -160,7 +162,7 @@ export function TableEditor({
                                                                     deleteRow(rowIndex)
                                                                 }}
                                                             >
-                                                                Delete row
+                                                                {t("tableeditor_delete_row")}
                                                             </MenuItem>
                                                         </MenuList>
                                                     </>
@@ -181,7 +183,7 @@ export function TableEditor({
                                     </Td>
                                 })}
                                 <Td key={`cell_last_last`} p={1} textAlign="center" borderTopWidth="1px" borderTopColor="grey.100" borderTopStyle="solid" borderRightWidth="1px" borderRightColor="grey.100" borderRightStyle="solid">
-                                    <Button variant="ghost" p={1} onClick={addRow} height="40px" title="Add row"><PlusCircle size={"16px"}></PlusCircle></Button>
+                                    <Button variant="ghost" p={1} onClick={addRow} height="40px" title={t("tableeditor_add_row")}><PlusCircle size={"16px"}></PlusCircle></Button>
                                 </Td>
                             </Tr>}
 

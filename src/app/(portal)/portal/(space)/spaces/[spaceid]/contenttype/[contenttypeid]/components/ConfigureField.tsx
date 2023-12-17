@@ -26,6 +26,7 @@ import { useContenttype, useContentypes } from "@/networking/hooks/contenttypes"
 import { CheckboxList } from "@/components/CheckboxList"
 import { ObjectPropertyEditor } from "@/components/ObjectPropertyEditor"
 import { ObjectPropertiesEditor } from "@/components/ObjectPropertiesEditor"
+import { usePhrases } from "@/lib/lang"
 
 export function ConfigureField({
     isOpen,
@@ -45,6 +46,7 @@ export function ConfigureField({
     onDeleteField: (field: Field) => void
 
 }) {
+    const { t } = usePhrases();
     const [name, setName] = useState<string>("")
     const [description, setDescription] = useState<string>("")
     const [descriptionValid, setDescriptionValid] = useState<boolean>(true)
@@ -148,7 +150,7 @@ export function ConfigureField({
                 <ModalOverlay />
                 <ModalContent maxW="1000px" maxH="90vh">
                     <ModalHeader pt={10} px={10} pb={0}>
-                        Configure field
+                        {t("content_type_field_configure_title")}
                     </ModalHeader>
                     <Button onClick={onDeleteOpen} variant="ghost" position="absolute" right={5} top={10} color={"gray"} _hover={{ color: "red.500" }}>
                         <Trash size={32}></Trash>
@@ -158,8 +160,8 @@ export function ConfigureField({
                         <HStack alignItems={"flex-start"} spacing={10}>
                             <VStack w="70%" alignItems={"flex-start"} spacing={8}>
                                 <TextInput
-                                    subject="Name"
-                                    placeholder="My new field"
+                                    subject={t("content_type_field_configure_fields_name_subject")}
+                                    placeholder={t("content_type_field_configure_fields_name_placeholder")}
                                     value={name}
                                     focus={true}
                                     onChange={setName}
@@ -168,10 +170,10 @@ export function ConfigureField({
                                         setNameValid(valid)
                                     }}
                                 ></TextInput>
-                                {variantItems.length > 1 && <TextInput subject="Variant" value={variant} onChange={setVariant} type="select" options={variantItems}></TextInput>}
+                                {variantItems.length > 1 && <TextInput subject={t("content_type_field_configure_fields_variant_subject")} value={variant} onChange={setVariant} type="select" options={variantItems}></TextInput>}
                                 <TextInput
-                                    subject="Help text"
-                                    placeholder="This field is used for..."
+                                    subject={t("content_type_field_configure_fields_help_subject")}
+                                    placeholder={t("content_type_field_configure_fields_help_placeholder")}
                                     value={description}
                                     onChange={setDescription}
                                     validate={z.string().max(255)}
@@ -241,11 +243,11 @@ export function ConfigureField({
                                 })}
 
                                 {variantObject?.options === "mandatory" && (
-                                    <OptionsEditor subject="Accepted values" options={options} onChange={setOptions} type={variantObject.optionsType || "string"}></OptionsEditor>
+                                    <OptionsEditor subject={t("content_type_field_configure_options_subject")} options={options} onChange={setOptions} type={variantObject.optionsType || "string"}></OptionsEditor>
                                 )}
                                 {variantObject?.options === "enabled" && (
                                     <CheckboxInput
-                                        subject="Accepted values"
+                                        subject={t("content_type_field_configure_options_subject")}
                                         checked={optionsEnabled}
                                         onChange={(checked) => {
                                             setOptionsEnabled(checked)
@@ -258,7 +260,7 @@ export function ConfigureField({
                                                     setOptionsEnabled(!optionsEnabled)
                                                 }}
                                             >
-                                                Only allow specified values
+                                                {t("content_type_field_configure_options_unchecked")}
                                             </Box>
                                         }
                                         checkedBody={
@@ -268,14 +270,14 @@ export function ConfigureField({
                                         }
                                     ></CheckboxInput>
                                 )}
-                                {variantObject?.canBeTitle && <SimpleCheckboxInput subject="Title" checked={title} onChange={setTitle} description="This field represents title of the content"></SimpleCheckboxInput>}
+                                {variantObject?.canBeTitle && <SimpleCheckboxInput subject={t("content_type_field_configure_setting_title_title")} checked={title} onChange={setTitle} description={t("content_type_field_configure_setting_title_description")}></SimpleCheckboxInput>}
 
 
                                 {validatorRequired && <RequiredEditor settings={validatorRequired} onUpdate={setValidatorRequired}></RequiredEditor>}
 
                                 {validatorUnique && <UniqueEditor settings={validatorUnique} onUpdate={setValidatorUnique}></UniqueEditor>}
 
-                                <SimpleCheckboxInput subject="Output" checked={output} onChange={setOutput} description="Include field in content api output"></SimpleCheckboxInput>
+                                <SimpleCheckboxInput subject={t("content_type_field_configure_setting_output_subject")} checked={output} onChange={setOutput} description={t("content_type_field_configure_setting_output_description")}></SimpleCheckboxInput>
 
 
                                 {validatorMinLenght && (
@@ -293,7 +295,7 @@ export function ConfigureField({
                             </VStack>
                             <VStack w="30%" alignItems={"flex-start"} spacing={10}>
                                 <TextInput subject="fieldId" disabled={true} value={field.fieldId} enableCopy={true}></TextInput>
-                                <TextInput subject="Data type" disabled={true} value={typeObject.name}></TextInput>
+                                <TextInput subject={t("content_type_field_configure_datatype")} disabled={true} value={typeObject.name}></TextInput>
                             </VStack>
                         </HStack>
                     </ModalBody>
@@ -337,7 +339,7 @@ export function ConfigureField({
                             }}
                             isDisabled={!isValid}
                         >
-                            Update
+                            {t("content_type_field_configure_update")}
                         </Button>
                         <Button
                             variant="ghost"
@@ -347,7 +349,7 @@ export function ConfigureField({
                                 onClose()
                             }}
                         >
-                            Cancel
+                            {t("cancel")}
                         </Button>
                     </ModalFooter>
                 </ModalContent>
@@ -358,11 +360,11 @@ export function ConfigureField({
                 <ModalOverlay />
                 <ModalContent maxW="500px">
                     <ModalHeader pt={10} px={10} pb={0}>
-                        Remove field
+                        {t("content_type_field_configure_remove_heading")}
                     </ModalHeader>
                     <ModalCloseButton right={10} top={10} />
                     <ModalBody overflow="auto" p={10}>
-                        Are you suer you wish to remove this field?
+                        {t("content_type_field_configure_remove_description")}
                     </ModalBody>
 
                     <ModalFooter pb={10} px={10} gap={10}>
@@ -376,7 +378,7 @@ export function ConfigureField({
                             }}
                             isDisabled={!nameValid}
                         >
-                            Yes, remove
+                            {t("content_type_field_configure_remove_button")}
                         </Button>
                         <Button
                             variant="ghost"

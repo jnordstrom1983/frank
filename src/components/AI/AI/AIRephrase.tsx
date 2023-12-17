@@ -10,6 +10,7 @@ import { Box, Button, Flex, HStack, VStack, space, useToast } from "@chakra-ui/r
 import { ReactElement, useEffect, useState } from "react"
 import { v4 as uuidv4 } from "uuid"
 import { AIState } from "./AI"
+import { usePhrases } from "@/lib/lang"
 
 export function AIReprahse({
     datas,
@@ -43,7 +44,7 @@ export function AIReprahse({
     const { spaces, isLoading: isSpacesLoading } = useSpaces({})
     const toast = useToast()
     useEffect(() => {
-        setTaskTitle("Rephrase")
+        setTaskTitle(t("ai_rephrase_title_field"))
         setReady(false)
     }, [])
 
@@ -51,6 +52,7 @@ export function AIReprahse({
     const [oldPhrase, setOldPhrase] = useState<string>("")
     const [field, setField] = useState<string>("")
     const [input, setInput] = useState<string>("free")
+    const { t } = usePhrases();
 
     useEffect(() => {
         setState("prepare")
@@ -67,7 +69,7 @@ export function AIReprahse({
         if (!field) {
             setTaskDescription(
                 <Flex gap={1} flexWrap={"wrap"}>
-                    <Box as="span">Select field.</Box>
+                    <Box as="span">{t("ai_rephrase_title_nofield")}</Box>
                 </Flex>
             )
             setReady(false)
@@ -76,17 +78,17 @@ export function AIReprahse({
 
         setTaskDescription(
             <Flex gap={1} flexWrap={"wrap"}>
-                <Box as="span">Reprahse</Box>
+                <Box as="span">{t("ai_rephrase_title_field")}</Box>
                 <Box as="span" fontWeight={"bold"}>
                     {field}
                 </Box>
-                <Box as="span">to</Box>
+                <Box as="span">{t("ai_rephrase_title_field_to")}</Box>
                 <Box as="span" fontWeight={"bold"}>
-                    {input === "free" && "a new wording"}
+                    {input === "free" && t("ai_rephrase_title_field_free")}
 
-                    {input === "context" && "match other texts"}
-                    {input === "positive" && "be more positive"}
-                    {input === "formal" && "be more formal"}
+                    {input === "context" && t("ai_rephrase_title_field_context")}
+                    {input === "positive" && t("ai_rephrase_title_field_positive")}
+                    {input === "formal" && t("ai_rephrase_title_field_formal")}
                 </Box>
             </Flex>
         )
@@ -123,7 +125,7 @@ export function AIReprahse({
                     setTaskId(response.taskId)
                 } catch (ex) {
                     toast({
-                        title: "Could not start AI task",
+                        title: t("ai_reprhase_start_error"),
                         status: "error",
                         position: "bottom-right",
                     })
@@ -141,7 +143,7 @@ export function AIReprahse({
                         <TextInput
                             value={field}
                             onChange={setField}
-                            placeholder="Select field"
+                            placeholder={t("ai_reprhase_prepare_field_placeholder")}
                             options={contentType.fields
                                 ?.filter((f) => {
                                     const type = dataTypes.find((p) => p.id === f.dataTypeId)
@@ -156,19 +158,19 @@ export function AIReprahse({
                                     text: f.name,
                                 }))}
                             type="select"
-                            subject="Field"
+                            subject={t("ai_reprhase_prepare_field_subject")}
                         ></TextInput>
                     </Box>
 
                     <TagSelect
                         value={input}
-                        subject="To"
+                        subject={t("ai_reprhase_prepare_field_to")}
                         onChange={setInput}
                         options={[
-                            { key: "free", text: "a new wording" },
-                            { key: "context", text: "match other texts" },
-                            { key: "positive", text: "be more positive" },
-                            { key: "formal", text: "be more formal" },
+                            { key: "free", text: t("ai_rephrase_title_field_free") },
+                            { key: "context", text: t("ai_rephrase_title_field_context") },
+                            { key: "positive", text: t("ai_rephrase_title_field_positive") },
+                            { key: "formal", text: t("ai_rephrase_title_field_formal") },
                         ]}
                     ></TagSelect>
                 </HStack>
@@ -180,14 +182,14 @@ export function AIReprahse({
         return (
             <VStack w="100%" alignItems={"flex-start"} spacing={5}>
                 <HStack w="100%">
-                    <Box w="40%">Old value</Box>
+                    <Box w="40%">{t("ai_reprhase_old_value")}</Box>
                     <Box w="60%" bgColor="#e8d8d8" borderRadius="3px" p={3}>
                         {oldPhrase}
                     </Box>
                 </HStack>
 
                 <HStack w="100%">
-                    <Box w="40%">Old value</Box>
+                    <Box w="40%">{t("ai_reprhase_new_value")}</Box>
                     <Box w="60%" bgColor="#e3f1e3" borderRadius="3px" p={3}>
                         {newPhrse}
                     </Box>
@@ -196,7 +198,7 @@ export function AIReprahse({
                 <Box backgroundColor="#F8F8F8" borderRadius="15px" padding={10} w="100%">
                     <HStack spacing={5} width="100%">
                         <VStack flex={1} alignItems={"flex-start"}>
-                            <Box fontSize="20px">Do you like it?</Box>
+                            <Box fontSize="20px">{t("ai_reprhase_accept")}</Box>
                         </VStack>
                         <Button
                             colorScheme="blue"
@@ -204,7 +206,7 @@ export function AIReprahse({
                                 setState("prepare")
                             }}
                         >
-                            CANCEL
+                            {t("ai_reprhase_cancel")}
                         </Button>
 
                         <Button
@@ -238,7 +240,7 @@ export function AIReprahse({
                                 onClose()
                             }}
                         >
-                            SAVE NEW VALUE
+                            {t("ai_reprhase_save")}
                         </Button>
                     </HStack>
                 </Box>

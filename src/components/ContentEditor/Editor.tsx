@@ -2,9 +2,8 @@
 import { PutContentItemErrorItem, PutContentItemRequest, PutContentItemResponse } from "@/app/api/space/[spaceid]/content/[contentid]/put"
 import { CheckboxInput } from "@/components/CheckboxInput"
 import { SaveMenuBar } from "@/components/SaveMenuBar"
-import { languages as allLanguages } from "@/lib/constants"
 import { ContentData } from "@/models/contentdata"
-import { Space, SpaceLanguage } from "@/models/space"
+import { SpaceLanguage } from "@/models/space"
 import { apiClient } from "@/networking/ApiClient"
 import { useContentItem } from "@/networking/hooks/content"
 import { useContenttype } from "@/networking/hooks/contenttypes"
@@ -30,29 +29,29 @@ import {
     Stack,
     Tag,
     Tooltip,
-    useDisclosure,
-    useToast,
     VStack,
+    useDisclosure,
+    useToast
 } from "@chakra-ui/react"
 import { useQueryClient } from "@tanstack/react-query"
+import dayjs from "dayjs"
 import { useRouter } from "next/navigation"
-import React, { useEffect, useState } from "react"
-import { Check, Clock, Flag, MessageCircle, PlusCircle, Sliders, Trash, X, Zap } from "react-feather"
+import { useEffect, useState } from "react"
+import { Check, Clock, Flag, MessageCircle, PlusCircle, Sliders, Trash, X } from "react-feather"
 import { v4 as uuidv4 } from "uuid"
 import TextInput from "../TextInput"
 import { ContentEditorManager } from "./ContentEditorManager"
-import dayjs from "dayjs"
 
-import relativeTime from "dayjs/plugin/relativeTime"
-import { useFolders } from "@/networking/hooks/folder"
-import { AI } from "../AI/AI/AI"
-import { AIModule } from "@/models/ai"
-import { AITranslate } from "../AI/AI/AITranslate"
-import { SingleDatepicker } from "chakra-dayzed-datepicker"
-import { padZero } from "@/lib/utils"
-import { z } from "zod"
 import { PostFolderRequest, PostFolderResponse } from "@/app/api/space/[spaceid]/folder/post"
 import { SpaceItem } from "@/app/api/space/get"
+import { getAllLangauges, usePhrases } from "@/lib/lang"
+import { padZero } from "@/lib/utils"
+import { AIModule } from "@/models/ai"
+import { useFolders } from "@/networking/hooks/folder"
+import { SingleDatepicker } from "chakra-dayzed-datepicker"
+import relativeTime from "dayjs/plugin/relativeTime"
+import { z } from "zod"
+import { AI } from "../AI/AI/AI"
 dayjs.extend(relativeTime)
 
 interface valdationError {
@@ -91,7 +90,7 @@ export default function Editor({
     onSave?: (data: PutContentItemRequest) => boolean
 }) {
     const { showMainMenu, hideMainMenu } = useAppStore((state) => state)
-
+    const { t } = usePhrases();
     const router = useRouter()
     const toast = useToast()
     const [isSaveLoading, setIsSaveLoading] = useState<boolean>(false)
@@ -133,6 +132,7 @@ export default function Editor({
     const [ActiveAIModule, setActiveAIModule] = useState<AIModule>("check")
     const [hasChanges, setHasChanges] = useState<boolean>(false)
     const [initialized, setInitilized] = useState<boolean>(false)
+    const allLanguages = getAllLangauges()
     function getTitle() {
         if (!contenttype) return ""
         if (!updatedContentDatas) return ""
@@ -213,7 +213,7 @@ export default function Editor({
                 return 0
             })
 
-        setFolderOptions([{ key: "", text: "No folder" }, ...folderOptions])
+        setFolderOptions([{ key: "", text: t("editor_space_nofolder") }, ...folderOptions])
     }, [folders, content])
 
     useEffect(() => {
@@ -282,8 +282,8 @@ export default function Editor({
                         setServersideErrors((ex as any).error as PutContentItemErrorItem[])
                         setIsSaveLoading(false)
                         toast({
-                            title: "Content not valid",
-                            description: "Fix the errors and try again",
+                            title: t("editor_save_validation_error_title"),
+                            description: t("editor_save_validation_error_description"),
                             status: "warning",
                             position: "bottom-right",
                         })
@@ -294,8 +294,8 @@ export default function Editor({
             }
             setIsSaveLoading(false)
             toast({
-                title: "Could not save content",
-                description: "Please try again.",
+                title: t("editor_save_error_title"),
+                description: t("editor_save_error_desscription"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -345,15 +345,15 @@ export default function Editor({
             onCreateFolderClose()
             setFolder(response.folderId)
             toast({
-                title: "Folder created",
+                title: t("editor_folder_create_save_success"),
                 status: "success",
                 position: "bottom-right",
             })
         } catch (ex) {
             setCreateFolderLoading(false)
             toast({
-                title: "Could not create folder",
-                description: "Please try again.",
+                title: t("editor_folder_create_save_error_title"),
+                description: t("editor_folder_create_save_error_description"),
                 status: "error",
                 position: "bottom-right",
             })
@@ -385,7 +385,6 @@ export default function Editor({
                                         setHasChanges(true)
                                     }}
                                     onClose={() => {
-                                        console.log("on close called")
                                         setShowAI(false)
                                     }}
                                 ></AI>
@@ -407,14 +406,14 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Copy content
+                                    {t("editor_copycontent_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
-                                        <Box>Do you wish to copy existing content from another language to the language you just added?</Box>
+                                        <Box>{t("editor_copycontent_description")}</Box>
                                         <TextInput
-                                            subject="Copy from"
+                                            subject={t("editor_copycontent_copyfrom")}
                                             value={copyLanguageFrom}
                                             type="select"
                                             options={allLanguages
@@ -470,7 +469,7 @@ export default function Editor({
                                             onCopyLanguageClose()
                                         }}
                                     >
-                                        Copy content
+                                        {t("editor_copycontent_copy")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -478,7 +477,8 @@ export default function Editor({
                                             onCopyLanguageClose()
                                         }}
                                     >
-                                        Do not copy any content
+                                         {t("editor_copycontent_donotcopy")}
+                                        
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -488,18 +488,18 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Create folder
+                                    {t("editor_folder_create_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
                                         <TextInput
-                                            subject="Name"
+                                            subject={t("editor_folder_create_input_subject")}
                                             value={createFolderName}
                                             disabled={createFolderLoading}
                                             focus={true}
                                             onChange={setCreateFolderName}
-                                            placeholder="My folder"
+                                            placeholder={t("editor_folder_create_input_placeholder")}
                                             validate={z.string().min(3)}
                                             onValidation={(valid) => {
                                                 setCreateFolderValid(valid)
@@ -520,7 +520,7 @@ export default function Editor({
                                             createFolder()
                                         }}
                                     >
-                                        Create
+                                        {t("editor_folder_create_button")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -528,7 +528,7 @@ export default function Editor({
                                             onCreateFolderClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -538,14 +538,14 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Unsaved changes
+                                    {t("editor_unsavedchanges_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
                                         <Box>
-                                            You have unsaved changes. If you close your content without saving you will loose your changes. Are you sure you wish to close the
-                                            content?
+                                            {t("editor_unsavedchanges_description")}
+                                           
                                         </Box>
                                     </VStack>
                                 </ModalBody>
@@ -560,7 +560,8 @@ export default function Editor({
                                             onBack && onBack()
                                         }}
                                     >
-                                        Yes, close
+                                         {t("editor_unsavedchanges_button")}
+                                        
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -568,7 +569,7 @@ export default function Editor({
                                             onUnsavedClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -578,12 +579,12 @@ export default function Editor({
                             <ModalOverlay />
                             <ModalContent maxW="600px">
                                 <ModalHeader pt={10} px={10} pb={0}>
-                                    Delete content
+                                    {t("editor_delete_heading")}
                                 </ModalHeader>
                                 <ModalCloseButton right={10} top={10} />
                                 <ModalBody overflow="auto" p={10}>
                                     <VStack alignItems={"flex-start"} spacing={5}>
-                                        <Box>Are you sure you wish to remove this content?</Box>
+                                        <Box>{t("editor_delete_description")}</Box>
                                     </VStack>
                                 </ModalBody>
 
@@ -601,7 +602,7 @@ export default function Editor({
                                                     isAuthRequired: true,
                                                 })
                                                 toast({
-                                                    title: `${getTitle()} deleted.`,
+                                                    title: t("editor_delete_success", getTitle()),
                                                     status: "success",
                                                     position: "bottom-right",
                                                 })
@@ -614,15 +615,15 @@ export default function Editor({
                                             } catch (ex) {
                                                 setIsDeleteLoading(false)
                                                 toast({
-                                                    title: "Could not delete content",
-                                                    description: "Please try again.",
+                                                    title: t("editor_delete_error_title"),
+                                                    description: t("editor_delete_error_description"),
                                                     status: "error",
                                                     position: "bottom-right",
                                                 })
                                             }
                                         }}
                                     >
-                                        Yes, delete
+                                        {t("editor_delete_button")}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -630,7 +631,7 @@ export default function Editor({
                                             onDeleteClose()
                                         }}
                                     >
-                                        Cancel
+                                        {t("cancel")}
                                     </Button>
                                 </ModalFooter>
                             </ModalContent>
@@ -638,8 +639,8 @@ export default function Editor({
 
                         {showSaveBar && (
                             <SaveMenuBar
-                                positiveText={`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}
-                                neutralText="CLOSE"
+                                positiveText={t("editor_savebar_save", published ? t("editor_savebar_and_publish") : t("editor_savebar_draft"))}
+                                neutralText={t("editor_savebar_close")}
                                 positiveLoading={isSaveLoading}
                                 onClose={() => {
                                     if (hasChanges) {
@@ -660,8 +661,8 @@ export default function Editor({
                                     if (errors.length > 0) {
                                         setShowValidation(true)
                                         toast({
-                                            title: "Content not valid",
-                                            description: "Fix the errors and try again",
+                                            title: t("editor_savebar_save_error_title"),
+                                            description: t("editor_savebar_save_error_description"),
                                             status: "warning",
                                             position: "bottom-right",
                                         })
@@ -673,7 +674,7 @@ export default function Editor({
                                 }}
                             >
                                 <HStack spacing={2}>
-                                    <Box as="span">Edit content</Box>
+                                    <Box as="span">{t("editor_title")}</Box>
                                     <Box as="span" fontWeight={"bold"}>
                                         {title}
                                     </Box>
@@ -688,7 +689,7 @@ export default function Editor({
                                             {tools.save && (
                                                 <Box>
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">SAVE</Box>
+                                                        <Box fontWeight="bold">{t("editor_tools_save_title")}</Box>
                                                         <Box>
                                                             <Button
                                                                 colorScheme="green"
@@ -697,8 +698,8 @@ export default function Editor({
                                                                     if (errors.length > 0) {
                                                                         setShowValidation(true)
                                                                         toast({
-                                                                            title: "Content not valid",
-                                                                            description: "Fix the errors and try again",
+                                                                            title: t("editor_savebar_save_error_title"),
+                                                                            description: t("editor_savebar_save_error_description"),
                                                                             status: "warning",
                                                                             position: "bottom-right",
                                                                         })
@@ -708,7 +709,7 @@ export default function Editor({
                                                                     await save()
                                                                     setHasChanges(false)
                                                                 }}
-                                                            >{`SAVE ${published ? "AND PUBLISH" : "DRAFT"}`}</Button>
+                                                            >{t("editor_savebar_save", published ? t("editor_savebar_and_publish") : t("editor_savebar_draft"))}</Button>
                                                         </Box>
                                                     </VStack>
                                                 </Box>
@@ -717,7 +718,7 @@ export default function Editor({
                                                 <Box>
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <HStack>
-                                                            <Box fontWeight="bold">PUBLISHED</Box>
+                                                            <Box fontWeight="bold">{t("editor_tools_publish_title")}</Box>
                                                             <Tooltip label="Schedule publishing / unpublishing" placement="top">
                                                                 <Button
                                                                     variant={"ghost"}
@@ -732,7 +733,7 @@ export default function Editor({
                                                         <VStack spacing={5} w="100%" alignItems={"flex-start"}>
                                                             {publishDate ? (
                                                                 <Box>
-                                                                    <Tag colorScheme="green">Scheduled</Tag> Content will be automatically published on{" "}
+                                                                    <Tag colorScheme="green">{t("editor_tools_publish_scheduled")}</Tag> {t("editor_tools_publish_description")}{" "}
                                                                     {dayjs(publishDate).format("YYYY-MM-DD HH:mm")}.{" "}
                                                                     <Button
                                                                         variant={"ghost"}
@@ -746,7 +747,7 @@ export default function Editor({
                                                                             setPublishDate(undefined)
                                                                         }}
                                                                     >
-                                                                        Publish now.
+                                                                        {t("editor_tools_publish_button_publish_now")}
                                                                     </Button>
                                                                 </Box>
                                                             ) : (
@@ -754,15 +755,15 @@ export default function Editor({
                                                                     <CheckboxInput
                                                                         checked={published}
                                                                         onChange={setPublished}
-                                                                        uncheckedBody={<Box>No, it's a draft</Box>}
-                                                                        checkedBody={<Box>Yes, it's published</Box>}
+                                                                        uncheckedBody={<Box>{t("editor_tools_publish_checkbox_isdraft")}</Box>}
+                                                                        checkedBody={<Box>{t("editor_tools_publish_checkbox_ispublished")}</Box>}
                                                                     ></CheckboxInput>
                                                                 </Box>
                                                             )}
 
                                                             {DepublishDate && (
                                                                 <Box>
-                                                                    <Tag colorScheme="red">Scheduled</Tag> Content will be automatically depublished on{" "}
+                                                                    <Tag colorScheme="red">{t("editor_tools_publish_scheduled")}</Tag> {t("editor_tools_depublish_description")}{" "}
                                                                     {dayjs(DepublishDate).format("YYYY-MM-DD HH:mm")}.
                                                                 </Box>
                                                             )}
@@ -774,7 +775,7 @@ export default function Editor({
                                             {tools.preview && contenttype.externalPreview && (
                                                 <Box>
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">PREVIEW</Box>
+                                                        <Box fontWeight="bold">{t("editor_tools_preview_title")}</Box>
                                                         <Box>
                                                             <Button
                                                                 
@@ -810,7 +811,7 @@ export default function Editor({
                                                                   document.body.removeChild(form);
 
                                                                 }}
-                                                            >OPEN PREVIEW</Button>
+                                                            >{t("editor_tools_preview_open")}</Button>
                                                         </Box>
                                                     </VStack>
                                                 </Box>
@@ -850,8 +851,8 @@ export default function Editor({
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <Box fontWeight="bold">
                                                             <HStack>
-                                                                <Box>LANGUAGES</Box>
-                                                                <Tooltip label="Manage languages" placement="top">
+                                                                <Box>{t("editor_tools_language_title")}</Box>
+                                                                <Tooltip label={t("editor_tools_language_tooltip")} placement="top">
                                                                     <Button
                                                                         variant="ghost"
                                                                         onClick={() => {
@@ -907,7 +908,7 @@ export default function Editor({
                                                 <Box w="100%">
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <HStack>
-                                                            <Box fontWeight="bold">FOLDER</Box>
+                                                            <Box fontWeight="bold">{t("editor_tools_folder_title")}</Box>
                                                             <Button
                                                                 variant={"ghost"}
                                                                 onClick={() => {
@@ -930,7 +931,7 @@ export default function Editor({
                                             {tools.ai && spaces?.find((s) => s.spaceId === spaceId)?.enableAi && (
                                                 <Box>
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">AI ASSISTANCE</Box>
+                                                        <Box fontWeight="bold">{t("editor_tools_ai_title")}</Box>
                                                         <Box>
                                                             <Flex flexWrap="wrap" gap="3">
                                                                 <Button
@@ -943,7 +944,7 @@ export default function Editor({
                                                                         setShowAI(true)
                                                                     }}
                                                                 >
-                                                                    Check
+                                                                    {t("editor_tools_ai_check")}
                                                                 </Button>
                                                                 <Button
                                                                     leftIcon={<MessageCircle></MessageCircle>}
@@ -955,7 +956,7 @@ export default function Editor({
                                                                         setShowAI(true)
                                                                     }}
                                                                 >
-                                                                    Rephrase
+                                                                    {t("editor_tools_ai_rephrase")}
                                                                 </Button>
                                                                 {(languages[0] || "en") !== currentLanguage && (
                                                                     <Button
@@ -968,7 +969,7 @@ export default function Editor({
                                                                             setShowAI(true)
                                                                         }}
                                                                     >
-                                                                        Translate
+                                                                        {t("editor_tools_ai_translate")}
                                                                     </Button>
                                                                 )}
                                                             </Flex>
@@ -980,21 +981,21 @@ export default function Editor({
                                             {tools.slug && contenttype.generateSlug && (
                                                 <Box w="100%">
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">SLUG</Box>
+                                                        <Box fontWeight="bold">{t("editor_tools_slug_title")}</Box>
                                                         <Box w="100%">
-                                                            <TextInput value={slug} onChange={updateSlug} placeholder="Will be generated when saved" enableCopy={!!slug} copyMessage="Slug copied"></TextInput>
+                                                            <TextInput value={slug} onChange={updateSlug} placeholder={t("editor_tools_slug_placeholder")} enableCopy={!!slug} copyMessage={t("editor_tools_slug_copy_message")}></TextInput>
                                                         </Box>
                                                     </VStack>
                                                 </Box>
                                             )}
 
-                                            {tools.folder && (
+                                            {tools.delete && (
                                                 <Box w="100%">
                                                     <VStack w="100%" alignItems={"flex-start"}>
-                                                        <Box fontWeight="bold">DANGER ZONE</Box>
+                                                        <Box fontWeight="bold">{t("editor_tools_delete_title")}</Box>
                                                         <Box>
                                                             <Button leftIcon={<Trash></Trash>} onClick={onDeleteOpen}>
-                                                                Delete
+                                                                {t("editor_tools_delete_button")}
                                                             </Button>
                                                         </Box>
                                                     </VStack>
@@ -1006,8 +1007,8 @@ export default function Editor({
                                                     <VStack w="100%" alignItems={"flex-start"}>
                                                         <Box fontWeight="bold">
                                                             <HStack>
-                                                                <Box>HISTORY</Box>{" "}
-                                                                <Tooltip label="View history" placement="top">
+                                                                <Box>{t("editor_tools_history_title")}</Box>
+                                                                <Tooltip label={t("editor_tools_history_tooltip")} placement="top">
                                                                     <Button
                                                                         variant="ghost"
                                                                         onClick={() => {
@@ -1036,7 +1037,7 @@ export default function Editor({
                                                                             {dayjs(history.date).fromNow()}
                                                                         </Box>
                                                                         <Box fontSize="12px" color="gray.500" flex={1} textAlign="right">
-                                                                            ({history.changes} {history.changes > 1 ? "changes" : "change"})
+                                                                            ({history.changes} {history.changes > 1 ? t("editor_tools_history_changes") : t("editor_tools_history_change")})
                                                                         </Box>
                                                                     </HStack>
                                                                 </Button>
@@ -1054,7 +1055,7 @@ export default function Editor({
                                                                 >
                                                                     <HStack w="100%" spacing="3">
                                                                         <Box fontWeight={"bold"}>{content.historyItems.length - 3}</Box>
-                                                                        <Box>more {content.historyItems.length > 4 ? "changes" : "change"}</Box>
+                                                                        <Box>{t("editor_tools_history_more")} {content.historyItems.length > 4 ? t("editor_tools_history_changes") : t("editor_tools_history_change")}</Box>
                                                                     </HStack>
                                                                 </Button>
                                                             )}
@@ -1147,9 +1148,10 @@ export function EditorLanguages({
     onChange: (languages: SpaceLanguage[]) => void
     defaultLanguage: SpaceLanguage
 }) {
+    const allLanguages = getAllLangauges();
     const [text, setText] = useState<string>("")
     const [lang, setLang] = useState<string>("")
-
+    const { t } = usePhrases();
     const [filteredLanguages, setFilteredLanguages] = useState<
         {
             code: string
@@ -1184,13 +1186,13 @@ export function EditorLanguages({
             <ModalOverlay />
             <ModalContent maxW="600px">
                 <ModalHeader pt={10} px={10} pb={0}>
-                    Languages
+                    {t("editor_languages_heading")}
                 </ModalHeader>
                 <ModalCloseButton right={10} top={10} />
                 <ModalBody minH="200px" maxH="90vh" overflow="auto" p={10}>
                     <VStack w="100%" alignItems="flex-start">
                         <TextInput
-                            placeholder="Hit enter to add language"
+                            placeholder={t("editor_languages_placeholder")}
                             value={text}
                             focus={true}
                             onChange={setText}
@@ -1255,7 +1257,7 @@ export function EditorLanguages({
                             onChange(internalLanguages)
                         }}
                     >
-                        Update
+                        {t("editor_languages_update")}
                     </Button>
                     <Button
                         variant="ghost"
@@ -1263,7 +1265,7 @@ export function EditorLanguages({
                             onClose()
                         }}
                     >
-                        Cancel
+                        {t("cancel")}
                     </Button>
                 </ModalFooter>
             </ModalContent>
@@ -1292,6 +1294,7 @@ function EditorScheduling({
     const [ScheduleDepublishHour, setScheduleDepublishHour] = useState<number>(0)
     const [isScheduled, setIsScheduled] = useState<boolean>(false)
     const [isScheduledDepublish, setIsScheduledDepublish] = useState<boolean>(false)
+    const { t } = usePhrases();
     useEffect(() => {
         if (ScheduledPublish) {
             setScheduleDate(ScheduledPublish)
@@ -1324,7 +1327,7 @@ function EditorScheduling({
             <ModalOverlay />
             <ModalContent maxW="600px">
                 <ModalHeader pt={10} px={10} pb={0}>
-                    Scheduling
+                    {t("editor_schedule_heading")}
                 </ModalHeader>
                 <ModalCloseButton right={10} top={10} />
                 <ModalBody overflow="auto" p={10}>
@@ -1332,7 +1335,7 @@ function EditorScheduling({
                         <VStack w="100%" spacing={10}>
                             <CheckboxInput
                                 align="top"
-                                subject="Publish"
+                                subject={t("editor_schedule_publish_checkbox")}
                                 checked={isScheduled}
                                 onChange={(checked) => {
                                     setIsScheduled(checked)
@@ -1340,7 +1343,7 @@ function EditorScheduling({
                                 checkedBody={
                                     <Box>
                                         <VStack w="100%" alignItems={"flex-start"}>
-                                            <Box fontSize="14px">Yes, publish this content automatically on this date.</Box>
+                                            <Box fontSize="14px">{t("editor_schedule_publish_checkbox_yes_description")}</Box>
                                             <HStack w="100%">
                                                 {" "}
                                                 <SingleDatepicker
@@ -1395,14 +1398,14 @@ function EditorScheduling({
                                 }
                                 uncheckedBody={
                                     <Box fontSize="14px" color="gray">
-                                        No, manually publish content
+                                        {t("editor_schedule_publish_checkbox_no_description")}
                                     </Box>
                                 }
                             ></CheckboxInput>
 
                             <CheckboxInput
                                 align="top"
-                                subject="Depublish"
+                                subject={t("editor_schedule_depublish_checkbox")}
                                 checked={isScheduledDepublish}
                                 onChange={(checked) => {
                                     setIsScheduledDepublish(checked)
@@ -1410,7 +1413,7 @@ function EditorScheduling({
                                 checkedBody={
                                     <Box>
                                         <VStack w="100%" alignItems={"flex-start"}>
-                                            <Box fontSize="14px">Yes, depublish this content automatically on this date.</Box>
+                                            <Box fontSize="14px">{t("editor_schedule_depublish_checkbox_yes_description")}</Box>
                                             <HStack w="100%">
                                                 {" "}
                                                 <SingleDatepicker
@@ -1465,7 +1468,7 @@ function EditorScheduling({
                                 }
                                 uncheckedBody={
                                     <Box fontSize="14px" color="gray">
-                                        No, do not depublish the content
+                                        {t("editor_schedule_depublish_checkbox_no_description")}
                                     </Box>
                                 }
                             ></CheckboxInput>
@@ -1503,7 +1506,7 @@ function EditorScheduling({
                             onScheduleClose()
                         }}
                     >
-                        Set scheduling
+                        {t("editor_schedule_button")}
                     </Button>
                     <Button
                         variant="ghost"
@@ -1511,7 +1514,7 @@ function EditorScheduling({
                             onScheduleClose()
                         }}
                     >
-                        Cancel
+                        {t("cancel")}
                     </Button>
                 </ModalFooter>
             </ModalContent>
