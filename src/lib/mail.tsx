@@ -41,23 +41,7 @@ export async function sendEmailSignin(code: number, token: string, to: string, l
 }
 
 export function sendWelcomeNewUserNewSpace(space: string, to: string) {
-    //@ts-ignore
-    let lang = languages[language]
-    if(!lang) lang= languages.en;
-
-    function getPhrase(phraseId : string){
-        const frank = process.env.BRANDING_FRANK ||  "Frank"
-        let value = lang?.phrases[phraseId]  || ""
-        return value.replace("{frank}", frank)
-    }
-
-    const frank = process.env.BRANDING_FRANK ||  "Frank"
     const language = process.env.EMAIL_DEFAULT_LANGUAGE || "en"
-    const html = render(<WelcomeNewUserNewSpaceEmail space={space} url={`${process.env.PUBLIC_URL}` || ""} language={language}></WelcomeNewUserNewSpaceEmail>)
-    sendEmail(getPhrase("email_welcomenewuser_newspace_subject"), html, to)
-}
-
-export function sendWelcomeNewUser(to: string) {
     //@ts-ignore
     let lang = languages[language]
     if(!lang) lang= languages.en;
@@ -68,13 +52,31 @@ export function sendWelcomeNewUser(to: string) {
         return value.replace("{frank}", frank)
     }
     
-    const frank = process.env.BRANDING_FRANK ||  "Frank"
+    const html = render(<WelcomeNewUserNewSpaceEmail space={space} url={`${process.env.PUBLIC_URL}` || ""} language={language}></WelcomeNewUserNewSpaceEmail>)
+    sendEmail(getPhrase("email_welcomenewuser_newspace_subject"), html, to)
+}
+
+export function sendWelcomeNewUser(to: string) {
+    
     const language = process.env.EMAIL_DEFAULT_LANGUAGE || "en"
+    //@ts-ignore
+    let lang = languages[language]
+    if(!lang) lang= languages.en;
+
+    function getPhrase(phraseId : string){
+        const frank = process.env.BRANDING_FRANK ||  "Frank"
+        let value = lang?.phrases[phraseId]  || ""
+        return value.replace("{frank}", frank)
+    }
+    
+   
     const html = render(<WelcomeNewUserEmail url={`${process.env.PUBLIC_URL}` || ""} language={language}></WelcomeNewUserEmail>)
     sendEmail(getPhrase("email_welcomenewuser_subject"), html, to)
 }
 
 export function sendAddedToNewSpace(space: string, to: string) {
+    const language = process.env.EMAIL_DEFAULT_LANGUAGE || "en"
+
     //@ts-ignore
     let lang = languages[language]
     if(!lang) lang= languages.en;
@@ -85,8 +87,6 @@ export function sendAddedToNewSpace(space: string, to: string) {
         return value.replace("{frank}", frank)
     }
 
-    const frank = process.env.BRANDING_FRANK ||  "Frank"
-    const language = process.env.EMAIL_DEFAULT_LANGUAGE || "en"
     const html = render(<AddedToSpace space={space} url={`${process.env.PUBLIC_URL}` || ""} language={language}></AddedToSpace>)
     sendEmail(getPhrase("email_addedtospace_subject"), html, to)
 }
