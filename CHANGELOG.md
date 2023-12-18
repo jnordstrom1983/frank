@@ -1,3 +1,9 @@
+## 0.0.9
+- Adding support for multi language UI, Swedish added as language
+
+## 0.0.8
+- Adding support for language wildcard
+
 ## 0.0.7
 - Feature: Adding support for modules
 - Feature: Adding Translation files module

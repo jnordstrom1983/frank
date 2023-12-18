@@ -22,10 +22,10 @@ export const WelcomeNewUserNewSpaceEmail = ({ url, space, language }: { url: str
             <Body style={main}>
                 <Container style={container}>
                     <Section style={{ textAlign: "center" }}>
-                        <Heading>{getPhrase("email_welcomenewuser_newspace_preview")}</Heading>
+                        <Heading>{getPhrase("email_welcomenewuser_newspace_haeding")}</Heading>
                         <Text style={spacing}></Text>
-                        <Text style={paragraph}>{getPhrase("email_welcomenewuser_newspace_preview")} {space}.</Text>
-                        <Text style={paragraph}>{getPhrase("email_welcomenewuser_newspace_preview")}</Text>
+                        <Text style={paragraph}>{getPhrase("email_welcomenewuser_newspace_text1")} {space}.</Text>
+                        <Text style={paragraph}>{getPhrase("email_welcomenewuser_newspace_text2")}</Text>
                         <Text style={spacing}></Text>
 
                         <Button pX={0} pY={20} style={button} href={url}>
