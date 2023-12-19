@@ -11,11 +11,12 @@ import { PutProfileRequest, PutProfileResponse } from "../api/user/profile/put"
 import { useQueryClient } from "@tanstack/react-query"
 import { getSpaceHome } from "@/lib/utils"
 import { SpaceItem } from "../api/space/get"
+import { usePhrases } from "@/lib/lang"
 
 export default function Home() {
     const { profile, isLoading: isProfileLoading } = useProfile()
     const { spaces } = useSpaces({ enabled: !!profile })
-
+    const { t } = usePhrases();
     const router = useRouter()
     const [showWelcome, setShowWelcome] = useState<boolean>(false)
     const [name, setName] = useState<string>("")
@@ -82,11 +83,11 @@ export default function Home() {
             <ModalOverlay />
             <ModalContent maxW="600px">
                 <ModalHeader pt={10} px={10} pb={0}>
-                    Welcome!
+                    {t("welcome_welcome")}
                 </ModalHeader>
                 <ModalBody overflow="auto" p={10}>
                     <VStack alignItems={"flex-start"} spacing={5}>
-                        <Box> Before you begin, to activate your account, please enter your name.</Box>
+                        <Box> {t("welcome_description")}</Box>
                         <TextInput value={name} focus={true} onChange={setName} validate={z.string().min(3)} onSubmit={(value) => save(value)} placeholder="John Doe"></TextInput>
                     </VStack>
                 </ModalBody>
@@ -100,7 +101,7 @@ export default function Home() {
                          save(name)
                         }}
                     >
-                        Save
+                        {t("welcome_save")}
                     </Button>
                 </ModalFooter>
             </ModalContent>

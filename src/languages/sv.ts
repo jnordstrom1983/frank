@@ -600,6 +600,10 @@ export const sv = {
     "email_welcomenewuser_login" : "LOGGA IN",
     "email_welcomenewuser_subject" : "Välkommen till {frank}",
 
+    "welcome_welcome" : "Välkommen!",
+    "welcome_description" : "Innan du börjar, skriv in ditt namn.",
+    "welcome_save" : "Spara",
+
 
     "language_aa": "Afar",
     "language_ab": "Abkhazian",

@@ -597,6 +597,10 @@ export const en = {
     "email_welcomenewuser_login" : "SIGN IN",    
     "email_welcomenewuser_subject" : "Welecome to {frank}",
 
+    "welcome_welcome" : "Welcome!",
+    "welcome_description" : "Before you begin, to activate your account, please enter your name.",
+    "welcome_save" : "Save",
+
     
 
     "language_aa": "Afar",
