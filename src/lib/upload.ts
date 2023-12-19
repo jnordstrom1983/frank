@@ -198,6 +198,11 @@ async function S3Upload(buffer: Buffer, key: string, mimeType : string) {
     if (!location.startsWith("https://")) {
         location = `https://${location}`
     }
+    
+    if(process.env.S3_LOCATIONTEMPLATE){
+        location = process.env.S3_LOCATIONTEMPLATE.replace("{path}", path)
+    }
+
     if (location) {
         return { location: location, key: path }
     }

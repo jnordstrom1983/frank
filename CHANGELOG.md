@@ -1,3 +1,6 @@
+## 0.0.10
+- Adding support for S3_LOCATIONTEMPLATE
+
 ## 0.0.9
 - Adding support for multi language UI, Swedish added as language
 
