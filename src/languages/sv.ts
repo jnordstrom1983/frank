@@ -524,7 +524,7 @@ export const sv = {
     "module_translation_edit_delete_description" : "Är du säker på att du vill ta bort den här filen?",
     "module_translation_edit_delete_button" : "Ja, tar bort översättningen",
     "module_translation_edit_delete_success" : "Översättning borttagen.",
-    "module_translation_edit_savebar_save" : "TA BORT",
+    "module_translation_edit_savebar_save" : "SPARA",
     "module_translation_edit_savebar_close" : "STÄNG",
     "module_translation_edit_save_error_title" :  "Översättningarna kunde inte sparas",
     "module_translation_edit_save_success" :  "%1 sparad.",
