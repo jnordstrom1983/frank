@@ -178,7 +178,6 @@ export function AssetEditor({
                             editable ? <HStack>
                                 {enableSelect && (multiple || internalValue.length < 1) && (
                                     <Button w="150px" onClick={() => setShowPickAsset(true)}>
-                                        xx
                                         {multiple ? t("field_editor_asset_add_existing") : t("field_editor_asset_select_existing")}
                                     </Button>
                                 )}
