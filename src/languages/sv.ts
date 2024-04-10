@@ -576,7 +576,7 @@ export const sv = {
     "email_addedtospace_login": "LOGGA IN",
     "email_addedtospace_subject": "Nytt projekt tillagt",
 
-    "email_login_preview": "Din inloggniskod till {frank}",
+    "email_login_preview": "Din inloggningskod till {frank}",
     "email_login_heading": "Logga in i {frank}",
     "email_login_text1": "Här kommer din inloggningskod för {frank}.",
     "email_login_text2": "För att logga in, skriv in koden eller klicka på knappen nedan.",
