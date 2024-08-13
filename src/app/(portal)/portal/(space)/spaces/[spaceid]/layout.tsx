@@ -19,7 +19,7 @@ import { languageOptions, usePhrases } from "@/lib/lang"
 import TextInput from "@/components/TextInput"
 export default function DashboardLayout({ children, params }: { children: React.ReactNode; params: { spaceid: string } }) {
     const { t } = usePhrases()
-    const { uiLanguage, setUiLanguage} = useAppStore(state=>state);
+    const { uiLanguage, setUiLanguage, setSelectedFolder } = useAppStore(state=>state);
     const { profile, isLoading } = useProfile()
     const { mainMenu, isMainMenuVisible, setSignoutVisible } = useAppStore((state) => state)
     const queryClient = useQueryClient()
@@ -219,6 +219,7 @@ export default function DashboardLayout({ children, params }: { children: React.
                                 selected={mainMenu === "content"}
                                 onClick={() => {
                                     setShowOverlay(false)
+                                    setSelectedFolder("")
                                     router.push(`/portal/spaces/${params.spaceid}/content`)
                                 }}
                             ></MenuButton>}

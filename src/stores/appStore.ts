@@ -12,6 +12,8 @@ interface AppStoreState {
     setSignoutVisible: (visible: boolean) => void;
     uiLanguage : string;
     setUiLanguage : (language : string) => void
+    selectedFolder : string;
+    setSelectedFolder : (folder : string) => void
 }
 
 export const useAppStore = create<AppStoreState>((set, get) => ({
@@ -20,6 +22,10 @@ export const useAppStore = create<AppStoreState>((set, get) => ({
     isMainMenuVisible: true,
     isSignoutVisible: false,
     uiLanguage :  "en",
+    selectedFolder : "",
+    setSelectedFolder(folder : string){
+        set({selectedFolder : folder})
+    },
     setMainMenu(menu) {
         set({ mainMenu: menu })
     },

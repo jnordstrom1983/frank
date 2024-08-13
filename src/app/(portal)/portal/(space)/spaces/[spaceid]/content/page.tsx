@@ -12,6 +12,7 @@ import { useContentypes } from "@/networking/hooks/contenttypes"
 import { useFolders } from "@/networking/hooks/folder"
 import { useSpaces } from "@/networking/hooks/spaces"
 import { useProfile } from "@/networking/hooks/user"
+import { useAppStore } from "@/stores/appStore"
 import {
     Box,
     Button,
@@ -45,6 +46,7 @@ import { ChevronDown, Eye, EyeOff, Layers, Loader, Search, Trash2, X } from "rea
 export default function Home({ params }: { params: { spaceid: string } }) {
 
     const { t } = usePhrases();
+    const { setSelectedFolder, selectedFolder } = useAppStore(state=>state);
 
     const router = useRouter()
     const [mode, setMode] = useState<"list" | "notready" | "loading" | "create">("loading")
@@ -73,6 +75,12 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
     const [filteredItems, setFilteredItems] = useState<ContentInternalViewModel[]>([])
     const [allVisibleItems, setAllVisibileItems] = useState<ContentInternalViewModel[]>()
+
+    useEffect(()=>{
+        if(selectedFolder){
+            setFilterFolder(selectedFolder)
+        }
+    }, [])
 
     useEffect(()=>{
         if(!contenttypes) return;
@@ -188,6 +196,10 @@ export default function Home({ params }: { params: { spaceid: string } }) {
 
         setFilteredItems(filtered)
     }, [allVisibleItems, filterFolder, filterContentType, filterUser, filterStatus, filterSearch, filterDates, filterDate, showHidden])
+
+    useEffect(()=>{
+            setSelectedFolder(filterFolder || "")
+    }, [filterFolder])
 
     function extractFilters() {
         if (!allVisibleItems) return

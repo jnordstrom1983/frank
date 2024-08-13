@@ -1,3 +1,6 @@
+## 0.0.13
+- Remember folder selection when returning from editing content and
+
 ## 0.0.10
 - Adding support for S3_LOCATIONTEMPLATE
 
