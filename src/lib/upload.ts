@@ -169,6 +169,10 @@ function S3GetClient() {
         opts = { ...opts, endpoint: process.env.S3_ENDPOINT }
     }
 
+    if (process.env.S3_FORCEPATHSTYLE) {
+        opts = { ...opts, forcePathStyle: process.env.S3_FORCEPATHSTYLE === "true" }
+    }
+
     const client = new S3Client(opts)
 
     return client;
